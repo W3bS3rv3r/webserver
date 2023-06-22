@@ -30,3 +30,7 @@
 *.exe
 *.out
 *.app
+webserv
+
+# Unit tests build
+tests-build
