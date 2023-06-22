@@ -16,10 +16,17 @@ public:
 
 	Socket&	operator=(const Socket& src);
 
+	void		listen(void);
+
 	struct CantCreateSocketException : std::exception {
 		const char*	what(void) const throw();
 	};
-
+	struct CantBindSocketException : std::exception {
+		const char*	what(void) const throw();
+	};
+	struct CantListenOnSocketException : std::exception {
+		const char*	what(void) const throw();
+	};
 private:
 	bool				_is_listening;
 	int					_listen_fd;

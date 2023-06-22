@@ -19,7 +19,26 @@ Socket::~Socket(void) {
 	close(_listen_fd);
 }
 
+// Methods
+void	Socket::listen(void) {
+	if (bind(_listen_fd, reinterpret_cast<struct sockaddr*>(&_server_addr),
+		sizeof(_server_addr)))
+	{
+		throw Socket::CantBindSocketException();
+	}
+	if (::listen(_listen_fd, 10))
+		throw Socket::CantListenOnSocketException();
+}
+
 // Exceptions
 const char*	Socket::CantCreateSocketException::what(void) const throw() {
 	return ("Unable to create socket");
+}
+
+const char*	Socket::CantBindSocketException::what(void) const throw() {
+	return ("Unable to bind socket");
+}
+
+const char*	Socket::CantListenOnSocketException::what(void) const throw() {
+	return ("Unable to listen on socket");
 }
