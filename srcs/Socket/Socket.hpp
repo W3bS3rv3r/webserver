@@ -4,6 +4,7 @@
 #include <netinet/in.h>
 #include <exception>
 #include <string>
+#include <sys/socket.h>
 
 #define BUFFER_SIZE 1024
 
@@ -16,8 +17,12 @@ public:
 
 	Socket&	operator=(const Socket& src);
 
-	void		listen(void);
+	void	listen(void);
+	void	handleRequest(void);
 
+	struct CantAcceptConnectionException: std::exception {
+		const char*	what(void) const throw();
+	};
 	struct CantCreateSocketException : std::exception {
 		const char*	what(void) const throw();
 	};
@@ -30,6 +35,7 @@ public:
 private:
 	bool				_is_listening;
 	int					_listen_fd;
+	socklen_t			_socket_size;
 	struct sockaddr_in	_server_addr;
 };
 
