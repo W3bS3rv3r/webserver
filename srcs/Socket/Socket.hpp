@@ -38,7 +38,7 @@ public:
 private:
 	bool				_is_listening;
 	int					_listen_fd;
-	socklen_t			_socket_size;
+	const socklen_t		_socket_size;
 	struct sockaddr_in	_server_addr;
 };
 
