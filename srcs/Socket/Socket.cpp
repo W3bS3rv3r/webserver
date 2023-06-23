@@ -1,9 +1,6 @@
 #include "Socket.hpp"
 #include <cstring>
-#include <exception>
-#include <netinet/in.h>
 #include <unistd.h>
-#include <sys/socket.h>
 #include <fcntl.h>
 #include <algorithm>
 
