@@ -12,10 +12,10 @@ Socket::Socket(const unsigned short port) :
 	_listen_fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (_listen_fd < 0 /*|| fcntl(_listen_fd, F_SETFL, O_NONBLOCK)*/)
 		throw Socket::CantCreateSocketException();
-	bzero(&_server_addr, _socket_size);
-	_server_addr.sin_family			= AF_INET;
-	_server_addr.sin_addr.s_addr	= htonl(INADDR_ANY);
-	_server_addr.sin_port			= htons(port);
+	bzero(&_socket_addr, _socket_size);
+	_socket_addr.sin_family			= AF_INET;
+	_socket_addr.sin_addr.s_addr	= htonl(INADDR_ANY);
+	_socket_addr.sin_port			= htons(port);
 }
 
 Socket::~Socket(void) {
@@ -30,7 +30,7 @@ namespace {
 
 // Methods
 void	Socket::listen(void) {
-	if (bind(_listen_fd, reinterpret_cast<struct sockaddr*>(&_server_addr),
+	if (bind(_listen_fd, reinterpret_cast<struct sockaddr*>(&_socket_addr),
 		_socket_size))
 	{
 		throw Socket::CantBindSocketException();
@@ -80,7 +80,7 @@ namespace {
 		memset(buff, 0, BUFFER_SIZE);
 		while ((n = recv(client_fd, buff, BUFFER_SIZE - 1, MSG_PEEK)) > 0) {
 			char*	i = std::search(buff, buff + n, delimiter.begin(),
-											delimiter.end());
+									delimiter.end());
 			if (i == buff + n)
 				recv(client_fd, buff, n, 0);
 			else {

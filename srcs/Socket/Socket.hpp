@@ -39,7 +39,7 @@ private:
 	bool				_is_listening;
 	int					_listen_fd;
 	const socklen_t		_socket_size;
-	struct sockaddr_in	_server_addr;
+	struct sockaddr_in	_socket_addr;
 };
 
 #endif
