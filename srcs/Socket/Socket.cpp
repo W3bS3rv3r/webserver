@@ -6,10 +6,9 @@
 #include <sys/socket.h>
 #include <fcntl.h>
 #include <algorithm>
-#include <iostream>
 
 //Constructors
-Socket::Socket(unsigned short port) :
+Socket::Socket(const unsigned short port) :
 	_is_listening(false),
 	_socket_size(sizeof(struct sockaddr_in))
 {
@@ -41,14 +40,17 @@ void	Socket::listen(void) {
 	}
 	if (::listen(_listen_fd, 10))
 		throw Socket::CantListenOnSocketException();
+	_is_listening = true;
 }
 
 void	Socket::handleRequest(void) {
-	int	client_fd = accept(_listen_fd, NULL, NULL);
+	if (!_is_listening)
+		throw Socket::InactiveSocketException();
+	const int	client_fd = accept(_listen_fd, NULL, NULL);
 	if (client_fd < 0)
 		throw Socket::CantAcceptConnectionException();
-	const std::string	request		= getRequest(client_fd);
-	const std::string	response	= getResponse(request);
+	const std::string	request = getRequest(client_fd);
+	const std::string	response = getResponse(request);
 	send(client_fd, response.c_str(), response.size(), 0);
 	close(client_fd);
 }
@@ -57,15 +59,15 @@ void	Socket::handleRequest(void) {
 const char*	Socket::CantCreateSocketException::what(void) const throw() {
 	return ("Unable to create socket");
 }
-
 const char*	Socket::CantBindSocketException::what(void) const throw() {
 	return ("Unable to bind socket");
 }
-
 const char*	Socket::CantListenOnSocketException::what(void) const throw() {
 	return ("Unable to listen on socket");
 }
-
+const char*	Socket::InactiveSocketException::what(void) const throw() {
+	return ("Handled connection on inactive socket");
+}
 const char*	Socket::CantAcceptConnectionException::what(void) const throw() {
 	return ("Unable to accept connection on socket");
 }

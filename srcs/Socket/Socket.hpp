@@ -11,7 +11,7 @@
 class Socket {
 public:
 	Socket(void);
-	Socket(unsigned short port);
+	Socket(const unsigned short port);
 	Socket(const Socket& src);
 	~Socket(void);
 
@@ -27,6 +27,9 @@ public:
 		const char*	what(void) const throw();
 	};
 	struct CantBindSocketException : std::exception {
+		const char*	what(void) const throw();
+	};
+	struct InactiveSocketException: std::exception {
 		const char*	what(void) const throw();
 	};
 	struct CantListenOnSocketException : std::exception {
