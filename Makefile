@@ -12,7 +12,9 @@ RM = rm -rf
 
 MAIN = srcs/main.cpp
 
-SRCS = $(MAIN)
+CLASSES = srcs/Socket/Socket.cpp
+
+SRCS = $(MAIN) $(CLASSES)
 
 OBJS = $(SRCS:.cpp=.o)
 
