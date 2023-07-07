@@ -6,8 +6,6 @@
 #include <string>
 #include <sys/socket.h>
 
-#define BUFFER_SIZE 1024
-
 class Socket {
 public:
 	Socket(void);
