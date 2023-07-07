@@ -1,11 +1,54 @@
 #include "Socket.hpp"
 #include "../http/http.hpp"
 #include <cstring>
+#include <cstdlib>
 #include <unistd.h>
-#include <algorithm>
 
 //Constructors
+Socket::Socket(void) :
+	_root("/webserver"),
+	_is_listening(false),
+	_socket_size(sizeof(struct sockaddr_in))
+{
+	_listen_fd = socket(AF_INET, SOCK_STREAM, 0);
+	if (_listen_fd < 0)
+		throw Socket::CantCreateSocketException();
+	bzero(&_socket_addr, _socket_size);
+	_socket_addr.sin_family			= AF_INET;
+	_socket_addr.sin_addr.s_addr	= htonl(INADDR_ANY);
+	_socket_addr.sin_port			= htons(80);
+}
+
 Socket::Socket(const unsigned short port) :
+	_root("/webserver"),
+	_is_listening(false),
+	_socket_size(sizeof(struct sockaddr_in))
+{
+	_listen_fd = socket(AF_INET, SOCK_STREAM, 0);
+	if (_listen_fd < 0)
+		throw Socket::CantCreateSocketException();
+	bzero(&_socket_addr, _socket_size);
+	_socket_addr.sin_family			= AF_INET;
+	_socket_addr.sin_addr.s_addr	= htonl(INADDR_ANY);
+	_socket_addr.sin_port			= htons(port);
+}
+
+Socket::Socket(std::string root) :
+	_root(root),
+	_is_listening(false),
+	_socket_size(sizeof(struct sockaddr_in))
+{
+	_listen_fd = socket(AF_INET, SOCK_STREAM, 0);
+	if (_listen_fd < 0)
+		throw Socket::CantCreateSocketException();
+	bzero(&_socket_addr, _socket_size);
+	_socket_addr.sin_family			= AF_INET;
+	_socket_addr.sin_addr.s_addr	= htonl(INADDR_ANY);
+	_socket_addr.sin_port			= htons(80);
+}
+
+Socket::Socket(const unsigned short port, std::string root) :
+	_root(root),
 	_is_listening(false),
 	_socket_size(sizeof(struct sockaddr_in))
 {
