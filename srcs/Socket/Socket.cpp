@@ -2,77 +2,73 @@
 #include "../http/http.hpp"
 #include <cstring>
 #include <cstdlib>
+#include <sys/socket.h>
 #include <unistd.h>
 
 //Constructors
 Socket::Socket(void) :
 	_root("/webserver"),
-	_is_listening(false),
-	_socket_size(sizeof(struct sockaddr_in))
+	_is_listening(false)
 {
-	_listen_fd = socket(AF_INET, SOCK_STREAM, 0);
-	if (_listen_fd < 0)
+	_fd = socket(AF_INET, SOCK_STREAM, 0);
+	if (_fd < 0)
 		throw Socket::CantCreateSocketException();
-	bzero(&_socket_addr, _socket_size);
-	_socket_addr.sin_family			= AF_INET;
-	_socket_addr.sin_addr.s_addr	= htonl(INADDR_ANY);
-	_socket_addr.sin_port			= htons(80);
+	bzero(&_socket, sizeof(_socket));
+	_socket.sin_family			= AF_INET;
+	_socket.sin_addr.s_addr	= htonl(INADDR_ANY);
+	_socket.sin_port			= htons(80);
 }
 
 Socket::Socket(const unsigned short port) :
 	_root("/webserver"),
-	_is_listening(false),
-	_socket_size(sizeof(struct sockaddr_in))
+	_is_listening(false)
 {
-	_listen_fd = socket(AF_INET, SOCK_STREAM, 0);
-	if (_listen_fd < 0)
+	_fd = socket(AF_INET, SOCK_STREAM, 0);
+	if (_fd < 0)
 		throw Socket::CantCreateSocketException();
-	bzero(&_socket_addr, _socket_size);
-	_socket_addr.sin_family			= AF_INET;
-	_socket_addr.sin_addr.s_addr	= htonl(INADDR_ANY);
-	_socket_addr.sin_port			= htons(port);
+	bzero(&_socket, sizeof(_socket));
+	_socket.sin_family			= AF_INET;
+	_socket.sin_addr.s_addr	= htonl(INADDR_ANY);
+	_socket.sin_port			= htons(port);
 }
 
 Socket::Socket(std::string root) :
 	_root(root),
-	_is_listening(false),
-	_socket_size(sizeof(struct sockaddr_in))
+	_is_listening(false)
 {
-	_listen_fd = socket(AF_INET, SOCK_STREAM, 0);
-	if (_listen_fd < 0)
+	_fd = socket(AF_INET, SOCK_STREAM, 0);
+	if (_fd < 0)
 		throw Socket::CantCreateSocketException();
-	bzero(&_socket_addr, _socket_size);
-	_socket_addr.sin_family			= AF_INET;
-	_socket_addr.sin_addr.s_addr	= htonl(INADDR_ANY);
-	_socket_addr.sin_port			= htons(80);
+	bzero(&_socket, sizeof(_socket));
+	_socket.sin_family			= AF_INET;
+	_socket.sin_addr.s_addr	= htonl(INADDR_ANY);
+	_socket.sin_port			= htons(80);
 }
 
 Socket::Socket(const unsigned short port, std::string root) :
 	_root(root),
-	_is_listening(false),
-	_socket_size(sizeof(struct sockaddr_in))
+	_is_listening(false)
 {
-	_listen_fd = socket(AF_INET, SOCK_STREAM, 0);
-	if (_listen_fd < 0)
+	_fd = socket(AF_INET, SOCK_STREAM, 0);
+	if (_fd < 0)
 		throw Socket::CantCreateSocketException();
-	bzero(&_socket_addr, _socket_size);
-	_socket_addr.sin_family			= AF_INET;
-	_socket_addr.sin_addr.s_addr	= htonl(INADDR_ANY);
-	_socket_addr.sin_port			= htons(port);
+	bzero(&_socket, sizeof(_socket));
+	_socket.sin_family			= AF_INET;
+	_socket.sin_addr.s_addr	= htonl(INADDR_ANY);
+	_socket.sin_port			= htons(port);
 }
 
 Socket::~Socket(void) {
-	close(_listen_fd);
+	close(_fd);
 }
 
 // Methods
 void	Socket::listen(void) {
-	if (bind(_listen_fd, reinterpret_cast<struct sockaddr*>(&_socket_addr),
-		_socket_size))
-	{
+	int	reuse = 1;
+	if (bind(_fd, (struct sockaddr *) &_socket, sizeof(_socket)))
 		throw Socket::CantBindSocketException();
-	}
-	if (::listen(_listen_fd, 10))
+	setsockopt(_fd, SOL_SOCKET, SO_REUSEPORT, &reuse, sizeof(reuse));
+	if (::listen(_fd, 10))
 		throw Socket::CantListenOnSocketException();
 	_is_listening = true;
 }
@@ -80,11 +76,11 @@ void	Socket::listen(void) {
 void	Socket::handleRequest(void) {
 	if (!_is_listening)
 		throw Socket::InactiveSocketException();
-	const int	client_fd = accept(_listen_fd, NULL, NULL);
+	const int	client_fd = accept(_fd, NULL, NULL);
 	if (client_fd < 0)
 		throw Socket::CantAcceptConnectionException();
 	const std::string	request = getRequest(client_fd);
-	const std::string	response = getResponse(request);
+	const std::string	response = getResponse(request, _root);
 	send(client_fd, response.c_str(), response.size(), 0);
 	close(client_fd);
 }

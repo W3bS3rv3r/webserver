@@ -1,8 +1,11 @@
 #include "http.hpp"
 #include <cstring>
+#include <string>
 #include <unistd.h>
 #include <algorithm>
 #include <sys/socket.h>
+#include <iostream>
+#include "get.hpp"
 
 std::string	getRequest(const int client_fd) {
 	int					n;
@@ -26,7 +29,14 @@ std::string	getRequest(const int client_fd) {
 	}
 	return (request);
 }
-std::string	getResponse(const std::string& request) {
-	(void)request;
-	return ("HTTP/1.0 200 OK\r\n\r\nHello World");
+
+std::string	getResponse(const std::string& request, const std::string& root) {
+	std::string	reqln	= request.substr(0, request.find('\n'));
+	std::string	method	= reqln.substr(0, reqln.find(' '));
+	std::string	path	= reqln.substr(reqln.find(' ') + 1,
+										reqln.rfind(' ') - reqln.find(' ') - 1);
+	(void)root;
+	if (method == "GET")
+		return (get(path, root));
+	return ("HTTP/1.1 200 OK\r\n\r\nNO MEHTOD YET");
 }

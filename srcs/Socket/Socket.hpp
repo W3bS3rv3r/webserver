@@ -35,9 +35,8 @@ public:
 private:
 	std::string			_root;
 	bool				_is_listening;
-	int					_listen_fd;
-	const socklen_t		_socket_size;
-	struct sockaddr_in	_socket_addr;
+	int					_fd;
+	struct sockaddr_in	_socket;
 
 	Socket(const Socket& src);
 	Socket&	operator=(const Socket& src);
