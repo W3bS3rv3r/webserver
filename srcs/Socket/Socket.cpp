@@ -1,5 +1,7 @@
 #include "Socket.hpp"
 #include "../http/http.hpp"
+#include "../http/error_codes.hpp"
+#include <exception>
 #include <cstring>
 #include <cstdlib>
 #include <sys/socket.h>
@@ -14,9 +16,9 @@ Socket::Socket(void) :
 	if (_fd < 0)
 		throw Socket::CantCreateSocketException();
 	bzero(&_socket, sizeof(_socket));
-	_socket.sin_family			= AF_INET;
+	_socket.sin_family		= AF_INET;
 	_socket.sin_addr.s_addr	= htonl(INADDR_ANY);
-	_socket.sin_port			= htons(80);
+	_socket.sin_port		= htons(80);
 }
 
 Socket::Socket(const unsigned short port) :
@@ -27,9 +29,9 @@ Socket::Socket(const unsigned short port) :
 	if (_fd < 0)
 		throw Socket::CantCreateSocketException();
 	bzero(&_socket, sizeof(_socket));
-	_socket.sin_family			= AF_INET;
+	_socket.sin_family		= AF_INET;
 	_socket.sin_addr.s_addr	= htonl(INADDR_ANY);
-	_socket.sin_port			= htons(port);
+	_socket.sin_port		= htons(port);
 }
 
 Socket::Socket(std::string root) :
@@ -40,9 +42,9 @@ Socket::Socket(std::string root) :
 	if (_fd < 0)
 		throw Socket::CantCreateSocketException();
 	bzero(&_socket, sizeof(_socket));
-	_socket.sin_family			= AF_INET;
+	_socket.sin_family		= AF_INET;
 	_socket.sin_addr.s_addr	= htonl(INADDR_ANY);
-	_socket.sin_port			= htons(80);
+	_socket.sin_port		= htons(80);
 }
 
 Socket::Socket(const unsigned short port, std::string root) :
@@ -53,9 +55,9 @@ Socket::Socket(const unsigned short port, std::string root) :
 	if (_fd < 0)
 		throw Socket::CantCreateSocketException();
 	bzero(&_socket, sizeof(_socket));
-	_socket.sin_family			= AF_INET;
+	_socket.sin_family		= AF_INET;
 	_socket.sin_addr.s_addr	= htonl(INADDR_ANY);
-	_socket.sin_port			= htons(port);
+	_socket.sin_port		= htons(port);
 }
 
 Socket::~Socket(void) {
@@ -80,7 +82,13 @@ void	Socket::handleRequest(void) {
 	if (client_fd < 0)
 		throw Socket::CantAcceptConnectionException();
 	const std::string	request = getRequest(client_fd);
-	const std::string	response = getResponse(request, _root);
+	std::string			response;
+	try {
+		response = getResponse(request, _root);
+	}
+	catch (std::exception& e) {
+		response = e.what();
+	}
 	send(client_fd, response.c_str(), response.size(), 0);
 	close(client_fd);
 }

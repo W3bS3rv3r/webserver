@@ -15,8 +15,9 @@ MAIN = srcs/main.cpp
 CLASSES = srcs/Socket/Socket.cpp
 
 HTTP = $(addprefix srcs/http/,	\
-	http.cpp	\
-	get.cpp		\
+	http.cpp		\
+	get.cpp			\
+	error_codes.cpp	\
 )
 
 SRCS = $(MAIN) $(CLASSES) $(HTTP)
