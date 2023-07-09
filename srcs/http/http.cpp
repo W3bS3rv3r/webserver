@@ -38,6 +38,9 @@ std::string	getResponse(const std::string& request, const std::string& root) {
 	stream >> path;
 	if (method == "GET")
 		return (get(path, root));
+	else if (method == "HEAD" || method == "PUT" || method == "CONNECT"
+			|| method == "OPTIONS" || method == "TRACE")
+		throw ServiceUnavailableException();
 	else
 		throw BadRequestException();
 }

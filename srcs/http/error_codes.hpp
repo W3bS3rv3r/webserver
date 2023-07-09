@@ -15,4 +15,8 @@ struct BadRequestException: std::exception {
 	const char*	what(void) const throw();
 };
 
+struct ServiceUnavailableException: std::exception {
+	const char*	what(void) const throw();
+};
+
 #endif
