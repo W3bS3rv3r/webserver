@@ -47,3 +47,15 @@ const char*	ServiceUnavailableException::what(void) const throw() {
 		"</div></body></html>"														\
 	);
 }
+
+const char*	InternalServerErrorException::what(void) const throw() {
+	return ( \
+		"HTTP/1.1 500 Internal Server Error)\r\n\r\n"									\
+		"<html>"																		\
+		"<body style=\"background-color:292D39\">"										\
+		"<div>"																			\
+		"<h1 align=\"center\", style=\"color:00BABC\">500 Internal Server Error</h1>"	\
+		"<p align=\"center\", style=\"color:00BABC\">W3B53RB3RU5 1.0</p>"				\
+		"</div></body></html>"															\
+	);
+}

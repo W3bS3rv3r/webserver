@@ -2,6 +2,7 @@
 #include "error_codes.hpp"
 #include "get.hpp"
 #include <cstring>
+#include <exception>
 #include <string>
 #include <unistd.h>
 #include <algorithm>
@@ -22,7 +23,12 @@ std::string	getRequest(const int client_fd) {
 			recv(client_fd, buff, n, 0);
 		else {
 			recv(client_fd, buff, i - buff + delimiter.size(), 0);
-			request += buff;
+			try {
+				request += buff;
+			}
+			catch (const std::exception& e) {
+				throw InternalServerErrorException();
+			}
 			break ;
 		}
 		request += buff;

@@ -86,7 +86,7 @@ void	Socket::handleRequest(void) {
 	try {
 		response = getResponse(request, _root);
 	}
-	catch (std::exception& e) {
+	catch (const std::exception& e) {
 		response = e.what();
 	}
 	send(client_fd, response.c_str(), response.size(), 0);
