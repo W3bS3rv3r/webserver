@@ -11,4 +11,8 @@ struct ForbiddenException: std::exception {
 	const char*	what(void) const throw();
 };
 
+struct BadRequestException: std::exception {
+	const char*	what(void) const throw();
+};
+
 #endif

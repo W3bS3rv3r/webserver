@@ -1,4 +1,5 @@
 #include "http.hpp"
+#include "error_codes.hpp"
 #include "get.hpp"
 #include <cstring>
 #include <string>
@@ -37,5 +38,6 @@ std::string	getResponse(const std::string& request, const std::string& root) {
 	stream >> path;
 	if (method == "GET")
 		return (get(path, root));
-	return ("HTTP/1.1 200 OK\r\n\r\nNO MEHTOD YET");
+	else
+		throw BadRequestException();
 }
