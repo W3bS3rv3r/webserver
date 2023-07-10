@@ -21,7 +21,15 @@ std::string	get(const std::string& path, const std::string& root) {
 	std::fstream	file(open_string.c_str(), std::ios_base::in);
 	std::string		response = ("HTTP/1.1 200 OK\r\n\r\n");
 	std::string		buff;
-	while(std::getline(file, buff))
-		response += buff;
+	while(std::getline(file, buff)) {
+			try {
+				response += buff;
+			}
+			catch (const std::exception& e) {
+				file.close();
+				throw InternalServerErrorException();
+			}
+	}
+	file.close();
 	return (response);
 }
