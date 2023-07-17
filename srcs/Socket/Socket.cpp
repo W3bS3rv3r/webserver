@@ -1,41 +1,76 @@
 #include "Socket.hpp"
+#include "../http/http.hpp"
+#include "../http/error_codes.hpp"
+#include <exception>
 #include <cstring>
+#include <cstdlib>
+#include <sys/socket.h>
 #include <unistd.h>
-#include <fcntl.h>
-#include <algorithm>
 
 //Constructors
-Socket::Socket(const unsigned short port) :
-	_is_listening(false),
-	_socket_size(sizeof(struct sockaddr_in))
+Socket::Socket(void) :
+	_root("/webserver"),
+	_is_listening(false)
 {
-	_listen_fd = socket(AF_INET, SOCK_STREAM, 0);
-	if (_listen_fd < 0 /*|| fcntl(_listen_fd, F_SETFL, O_NONBLOCK)*/)
+	_fd = socket(AF_INET, SOCK_STREAM, 0);
+	if (_fd < 0)
 		throw Socket::CantCreateSocketException();
-	bzero(&_socket_addr, _socket_size);
-	_socket_addr.sin_family			= AF_INET;
-	_socket_addr.sin_addr.s_addr	= htonl(INADDR_ANY);
-	_socket_addr.sin_port			= htons(port);
+	bzero(&_socket, sizeof(_socket));
+	_socket.sin_family		= AF_INET;
+	_socket.sin_addr.s_addr	= htonl(INADDR_ANY);
+	_socket.sin_port		= htons(80);
+}
+
+Socket::Socket(const unsigned short port) :
+	_root("/webserver"),
+	_is_listening(false)
+{
+	_fd = socket(AF_INET, SOCK_STREAM, 0);
+	if (_fd < 0)
+		throw Socket::CantCreateSocketException();
+	bzero(&_socket, sizeof(_socket));
+	_socket.sin_family		= AF_INET;
+	_socket.sin_addr.s_addr	= htonl(INADDR_ANY);
+	_socket.sin_port		= htons(port);
+}
+
+Socket::Socket(std::string root) :
+	_root(root),
+	_is_listening(false)
+{
+	_fd = socket(AF_INET, SOCK_STREAM, 0);
+	if (_fd < 0)
+		throw Socket::CantCreateSocketException();
+	bzero(&_socket, sizeof(_socket));
+	_socket.sin_family		= AF_INET;
+	_socket.sin_addr.s_addr	= htonl(INADDR_ANY);
+	_socket.sin_port		= htons(80);
+}
+
+Socket::Socket(const unsigned short port, std::string root) :
+	_root(root),
+	_is_listening(false)
+{
+	_fd = socket(AF_INET, SOCK_STREAM, 0);
+	if (_fd < 0)
+		throw Socket::CantCreateSocketException();
+	bzero(&_socket, sizeof(_socket));
+	_socket.sin_family		= AF_INET;
+	_socket.sin_addr.s_addr	= htonl(INADDR_ANY);
+	_socket.sin_port		= htons(port);
 }
 
 Socket::~Socket(void) {
-	close(_listen_fd);
-}
-
-// Helper Functions
-namespace {
-	std::string	getRequest(const int client_fd);
-	std::string	getResponse(const std::string& request);
+	close(_fd);
 }
 
 // Methods
 void	Socket::listen(void) {
-	if (bind(_listen_fd, reinterpret_cast<struct sockaddr*>(&_socket_addr),
-		_socket_size))
-	{
+	int	reuse = 1;
+	if (bind(_fd, (struct sockaddr *) &_socket, sizeof(_socket)))
 		throw Socket::CantBindSocketException();
-	}
-	if (::listen(_listen_fd, 10))
+	setsockopt(_fd, SOL_SOCKET, SO_REUSEPORT, &reuse, sizeof(reuse));
+	if (::listen(_fd, 10))
 		throw Socket::CantListenOnSocketException();
 	_is_listening = true;
 }
@@ -43,11 +78,17 @@ void	Socket::listen(void) {
 void	Socket::handleRequest(void) {
 	if (!_is_listening)
 		throw Socket::InactiveSocketException();
-	const int	client_fd = accept(_listen_fd, NULL, NULL);
+	const int	client_fd = accept(_fd, NULL, NULL);
 	if (client_fd < 0)
 		throw Socket::CantAcceptConnectionException();
-	const std::string	request = getRequest(client_fd);
-	const std::string	response = getResponse(request);
+	std::string	response;
+	try {
+		const std::string	request = getRequest(client_fd);
+		response = getResponse(request, _root);
+	}
+	catch (const std::exception& e) {
+		response = e.what();
+	}
 	send(client_fd, response.c_str(), response.size(), 0);
 	close(client_fd);
 }
@@ -67,34 +108,4 @@ const char*	Socket::InactiveSocketException::what(void) const throw() {
 }
 const char*	Socket::CantAcceptConnectionException::what(void) const throw() {
 	return ("Unable to accept connection on socket");
-}
-
-// Helper Functions
-namespace {
-	std::string	getRequest(const int client_fd) {
-		int					n;
-		char				buff[BUFFER_SIZE + 1];
-		std::string			request;
-		const std::string	delimiter("\r\n\r\n");
-
-		memset(buff, 0, BUFFER_SIZE);
-		while ((n = recv(client_fd, buff, BUFFER_SIZE - 1, MSG_PEEK)) > 0) {
-			char*	i = std::search(buff, buff + n, delimiter.begin(),
-									delimiter.end());
-			if (i == buff + n)
-				recv(client_fd, buff, n, 0);
-			else {
-				recv(client_fd, buff, i - buff + delimiter.size(), 0);
-				request += buff;
-				break ;
-			}
-			request += buff;
-			memset(buff, 0, BUFFER_SIZE);
-		}
-		return (request);
-	}
-	std::string	getResponse(const std::string& request) {
-		(void)request;
-		return ("HTTP/1.0 200 OK\r\n\r\nHello World");
-	}
 }
