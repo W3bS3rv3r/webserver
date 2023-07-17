@@ -81,7 +81,7 @@ void	Socket::handleRequest(void) {
 	const int	client_fd = accept(_fd, NULL, NULL);
 	if (client_fd < 0)
 		throw Socket::CantAcceptConnectionException();
-	std::string			response;
+	std::string	response;
 	try {
 		const std::string	request = getRequest(client_fd);
 		response = getResponse(request, _root);

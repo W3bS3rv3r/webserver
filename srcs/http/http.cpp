@@ -19,8 +19,15 @@ std::string	getRequest(const int client_fd) {
 	while ((n = recv(client_fd, buff, BUFFER_SIZE - 1, MSG_PEEK)) > 0) {
 		char*	i = std::search(buff, buff + n, delimiter.begin(),
 								delimiter.end());
-		if (i == buff + n)
+		if (i == buff + n) {
+			try {
+				request += buff;
+			}
+			catch (const std::exception& e) {
+				throw InternalServerErrorException();
+			}
 			recv(client_fd, buff, n, 0);
+		}
 		else {
 			recv(client_fd, buff, i - buff + delimiter.size(), 0);
 			try {
@@ -31,7 +38,6 @@ std::string	getRequest(const int client_fd) {
 			}
 			break ;
 		}
-		request += buff;
 		memset(buff, 0, BUFFER_SIZE);
 	}
 	return (request);
