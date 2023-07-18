@@ -4,7 +4,6 @@
 #include <string>
 #include <dirent.h>
 #include <unistd.h>
-#include <iostream>
 
 std::string	delete_method(const std::string& path, const std::string& root) {
 	std::string		open_string(root + path);
