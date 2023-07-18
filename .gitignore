@@ -34,3 +34,6 @@ webserv
 
 # Unit tests build
 tests-build
+
+# VSCode
+.vscode
