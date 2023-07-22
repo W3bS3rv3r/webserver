@@ -52,7 +52,7 @@ std::string	getResponse(const std::string& request, const std::string& root) {
 	if (method == "GET")
 		return (get(path, root));
 	else if (method == "DELETE")
-		return (delete_method(path, root));
+		return (del(path, root));
 	else if (method == "HEAD" || method == "PUT" || method == "CONNECT"
 			|| method == "OPTIONS" || method == "TRACE")
 		throw ServiceUnavailableException();

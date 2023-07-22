@@ -5,7 +5,7 @@
 #include <dirent.h>
 #include <unistd.h>
 
-std::string	delete_method(const std::string& path, const std::string& root) {
+std::string	del(const std::string& path, const std::string& root) {
 	std::string		open_string(root + path);
 	DIR*			dir;
 
