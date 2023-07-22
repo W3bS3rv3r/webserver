@@ -17,7 +17,7 @@ std::string	delete_method(const std::string& path, const std::string& root) {
 		throw NotFoundException();
 	else if (access(open_string.c_str(), W_OK))
 		throw ForbiddenException();
-	std::string		response = ("HTTP/1.1 200 OK\r\n\r\n"); // 200 VS 204?
+	std::string		response = ("HTTP/1.1 204 OK\r\n\r\n");
 	try {
 		std::remove(open_string.c_str());
 	}
