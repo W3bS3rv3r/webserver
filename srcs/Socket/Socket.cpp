@@ -67,9 +67,10 @@ Socket::~Socket(void) {
 // Methods
 void	Socket::listen(void) {
 	int	reuse = 1;
+	if (setsockopt(_fd, SOL_SOCKET, SO_REUSEPORT, &reuse, sizeof(reuse)))
+		throw Socket::CantSetSocketOptionException();
 	if (bind(_fd, (struct sockaddr *) &_socket, sizeof(_socket)))
 		throw Socket::CantBindSocketException();
-	setsockopt(_fd, SOL_SOCKET, SO_REUSEPORT, &reuse, sizeof(reuse));
 	if (::listen(_fd, 10))
 		throw Socket::CantListenOnSocketException();
 	_is_listening = true;
@@ -108,4 +109,7 @@ const char*	Socket::InactiveSocketException::what(void) const throw() {
 }
 const char*	Socket::CantAcceptConnectionException::what(void) const throw() {
 	return ("Unable to accept connection on socket");
+}
+const char*	Socket::CantSetSocketOptionException::what(void) const throw() {
+	return ("Unable to set socket options");
 }

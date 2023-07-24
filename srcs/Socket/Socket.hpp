@@ -32,6 +32,9 @@ public:
 	struct CantListenOnSocketException : std::exception {
 		const char*	what(void) const throw();
 	};
+	struct CantSetSocketOptionException : std::exception {
+		const char*	what(void) const throw();
+	};
 private:
 	std::string			_root;
 	bool				_is_listening;
