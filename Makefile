@@ -12,7 +12,10 @@ RM = rm -rf
 
 MAIN = srcs/main.cpp
 
-CLASSES = srcs/Socket/Socket.cpp
+CLASSES = $(addprefix srcs/,	\
+	Socket/Socket.cpp			\
+	Server/Server.cpp			\
+)
 
 HTTP = $(addprefix srcs/http/,	\
 	http.cpp		\
