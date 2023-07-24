@@ -16,6 +16,7 @@ public:
 
 	void	listen(void);
 	void	handleRequest(void);
+	int		getFd(void) const;
 
 	struct CantAcceptConnectionException: std::exception {
 		const char*	what(void) const throw();

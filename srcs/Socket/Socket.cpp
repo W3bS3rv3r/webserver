@@ -94,6 +94,8 @@ void	Socket::handleRequest(void) {
 	close(client_fd);
 }
 
+int	Socket::getFd(void) const { return _fd; }
+
 // Exceptions
 const char*	Socket::CantCreateSocketException::what(void) const throw() {
 	return ("Unable to create socket");
