@@ -1,28 +1,24 @@
-#include "Socket/Socket.hpp"
-#include <unistd.h>
+#include "Server/Server.hpp"
+#include <exception>
 #include <iostream>
 
 int	main(int argc, char *argv[]) {
 
-    const char* user_name = getlogin();
-
-	if (!user_name) {
-        std::cerr << "Error getting username" << std::endl;
-        return (1);
-    }
-
-	std::string path = "/home/";
-    path += user_name;
-    path += "/webserver";
-
-	std::cout << "Root path: " << path << std::endl;
-
-	Socket	sckt(4242, path);
-	std::string	request;
-
-	sckt.listen();
-	while (true)
-		sckt.handleRequest();
+	Server	server;
+	try {
+		server.init("PLACEHOLDER" /* argv[1] in the future */);
+	}
+	catch (const std::exception& e) {
+		std::cerr << "Error: " << e.what() << std::endl;
+		return (1);
+	}
+	try {
+		server.run();
+	}
+	catch (const std::exception& e) {
+		std::cerr << "Error: " << e.what() << std::endl;
+		return (2);
+	}
 	if (argc > 2)
 		return (1);
 	(void)argv;

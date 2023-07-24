@@ -10,8 +10,13 @@ public:
 	virtual	~Server(void);
 
 	void	addSocket(unsigned short port, std::string root);
+	void	init(std::string file);
+	void	run(void);
 
 	struct DuplicateException: std::exception {
+		const char*	what(void) const throw();
+	};
+	struct NoUserException: std::exception {
 		const char*	what(void) const throw();
 	};
 private:
