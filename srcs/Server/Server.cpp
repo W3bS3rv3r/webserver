@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <poll.h>
 #include <cstring>
+#include <vector>
 
 //CONSTRUCTORS
 Server::Server(void) {}
@@ -52,19 +53,21 @@ void	Server::init(std::string file) {
 }
 
 void	Server::run(void) {
-	struct pollfd	server_poll[_sockets.size()];
-	memset(&server_poll, 0, sizeof(server_poll));
-	int										j;
 	std::map<const int, Socket*>::iterator	i;
+	std::vector<struct pollfd>				server_poll;
+	struct pollfd							temp;
+	int										j;
 
+	memset(&temp, 0, sizeof(temp));
+	temp.events = POLLIN;
 	for(i = _sockets.begin(), j = 0; i != _sockets.end(); ++i, ++j)
 	{
-		server_poll[j].fd = i->second->getFd();
-		server_poll[j].events = POLLIN;
+		temp.fd = i->second->getFd();
+		server_poll.push_back(temp);
 		i->second->listen();
 	}
 	while (1) {
-		poll(server_poll, _sockets.size(), 100);
+		poll(server_poll.data(), server_poll.size(), 100);
 		for (unsigned long int i = 0; i < _sockets.size(); ++i) {
 			if (server_poll[i].revents & POLLIN) {
 				_sockets.at(server_poll[i].fd)->handleRequest();
