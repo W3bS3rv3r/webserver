@@ -8,48 +8,11 @@
 #include <unistd.h>
 
 //Constructors
-Socket::Socket(void) :
-	_root("/webserver"),
-	_is_listening(false)
-{
-	_fd = socket(AF_INET, SOCK_STREAM, 0);
-	if (_fd < 0)
-		throw Socket::CantCreateSocketException();
-	bzero(&_socket, sizeof(_socket));
-	_socket.sin_family		= AF_INET;
-	_socket.sin_addr.s_addr	= htonl(INADDR_ANY);
-	_socket.sin_port		= htons(80);
-}
-
-Socket::Socket(const unsigned short port) :
-	_root("/webserver"),
-	_is_listening(false)
-{
-	_fd = socket(AF_INET, SOCK_STREAM, 0);
-	if (_fd < 0)
-		throw Socket::CantCreateSocketException();
-	bzero(&_socket, sizeof(_socket));
-	_socket.sin_family		= AF_INET;
-	_socket.sin_addr.s_addr	= htonl(INADDR_ANY);
-	_socket.sin_port		= htons(port);
-}
-
-Socket::Socket(std::string root) :
-	_root(root),
-	_is_listening(false)
-{
-	_fd = socket(AF_INET, SOCK_STREAM, 0);
-	if (_fd < 0)
-		throw Socket::CantCreateSocketException();
-	bzero(&_socket, sizeof(_socket));
-	_socket.sin_family		= AF_INET;
-	_socket.sin_addr.s_addr	= htonl(INADDR_ANY);
-	_socket.sin_port		= htons(80);
-}
 
 Socket::Socket(const unsigned short port, std::string root) :
 	_root(root),
-	_is_listening(false)
+	_is_listening(false),
+	_port(port)
 {
 	_fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (_fd < 0)
@@ -57,7 +20,7 @@ Socket::Socket(const unsigned short port, std::string root) :
 	bzero(&_socket, sizeof(_socket));
 	_socket.sin_family		= AF_INET;
 	_socket.sin_addr.s_addr	= htonl(INADDR_ANY);
-	_socket.sin_port		= htons(port);
+	_socket.sin_port		= htons(_port);
 }
 
 Socket::~Socket(void) {
@@ -76,25 +39,35 @@ void	Socket::listen(void) {
 	_is_listening = true;
 }
 
-void	Socket::handleRequest(void) {
+Connection*	Socket::acceptConnection(void) {
 	if (!_is_listening)
 		throw Socket::InactiveSocketException();
 	const int	client_fd = accept(_fd, NULL, NULL);
 	if (client_fd < 0)
 		throw Socket::CantAcceptConnectionException();
-	std::string	response;
-	try {
-		const std::string	request = getRequest(client_fd);
-		response = getResponse(request, _root);
-	}
-	catch (const std::exception& e) {
-		response = e.what();
-	}
-	send(client_fd, response.c_str(), response.size(), 0);
-	close(client_fd);
+	return (new Connection(client_fd, _port, _root));
 }
 
-int	Socket::getFd(void) const { return _fd; }
+//void	Socket::handleRequest(void) {
+//	if (!_is_listening)
+//		throw Socket::InactiveSocketException();
+//	const int	client_fd = accept(_fd, NULL, NULL);
+//	if (client_fd < 0)
+//		throw Socket::CantAcceptConnectionException();
+//	std::string	response;
+//	try {
+//		const std::string	request = getRequest(client_fd);
+//		response = getResponse(request, _root);
+//	}
+//	catch (const std::exception& e) {
+//		response = e.what();
+//	}
+//	send(client_fd, response.c_str(), response.size(), 0);
+//	close(client_fd);
+//}
+
+int				Socket::getFd(void) const { return _fd; }
+unsigned short	Socket::getPort(void) const { return _port; }
 
 // Exceptions
 const char*	Socket::CantCreateSocketException::what(void) const throw() {

@@ -1,20 +1,37 @@
 #include "Server.hpp"
 #include <exception>
 #include <iostream>
+#include <sys/poll.h>
 #include <utility>
 #include <unistd.h>
-#include <poll.h>
 #include <cstring>
-#include <vector>
 
 //CONSTRUCTORS
-Server::Server(void) {}
+Server::Server(void) : _changed(false) {}
 
 Server::~Server(void) {
 	for(std::map<int, Socket*>::iterator i = _sockets.begin();
 			i != _sockets.end(); ++i)
 	{
 		delete i->second;
+	}
+	for(std::map<int, Connection*>::iterator i = _connections.begin();
+			i != _connections.end(); ++i)
+	{
+		delete i->second;
+	}
+}
+
+//HELPER FUNTIONS
+namespace {
+	inline bool	pendingSocket(int events, int revents) {
+		return (revents & POLLIN && events == POLLIN);
+	}
+	inline bool pendingRead(int events, int revents) {
+		return (revents & POLLIN && events == (POLLIN | POLLOUT));
+	}
+	inline bool pendingWrite(int events, int revents) {
+		return (revents & POLLIN && events == (POLLIN | POLLOUT));
 	}
 }
 
@@ -50,31 +67,94 @@ void	Server::init(std::string file) {
 	this->addSocket(4242, path);
 	this->addSocket(8484, path);
 	this->addSocket(2121, path);
+	std::cout << "Config file parsed" << std::endl;
 }
 
 void	Server::run(void) {
-	std::map<const int, Socket*>::iterator	i;
-	std::vector<struct pollfd>				server_poll;
-	struct pollfd							temp;
-	int										j;
+	this->startListening();
+	std::cout << "Ports listening" << std::endl;
+	while (1) {
+		poll(_polls.data(), _polls.size(), 1000);
+		this->handlePoll();
+		if (_changed) {
+			this->organizePoll();
+			_changed = false;
+		}
+	}
+}
+
+void	Server::startListening(void) {
+	struct pollfd	temp;
 
 	memset(&temp, 0, sizeof(temp));
 	temp.events = POLLIN;
-	for(i = _sockets.begin(), j = 0; i != _sockets.end(); ++i, ++j)
+	for(std::map<const int, Socket*>::iterator i = _sockets.begin();
+			i != _sockets.end(); ++i)
 	{
 		temp.fd = i->second->getFd();
-		server_poll.push_back(temp);
+		_polls.push_back(temp);
 		i->second->listen();
 	}
-	while (1) {
-		poll(server_poll.data(), server_poll.size(), 100);
-		for (unsigned long int i = 0; i < _sockets.size(); ++i) {
-			if (server_poll[i].revents & POLLIN) {
-				_sockets.at(server_poll[i].fd)->handleRequest();
-			}
-		}
+}
+
+void	Server::handlePoll(void) {
+	for (std::vector<struct pollfd>::iterator i = _polls.begin();
+			 i != _polls.end(); ++i)
+	{
+		if (i->events == POLLIN)
+			this->handleSocket(*i);
+		else
+			this->handleConnection(*i);
 	}
-	return ;
+}
+
+void	Server::handleSocket(struct pollfd spoll) {
+	if (spoll.revents & POLLIN)
+		this->addConnection(spoll.fd);
+}
+
+void	Server::handleConnection(struct pollfd spoll) {
+	//std::cout << "handle" << std::endl;
+	if (spoll.revents & POLLIN)
+		_connections.at(spoll.fd)->readRequest();
+	if (spoll.revents & POLLOUT) {
+		_connections.at(spoll.fd)->writeResponse();
+		if (_connections.at(spoll.fd)->done())
+			this->closeConnection(spoll.fd);
+	}
+}
+
+void	Server::addConnection(int socket_fd) {
+	Connection*	cn = _sockets.at(socket_fd)->acceptConnection();
+	_connections.insert(std::make_pair(cn->getFd(), cn));
+	_changed = true;
+}
+
+void	Server::closeConnection(int fd) {
+	delete _connections.at(fd);
+	_connections.erase(fd);
+	_changed = true;
+}
+
+// this is dumb, needs to be refactored later
+void	Server::organizePoll(void) {
+	struct pollfd	temp;
+	memset(&temp, 0, sizeof(temp));
+	temp.events = POLLIN;
+	_polls.clear();
+	for (std::map<int, Socket*>::iterator i = _sockets.begin();
+		i != _sockets.end(); ++i)
+	{
+		temp.fd = i->first;
+		_polls.push_back(temp);
+	}
+	temp.events = POLLIN | POLLOUT;
+	for (std::map<int, Connection*>::iterator i = _connections.begin();
+		i != _connections.end(); ++i)
+	{
+		temp.fd = i->first;
+		_polls.push_back(temp);
+	}
 }
 
 //EXCEPTIONS
