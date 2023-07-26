@@ -11,14 +11,17 @@ public:
 	Server(void);
 	virtual	~Server(void);
 
-	void	addSocket(unsigned short port, std::string root);
 	void	init(std::string file);
+	void	addSocket(unsigned short port, std::string root);
 	void	run(void);
 
 	struct DuplicateException: std::exception {
 		const char*	what(void) const throw();
 	};
 	struct NoUserException: std::exception {
+		const char*	what(void) const throw();
+	};
+	struct AllPortsFailedException: std::exception {
 		const char*	what(void) const throw();
 	};
 private:
@@ -28,6 +31,7 @@ private:
 	bool						_changed;
 
 	void	startListening(void);
+	void	closeSocket(int socket_fd);
 	void	addConnection(int socket_fd);
 	void	closeConnection(int fd);
 	void	handleSocket(struct pollfd spoll);

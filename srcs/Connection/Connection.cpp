@@ -12,7 +12,6 @@ Connection::Connection(int fd, unsigned short port, std::string root) :
 	_root(root),
 	_done(false){}
 
-
 Connection::~Connection(void) {
 	close(_fd);
 }
@@ -52,6 +51,5 @@ void	Connection::writeResponse(void) {
 }
 
 bool	Connection::done(void) const { return _done; }
-
 unsigned short Connection::getPort(void) { return _port; }
 int	Connection::getFd(void) { return _fd; }

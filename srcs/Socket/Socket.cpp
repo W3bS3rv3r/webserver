@@ -48,24 +48,6 @@ Connection*	Socket::acceptConnection(void) {
 	return (new Connection(client_fd, _port, _root));
 }
 
-//void	Socket::handleRequest(void) {
-//	if (!_is_listening)
-//		throw Socket::InactiveSocketException();
-//	const int	client_fd = accept(_fd, NULL, NULL);
-//	if (client_fd < 0)
-//		throw Socket::CantAcceptConnectionException();
-//	std::string	response;
-//	try {
-//		const std::string	request = getRequest(client_fd);
-//		response = getResponse(request, _root);
-//	}
-//	catch (const std::exception& e) {
-//		response = e.what();
-//	}
-//	send(client_fd, response.c_str(), response.size(), 0);
-//	close(client_fd);
-//}
-
 int				Socket::getFd(void) const { return _fd; }
 unsigned short	Socket::getPort(void) const { return _port; }
 

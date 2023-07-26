@@ -50,6 +50,7 @@ void	Server::init(std::string file) {
 	std::cout << "Default path: " << path << std::endl;
 	(void)file;
 
+	//surround addSocket with try catch in the future
 	this->addSocket(4242, path);
 	this->addSocket(8484, path);
 	this->addSocket(2121, path);
@@ -58,7 +59,10 @@ void	Server::init(std::string file) {
 
 void	Server::run(void) {
 	this->startListening();
+	if (_sockets.empty())
+		throw AllPortsFailedException();
 	std::cout << "Ports are now listening" << std::endl;
+	this->organizePoll();
 	while (1) {
 		poll(_polls.data(), _polls.size(), 1000);
 		this->handlePoll();
@@ -70,17 +74,22 @@ void	Server::run(void) {
 }
 
 void	Server::startListening(void) {
-	struct pollfd	temp;
-
-	memset(&temp, 0, sizeof(temp));
-	temp.events = POLLIN;
 	for(std::map<const int, Socket*>::iterator i = _sockets.begin();
 			i != _sockets.end(); ++i)
 	{
-		temp.fd = i->second->getFd();
-		_polls.push_back(temp);
-		i->second->listen();
+		try {
+			i->second->listen();
+		}
+		catch (const std::exception& e) {
+			std::cerr << "Error: " << e.what() << std::endl;
+			this->closeSocket(i->second->getFd());
+		}
 	}
+}
+
+void	Server::closeSocket(int fd) {
+	delete _sockets.at(fd);
+	_sockets.erase(fd);
 }
 
 void	Server::handlePoll(void) {
@@ -148,4 +157,7 @@ const char*	Server::DuplicateException::what(void) const throw() {
 }
 const char*	Server::NoUserException::what(void) const throw() {
 	return ("USER environment variable not set");
+}
+const char*	Server::AllPortsFailedException::what(void) const throw() {
+	return ("No single port is working");
 }
