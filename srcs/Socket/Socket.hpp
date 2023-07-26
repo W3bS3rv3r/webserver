@@ -5,6 +5,7 @@
 #include <exception>
 #include <string>
 #include <sys/socket.h>
+#include "../Connection/Connection.hpp"
 
 class Socket {
 public:
@@ -14,8 +15,10 @@ public:
 	Socket(const unsigned short port, std::string root);
 	~Socket(void);
 
-	void	listen(void);
-	void	handleRequest(void);
+	void			listen(void);
+	Connection*		acceptConnection(void);
+	int				getFd(void) const;
+	unsigned short	getPort(void) const;
 
 	struct CantAcceptConnectionException: std::exception {
 		const char*	what(void) const throw();
@@ -36,10 +39,11 @@ public:
 		const char*	what(void) const throw();
 	};
 private:
-	std::string			_root;
-	bool				_is_listening;
-	int					_fd;
-	struct sockaddr_in	_socket;
+	std::string				_root;
+	bool					_is_listening;
+	int						_fd;
+	const unsigned short	_port;
+	struct sockaddr_in		_socket;
 
 	Socket(const Socket& src);
 	Socket&	operator=(const Socket& src);
