@@ -1,15 +1,17 @@
 #include "Connection.hpp"
 #include "../http/http.hpp"
+#include "../Socket/Socket.hpp"
 #include <exception>
 #include <unistd.h>
 #include <sys/socket.h>
 #include <iostream>
 
 //CONSTRUCTORS
-Connection::Connection(int fd, unsigned short port, std::string root) :
+Connection::Connection(int fd, const Socket& socket) :
 	_fd(fd),
-	_port(port),
-	_root(root),
+	_port(socket._port),
+	_root(socket._root),
+	_suffix(socket._suffix),
 	_done(false){}
 
 Connection::~Connection(void) {

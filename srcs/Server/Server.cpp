@@ -27,7 +27,7 @@ void	Server::addSocket(unsigned short port, std::string root) {
 	Socket*	socket = NULL;
 	try {
 		std::pair<std::map<int, Socket*>::iterator, bool>	p;
-		socket = new Socket(port, root);
+		socket = new Socket(port, root, ".py");
 		p = _sockets.insert(std::make_pair(socket->getFd(), socket));
 		if (!p.second)
 			throw Server::DuplicateException();
