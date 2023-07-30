@@ -9,6 +9,8 @@
 #include <algorithm>
 #include <sys/socket.h>
 #include <sstream>
+#include <iostream>
+#include "../CGI/CGI.hpp"
 
 std::string	getRequest(const int client_fd) {
 	int					n;
@@ -56,6 +58,15 @@ std::string	getResponse(const std::string& request, const std::string& root) {
 	else if (method == "HEAD" || method == "PUT" || method == "CONNECT"
 			|| method == "OPTIONS" || method == "TRACE")
 		throw ServiceUnavailableException();
+	else if (method == "POST")
+	{
+		CGI *cgiReq = new CGI(path, root, request);
+		if (cgiReq->isPathValid())
+			cgiReq->runCGI();
+		delete cgiReq;
+		return ("TESTE");
+	}
 	else
 		throw BadRequestException();
+		
 }
