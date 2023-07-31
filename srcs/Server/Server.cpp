@@ -74,6 +74,7 @@ void	Server::run(void) {
 }
 
 void	Server::startListening(void) {
+	std::vector<int>	failed_sockets;
 	for(std::map<const int, Socket*>::iterator i = _sockets.begin();
 			i != _sockets.end(); ++i)
 	{
@@ -81,10 +82,13 @@ void	Server::startListening(void) {
 			i->second->listen();
 		}
 		catch (const std::exception& e) {
-			std::cerr << "Error: " << e.what() << std::endl;
-			this->closeSocket(i->second->getFd());
+			std::cerr << "Error  on port " << i->second->getPort();
+			std::cerr << ": " << e.what() << std::endl;
+			failed_sockets.push_back(i->second->getFd());
 		}
 	}
+	for (unsigned long i = 0; i < failed_sockets.size(); ++i)
+		this->closeSocket(failed_sockets[i]);
 }
 
 void	Server::closeSocket(int fd) {

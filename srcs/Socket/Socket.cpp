@@ -8,7 +8,6 @@
 #include <unistd.h>
 
 //Constructors
-
 Socket::Socket(unsigned short port, std::string root, std::string suffix) :
 	_root(root),
 	_suffix(suffix),

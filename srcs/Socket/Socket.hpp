@@ -46,7 +46,7 @@ private:
 	Socket(const Socket& src);
 	Socket&	operator=(const Socket& src);
 	
-	friend Connection;
+	friend class Connection;
 };
 
 #endif
