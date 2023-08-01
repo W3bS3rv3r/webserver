@@ -28,6 +28,8 @@ private:
 	std::queue<std::string>	_requests;
 	std::queue<Response>	_responses;
 
+	bool	responseReady(void);
+
 	Connection&	operator=(const Connection& src);
 	Connection(const Connection& src);
 };

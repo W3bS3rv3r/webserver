@@ -26,7 +26,11 @@ HTTP = $(addprefix srcs/http/,	\
 	error_codes.cpp	\
 )
 
-SRCS = $(MAIN) $(CLASSES) $(HTTP)
+CGI= $(addprefix srcs/cgi/,	\
+	cgi.cpp	\
+)
+
+SRCS = $(MAIN) $(CLASSES) $(HTTP) $(CGI)
 
 OBJS = $(SRCS:.cpp=.o)
 
