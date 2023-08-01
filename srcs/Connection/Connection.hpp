@@ -3,6 +3,7 @@
 
 #include <string>
 #include <queue>
+#include "../Response/Response.hpp"
 
 class Socket;
 
@@ -25,7 +26,7 @@ private:
 
 	bool					_done;
 	std::queue<std::string>	_requests;
-	std::queue<std::string>	_responses;
+	std::queue<Response>	_responses;
 
 	Connection&	operator=(const Connection& src);
 	Connection(const Connection& src);

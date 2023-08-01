@@ -44,18 +44,19 @@ std::string	getRequest(const int client_fd) {
 	return (request);
 }
 
-std::string	getResponse(const std::string& request, const std::string& root) {
+Response	getResponse(const std::string& request, const std::string& root) {
 	std::stringstream	stream(request);
-	std::string			method, path; 
+	std::string			method, path, response;
 	stream >> method;
 	stream >> path;
 	if (method == "GET")
-		return (get(path, root));
+		response = get(path, root);
 	else if (method == "DELETE")
-		return (del(path, root));
+		response = del(path, root);
 	else if (method == "HEAD" || method == "PUT" || method == "CONNECT"
 			|| method == "OPTIONS" || method == "TRACE")
 		throw ServiceUnavailableException();
 	else
 		throw BadRequestException();
+	return (Response(response));
 }

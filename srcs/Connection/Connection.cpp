@@ -1,6 +1,7 @@
 #include "Connection.hpp"
 #include "../http/http.hpp"
 #include "../Socket/Socket.hpp"
+#include "../Response/Response.hpp"
 #include <exception>
 #include <unistd.h>
 #include <sys/socket.h>
@@ -27,7 +28,7 @@ void	Connection::readRequest(void) {
 		std::cout << std::endl;
 	}
 	catch(const std::exception& e) {
-		_responses.push(e.what());
+		_responses.push(Response(e.what()));
 	}
 }
 
@@ -39,14 +40,13 @@ void	Connection::writeResponse(void) {
 			_responses.push(getResponse(_requests.front(), _root));
 		}
 		catch(const std::exception& e) {
-			_responses.push(e.what());
+			_responses.push(Response(e.what()));
 		}
 		_requests.pop();
 	}
 	std::cout << _fd << ':' << _port << " -> ";
-	std::cout << _responses.back().substr(0, _responses.back().find('\n'));
-	std::cout << std::endl;
-	send(_fd, _responses.front().c_str(), _responses.front().size(), 0);
+	std::cout << _responses.front().getStatus() << std::endl;
+	send(_fd, _responses.front().getResponse(), _responses.front().size(), 0);
 	_responses.pop();
 	if (_responses.empty() && _requests.empty())
 		_done = true;
