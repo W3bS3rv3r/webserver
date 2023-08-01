@@ -2,7 +2,9 @@
 
 const char*	MethodNotAllowedException::what(void) const throw() {
 	return ( \
-		"HTTP/1.1 405 Method Not Allowed\r\n\r\n"							\
+		"HTTP/1.1 405 Method Not Allowed\r\n"								\
+		"Allow: GET, DELETE\r\n"											\
+		"\r\n"																\
 		"<html>"															\
 		"<body style=\"background-color:292D39\">"							\
 		"<div>"																\
