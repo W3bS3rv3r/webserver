@@ -3,6 +3,10 @@
 
 #include <exception>
 
+struct MethodNotAllowedException: std::exception {
+	const char*	what(void) const throw();
+};
+
 struct NotFoundException: std::exception {
 	const char*	what(void) const throw();
 };
