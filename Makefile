@@ -17,6 +17,7 @@ CLASSES = $(addprefix srcs/,	\
 	Server/Server.cpp			\
 	Connection/Connection.cpp	\
 	Response/Response.cpp		\
+	Cgi/Cgi.cpp					\
 )
 
 HTTP = $(addprefix srcs/http/,	\

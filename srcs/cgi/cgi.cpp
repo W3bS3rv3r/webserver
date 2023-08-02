@@ -1,12 +1,11 @@
 #include "cgi.hpp"
+#include "../Cgi/Cgi.hpp"
 #include "../http/error_codes.hpp"
 #include <cstdlib>
 #include <exception>
 #include <unistd.h>
 #include <stdlib.h>
 #include <vector>
-
-#include <iostream>
 
 Response	cgiGet(std::string path) {
 	Response	resp;
@@ -32,8 +31,7 @@ Response	cgiGet(std::string path) {
 	}
 	else {
 		close(fd[1]);
-		resp.setFd(fd[0]);
-		resp.setPid(pid);
+		resp.setCgi(Cgi(pid, fd[0]));
 	}
 	return (resp);
 }

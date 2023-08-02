@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <string>
 #include <sys/types.h>
+#include "../Cgi/Cgi.hpp"
 
 class Response {
 public:
@@ -18,19 +19,14 @@ public:
 	const char*	getResponse(void) const;
 	void		setResponse(const std::string& resp);
 
-	size_t	getPid(void) const;
-	void	setPid(const size_t pid);
-
-	int		getFd(void) const;
-	void	setFd(const int pid);
+	void	setCgi(const Cgi& cgi);
 
 	std::string	getStatus(void) const;
 	size_t		size(void) const;
 
 private:
 	std::string	_response;
-	pid_t		_pid;
-	int			_fd;
+	Cgi			_cgi;
 };
 
 #endif
