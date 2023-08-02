@@ -13,6 +13,8 @@ public:
 
 	Response&	operator=(const Response& src);
 
+	bool	ready(void);
+
 	const char*	getResponse(void) const;
 	void		setResponse(const std::string& resp);
 
@@ -24,6 +26,7 @@ public:
 
 	std::string	getStatus(void) const;
 	size_t		size(void) const;
+
 private:
 	std::string	_response;
 	pid_t		_pid;

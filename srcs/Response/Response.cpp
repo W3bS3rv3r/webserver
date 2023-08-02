@@ -1,5 +1,10 @@
 #include "Response.hpp"
+#include "../http/error_codes.hpp"
 #include <cstddef>
+#include <unistd.h>
+#include <signal.h>
+#include <sys/wait.h>
+#include <cstring>
 
 Response::Response(std::string response) : _response(response), _pid(0) {}
 
@@ -18,6 +23,46 @@ Response&	Response::operator=(const Response& src) {
 
 std::string	Response::getStatus(void) const {
 	return (_response.substr(0, _response.find('\n')));
+}
+
+bool	Response::ready(void) {
+	if (_pid == 0)
+		return (true);
+	else {
+		int	exit_status = 0;
+		pid_t	status = waitpid(_pid, &exit_status, WNOHANG);
+		if (status == -1) {
+			_response = InternalServerErrorException().what();
+			close(_fd);
+			kill(_pid, SIGTERM);
+			return (true);
+		}
+		else if (!status)
+			return (false);
+		else {
+			if (exit_status) {
+				_response = BadGatewayException().what();
+				close(_fd);
+				return (true);
+			}
+			char		buff[1025];
+			std::string	str = "HTTP/1.1 200 OK\n";
+			memset(buff, 0, 1025);
+			while(read(_fd, buff, 1024)) {
+				try {
+					str += buff;
+				}
+				catch (const std::exception& e) {
+					_response = InternalServerErrorException().what();
+					close(_fd);
+					return (true);
+				}
+			}
+			close(_fd);
+			_response = str;
+			return (true);
+		}
+	}
 }
 
 size_t	Response::size(void) const { return _response.size(); }
