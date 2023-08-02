@@ -65,7 +65,8 @@ bool	Connection::responseReady(void) {
 	if (resp.getPid() == 0)
 		return (true);
 	else {
-		pid_t	status = waitpid(resp.getPid(), NULL, WNOHANG);
+		int	exit_status = 0;
+		pid_t	status = waitpid(resp.getPid(), &exit_status, WNOHANG);
 		if (status == -1) {
 			_responses.front().setResponse(InternalServerErrorException().what());
 			close(resp.getFd());
@@ -75,8 +76,13 @@ bool	Connection::responseReady(void) {
 		else if (!status)
 			return (false);
 		else {
+			if (exit_status) {
+				_responses.front().setResponse(BadGatewayException().what());
+				close(resp.getFd());
+				return (true);
+			}
 			char		buff[1025];
-			std::string	str;
+			std::string	str = "HTTP/1.1 200 OK\n";
 			memset(buff, 0, 1025);
 			while(read(resp.getFd(), buff, 1024)) {
 				try {

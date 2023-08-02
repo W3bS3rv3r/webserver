@@ -3,6 +3,6 @@
 
 #include <string>
 
-std::string	get(const std::string& path, const std::string& root);
+std::string	get(std::string path);
 
 #endif

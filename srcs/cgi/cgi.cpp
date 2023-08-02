@@ -26,7 +26,6 @@ Response	cgiGet(std::string path) {
 		close(fd[0]);
 		close(fd[1]);
 		execve(path.c_str(), const_cast<char* const*>(argv.data()), NULL);
-		//std::cout << "FAIL" << std::endl;
 		std::string	response = InternalServerErrorException().what();
 		write(1, response.c_str(), response.size());
 		exit(0);

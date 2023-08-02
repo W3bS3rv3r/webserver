@@ -56,9 +56,9 @@ Response	getResponse(const std::string& request, const std::string& root,
 	stream >> path;
 	if (method == "GET") {
 		if (path.rfind(suffix) == path.size() - suffix.size())
-			response = cgiGet(path);
+			response = cgiGet(root + path);
 		else
-			response.setResponse(get(path, root));
+			response.setResponse(get(root + path));
 	}
 	else if (method == "DELETE")
 		response.setResponse(del(path, root));
