@@ -2,7 +2,6 @@
 #include "error_codes.hpp"
 #include "get.hpp"
 #include "delete.hpp"
-#include "../cgi/cgi.hpp"
 #include <cstring>
 #include <exception>
 #include <string>
@@ -62,6 +61,8 @@ Response	getResponse(const std::string& request, const std::string& root,
 	}
 	else if (method == "DELETE")
 		response.setResponse(del(path, root));
+	else if (method == "POST")
+		throw MethodNotAllowedException();
 	else if (method == "HEAD" || method == "PUT" || method == "CONNECT"
 			|| method == "OPTIONS" || method == "TRACE")
 		throw ServiceUnavailableException();
