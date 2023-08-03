@@ -22,13 +22,13 @@ std::string	get(std::string path) {
 	std::string		response = ("HTTP/1.1 200 OK\r\n\r\n");
 	std::string		buff;
 	while(std::getline(file, buff)) {
-			try {
-				response += buff;
-			}
-			catch (const std::exception& e) {
-				file.close();
-				throw InternalServerErrorException();
-			}
+		try {
+			response += buff;
+		}
+		catch (const std::exception& e) {
+			file.close();
+			throw InternalServerErrorException();
+		}
 	}
 	file.close();
 	return (response);
@@ -55,8 +55,10 @@ Response	cgiGet(std::string path) {
 		exit(0);
 	}
 	else {
+		Cgi	cgi(pid, fd[0]);
+		cgi.setActive();
 		close(fd[1]);
-		resp.setCgi(Cgi(pid, fd[0]));
+		resp.setCgi(cgi);
 	}
 	return (resp);
 }

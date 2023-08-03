@@ -45,7 +45,7 @@ std::string	getRequest(const int client_fd) {
 }
 
 Response	getResponse(const std::string& request, const std::string& root,
-		const std::string& suffix)
+		const std::string& extension)
 {
 	std::stringstream	stream(request);
 	std::string			method, path;
@@ -54,7 +54,7 @@ Response	getResponse(const std::string& request, const std::string& root,
 	stream >> method;
 	stream >> path;
 	if (method == "GET") {
-		if (path.rfind(suffix) == path.size() - suffix.size())
+		if (path.rfind(extension) == path.size() - extension.size())
 			response = cgiGet(root + path);
 		else
 			response.setResponse(get(root + path));

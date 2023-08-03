@@ -12,7 +12,7 @@ public:
 
 	Cgi&	operator=(const Cgi& src);
 
-	bool		active(void) const;
+	bool		isActive(void) const;
 	bool		done(void);
 	std::string	readResponse(void);
 

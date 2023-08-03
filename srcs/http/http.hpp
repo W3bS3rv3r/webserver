@@ -8,6 +8,6 @@
 
 std::string	getRequest(const int client_fd);
 Response	getResponse(const std::string& request, const std::string& root,
-		const std::string& suffix);
+		const std::string& extension);
 
 #endif

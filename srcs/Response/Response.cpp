@@ -19,8 +19,8 @@ std::string	Response::getStatus(void) const {
 	return (_response.substr(0, _response.find('\n')));
 }
 
-bool	Response::ready(void) {
-	if (!_cgi.active())
+bool	Response::isReady(void) {
+	if (!_cgi.isActive())
 		return (true);
 	try {
 		if (_cgi.done()) {
@@ -41,7 +41,4 @@ const char*	Response::getResponse(void) const { return _response.c_str(); }
 
 void	Response::setResponse(const std::string& resp) { _response = resp; }
 
-void	Response::setCgi(const Cgi &cgi) {
-	_cgi = cgi;
-	_cgi.setActive();
-}
+void	Response::setCgi(const Cgi &cgi) {	_cgi = cgi; }

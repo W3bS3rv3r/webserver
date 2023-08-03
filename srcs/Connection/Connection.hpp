@@ -22,7 +22,7 @@ private:
 	int						_fd;
 	const unsigned short	_port;
 	const std::string		_root;
-	const std::string		_suffix;
+	const std::string		_extension;
 
 	bool					_done;
 	std::queue<std::string>	_requests;

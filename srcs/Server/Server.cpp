@@ -50,7 +50,6 @@ void	Server::init(std::string file) {
 	std::cout << "Default path: " << path << std::endl;
 	(void)file;
 
-	//surround addSocket with try catch in the future
 	this->addSocket(4242, path);
 	this->addSocket(8484, path);
 	this->addSocket(2121, path);
@@ -82,7 +81,7 @@ void	Server::startListening(void) {
 			i->second->listen();
 		}
 		catch (const std::exception& e) {
-			std::cerr << "Error  on port " << i->second->getPort();
+			std::cerr << "Error on port " << i->second->getPort();
 			std::cerr << ": " << e.what() << std::endl;
 			failed_sockets.push_back(i->second->getFd());
 		}

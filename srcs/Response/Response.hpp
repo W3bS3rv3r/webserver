@@ -14,7 +14,7 @@ public:
 
 	Response&	operator=(const Response& src);
 
-	bool	ready(void);
+	bool	isReady(void);
 
 	const char*	getResponse(void) const;
 	void		setResponse(const std::string& resp);

@@ -15,11 +15,12 @@ Cgi&	Cgi::operator=(const Cgi& src) {
 	if (this != &src) {
 		_pid = src._pid;
 		_fd = src._fd;
+		_done = src._done;
 	}
 	return (*this);
 }
 
-bool	Cgi::active(void) const { return (_pid != 0); }
+bool	Cgi::isActive(void) const { return (_pid != 0); }
 
 bool	Cgi::done(void) {
 	int	status = 0;

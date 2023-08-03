@@ -9,7 +9,7 @@
 
 class Socket {
 public:
-	Socket(unsigned short port, std::string root, std::string suffix);
+	Socket(unsigned short port, std::string root, std::string extension);
 	~Socket(void);
 
 	void			listen(void);
@@ -37,7 +37,7 @@ public:
 	};
 private:
 	std::string				_root;
-	std::string				_suffix;
+	std::string				_extension;
 	bool					_is_listening;
 	int						_fd;
 	const unsigned short	_port;

@@ -14,7 +14,7 @@ Connection::Connection(int fd, const Socket& socket) :
 	_fd(fd),
 	_port(socket._port),
 	_root(socket._root),
-	_suffix(socket._suffix),
+	_extension(socket._extension),
 	_done(false){}
 
 Connection::~Connection(void) {
@@ -39,14 +39,14 @@ void	Connection::writeResponse(void) {
 		return ;
 	else if (_responses.empty()) {
 		try {
-			_responses.push(getResponse(_requests.front(), _root, _suffix));
+			_responses.push(getResponse(_requests.front(), _root, _extension));
 		}
 		catch(const std::exception& e) {
 			_responses.push(Response(e.what()));
 		}
 		_requests.pop();
 	}
-	if (!_responses.front().ready())
+	if (!_responses.front().isReady())
 		return ;
 	std::cout << _fd << ':' << _port << " -> ";
 	std::cout << _responses.front().getStatus() << std::endl;
