@@ -53,6 +53,8 @@ std::string	Cgi::readResponse(void) {
 		}
 	}
 	close(_fd);
+	if (resp == "HTTP/1.1 200 OK\n")
+		throw InternalServerErrorException();
 	return (resp);
 }
 

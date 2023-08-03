@@ -21,14 +21,10 @@ CLASSES = $(addprefix srcs/,	\
 )
 
 HTTP = $(addprefix srcs/http/,	\
-	http.cpp		\
-	get.cpp			\
-	delete.cpp		\
-	error_codes.cpp	\
-)
-
-CGI= $(addprefix srcs/cgi/,	\
-	cgi.cpp	\
+	http.cpp					\
+	get.cpp						\
+	delete.cpp					\
+	error_codes.cpp				\
 )
 
 SRCS = $(MAIN) $(CLASSES) $(HTTP) $(CGI)
