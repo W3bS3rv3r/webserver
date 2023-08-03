@@ -1,15 +1,20 @@
 #include "Connection.hpp"
 #include "../http/http.hpp"
+#include "../Socket/Socket.hpp"
+#include "../Response/Response.hpp"
+#include "../http/error_codes.hpp"
 #include <exception>
-#include <unistd.h>
+#include <sys/types.h>
 #include <sys/socket.h>
 #include <iostream>
+#include <unistd.h>
 
 //CONSTRUCTORS
-Connection::Connection(int fd, unsigned short port, std::string root) :
+Connection::Connection(int fd, const Socket& socket) :
 	_fd(fd),
-	_port(port),
-	_root(root),
+	_port(socket._port),
+	_root(socket._root),
+	_extension(socket._extension),
 	_done(false){}
 
 Connection::~Connection(void) {
@@ -25,7 +30,7 @@ void	Connection::readRequest(void) {
 		std::cout << std::endl;
 	}
 	catch(const std::exception& e) {
-		_responses.push(e.what());
+		_responses.push(Response(e.what()));
 	}
 }
 
@@ -34,17 +39,18 @@ void	Connection::writeResponse(void) {
 		return ;
 	else if (_responses.empty()) {
 		try {
-			_responses.push(getResponse(_requests.front(), _root));
+			_responses.push(getResponse(_requests.front(), _root, _extension));
 		}
 		catch(const std::exception& e) {
-			_responses.push(e.what());
+			_responses.push(Response(e.what()));
 		}
 		_requests.pop();
 	}
+	if (!_responses.front().isReady())
+		return ;
 	std::cout << _fd << ':' << _port << " -> ";
-	std::cout << _responses.back().substr(0, _responses.back().find('\n'));
-	std::cout << std::endl;
-	send(_fd, _responses.front().c_str(), _responses.front().size(), 0);
+	std::cout << _responses.front().getStatus() << std::endl;
+	send(_fd, _responses.front().getResponse(), _responses.front().size(), 0);
 	_responses.pop();
 	if (_responses.empty() && _requests.empty())
 		_done = true;

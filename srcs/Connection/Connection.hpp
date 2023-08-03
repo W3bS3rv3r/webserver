@@ -3,10 +3,13 @@
 
 #include <string>
 #include <queue>
+#include "../Response/Response.hpp"
+
+class Socket;
 
 class Connection {
 public:
-	Connection(int	fd, unsigned short port, std::string root);
+	Connection(int	fd, const Socket& socket);
 	virtual	~Connection(void);
 
 	void			readRequest(void);
@@ -17,11 +20,13 @@ public:
 
 private:
 	int						_fd;
-	unsigned short			_port;
+	const unsigned short	_port;
 	const std::string		_root;
+	const std::string		_extension;
+
 	bool					_done;
 	std::queue<std::string>	_requests;
-	std::queue<std::string>	_responses;
+	std::queue<Response>	_responses;
 
 	Connection&	operator=(const Connection& src);
 	Connection(const Connection& src);

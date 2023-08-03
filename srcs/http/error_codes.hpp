@@ -27,4 +27,8 @@ struct InternalServerErrorException: std::exception {
 	const char*	what(void) const throw();
 };
 
+struct BadGatewayException: std::exception {
+	const char*	what(void) const throw();
+};
+
 #endif

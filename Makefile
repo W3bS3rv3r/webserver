@@ -16,16 +16,18 @@ CLASSES = $(addprefix srcs/,	\
 	Socket/Socket.cpp			\
 	Server/Server.cpp			\
 	Connection/Connection.cpp	\
+	Response/Response.cpp		\
+	Cgi/Cgi.cpp					\
 )
 
 HTTP = $(addprefix srcs/http/,	\
-	http.cpp		\
-	get.cpp			\
-	delete.cpp		\
-	error_codes.cpp	\
+	http.cpp					\
+	get.cpp						\
+	delete.cpp					\
+	error_codes.cpp				\
 )
 
-SRCS = $(MAIN) $(CLASSES) $(HTTP)
+SRCS = $(MAIN) $(CLASSES) $(HTTP) $(CGI)
 
 OBJS = $(SRCS:.cpp=.o)
 
