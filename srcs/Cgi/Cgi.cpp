@@ -4,6 +4,7 @@
 #include <signal.h>
 #include <sys/wait.h>
 #include <cstring>
+#include <sstream>
 
 Cgi::Cgi(pid_t pid, int fd) : _pid(pid), _fd(fd), _status(0), _done(true) {}
 
@@ -42,11 +43,11 @@ std::string	Cgi::readResponse(void) {
 		throw BadGatewayException();
 	}
 	char		buff[1025];
-	std::string	resp = "HTTP/1.1 200 OK\n";
+	std::string	content;
 	memset(buff, 0, 1025);
 	while(read(_fd, buff, 1024)) {
 		try {
-			resp += buff;
+			content += buff;
 		}
 		catch (const std::exception& e) {
 			close(_fd);
@@ -54,9 +55,17 @@ std::string	Cgi::readResponse(void) {
 		}
 	}
 	close(_fd);
-	if (resp == "HTTP/1.1 200 OK\n")
+	if (content.empty())
 		throw InternalServerErrorException();
-	return (resp);
+	std::string::size_type	i = content.find("\r\n\r\n");
+	if (i == std::string::npos)
+		throw InternalServerErrorException();
+	std::stringstream	response;
+	response << "HTTP/1.1 200 OK\r\n";
+	response << "Content-Length: " << content.substr(i + 4).size() << "\r\n";
+	response << content.substr(0, i + 4);
+	response << content.substr(i + 4);
+	return (response.str());
 }
 
 void	Cgi::setActive(void) { _done = false; }
