@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <stdlib.h>
 #include <vector>
+#include <sstream>
 
 std::string	get(std::string path) {
 	DIR*			dir;
@@ -19,19 +20,23 @@ std::string	get(std::string path) {
 	else if (access(path.c_str(), R_OK))
 		throw ForbiddenException();
 	std::fstream	file(path.c_str(), std::ios_base::in);
-	std::string		response = ("HTTP/1.1 200 OK\r\n\r\n");
+	std::string		content;
 	std::string		buff;
 	while(std::getline(file, buff)) {
 		try {
-			response += buff;
+			content += buff;
 		}
 		catch (const std::exception& e) {
 			file.close();
 			throw InternalServerErrorException();
 		}
 	}
+	std::stringstream	response;
+	response << "HTTP/1.1 200 OK\r\n";
+	response << "Content-Length: " << content.size() << "\r\n\r\n";
+	response << content;
 	file.close();
-	return (response);
+	return (response.str());
 }
 
 Response	cgiGet(std::string path) {

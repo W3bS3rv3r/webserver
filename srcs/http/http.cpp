@@ -18,8 +18,7 @@ std::string	getRequest(const int client_fd) {
 
 	memset(buff, 0, BUFFER_SIZE + 1);
 	while ((n = recv(client_fd, buff, BUFFER_SIZE - 1, MSG_PEEK)) > 0) {
-		char*	i = std::search(buff, buff + n, delimiter.begin(),
-								delimiter.end());
+		char*	i = std::search(buff, buff + n, delimiter.begin(), delimiter.end());
 		if (i == buff + n) {
 			try {
 				request += buff;

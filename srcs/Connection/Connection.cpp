@@ -25,6 +25,11 @@ Connection::~Connection(void) {
 void	Connection::readRequest(void) {
 	try {
 		_requests.push(getRequest(_fd));
+		if (_requests.front().empty()) {
+			_done = true;
+			_requests.pop();
+			return ;
+		}
 		std::cout << _fd << ':' << _port << " <- ";
 		std::cout << _requests.back().substr(0, _requests.back().find('\n'));
 		std::cout << std::endl;
@@ -52,8 +57,6 @@ void	Connection::writeResponse(void) {
 	std::cout << _responses.front().getStatus() << std::endl;
 	send(_fd, _responses.front().getResponse(), _responses.front().size(), 0);
 	_responses.pop();
-	if (_responses.empty() && _requests.empty())
-		_done = true;
 }
 
 bool	Connection::done(void) const { return _done; }
