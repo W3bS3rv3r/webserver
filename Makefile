@@ -16,7 +16,6 @@ CLASSES = $(addprefix srcs/,	\
 	Socket/Socket.cpp			\
 	Server/Server.cpp			\
 	Connection/Connection.cpp	\
-	CGI/CGI.cpp	\
 	Response/Response.cpp		\
 	Cgi/Cgi.cpp					\
 )
@@ -24,6 +23,7 @@ CLASSES = $(addprefix srcs/,	\
 HTTP = $(addprefix srcs/http/,	\
 	http.cpp					\
 	get.cpp						\
+	post.cpp					\
 	delete.cpp					\
 	error_codes.cpp				\
 )

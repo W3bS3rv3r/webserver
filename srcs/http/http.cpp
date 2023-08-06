@@ -1,6 +1,7 @@
 #include "http.hpp"
 #include "error_codes.hpp"
 #include "get.hpp"
+#include "post.hpp"
 #include "delete.hpp"
 #include <cstring>
 #include <exception>
@@ -10,7 +11,6 @@
 #include <sys/socket.h>
 #include <sstream>
 #include <iostream>
-#include "../CGI/CGI.hpp"
 
 std::string	getRequest(const int client_fd) {
 	int					n;
@@ -62,19 +62,18 @@ Response	getResponse(const std::string& request, const std::string& root,
 	}
 	else if (method == "DELETE")
 		response.setResponse(del(path, root));
-	else if (method == "POST")
-		throw MethodNotAllowedException();
+	else if (method == "POST") {
+		if (path.rfind(extension) == path.size() - extension.size()) {
+			response = cgiPost(root + path, request);
+			return (response);
+		}
+		else
+			throw MethodNotAllowedException();
+	}
+	
 	else if (method == "HEAD" || method == "PUT" || method == "CONNECT"
 			|| method == "OPTIONS" || method == "TRACE")
 		throw ServiceUnavailableException();
-	else if (method == "POST")
-	{
-		CGI *cgiReq = new CGI(path, root, request);
-		if (cgiReq->isPathValid())
-			cgiReq->runCGI();
-		delete cgiReq;
-		return ("TESTE");
-	}
 	else
 		throw BadRequestException();
 	return (response);
