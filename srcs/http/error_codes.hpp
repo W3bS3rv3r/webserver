@@ -3,6 +3,10 @@
 
 #include <exception>
 
+struct MethodNotAllowedException: std::exception {
+	const char*	what(void) const throw();
+};
+
 struct NotFoundException: std::exception {
 	const char*	what(void) const throw();
 };
@@ -20,6 +24,10 @@ struct ServiceUnavailableException: std::exception {
 };
 
 struct InternalServerErrorException: std::exception {
+	const char*	what(void) const throw();
+};
+
+struct BadGatewayException: std::exception {
 	const char*	what(void) const throw();
 };
 

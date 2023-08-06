@@ -2,7 +2,9 @@
 # define GET_HPP
 
 #include <string>
+#include "../Response/Response.hpp"
 
-std::string	get(const std::string& path, const std::string& root);
+Response	cgiGet(std::string path);
+std::string	get(std::string path);
 
 #endif

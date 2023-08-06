@@ -3,6 +3,7 @@
 
 #include <string>
 #include <queue>
+#include "../Response/Response.hpp"
 
 class Socket;
 
@@ -21,11 +22,11 @@ private:
 	int						_fd;
 	const unsigned short	_port;
 	const std::string		_root;
-	const std::string		_suffix;
+	const std::string		_extension;
 
 	bool					_done;
 	std::queue<std::string>	_requests;
-	std::queue<std::string>	_responses;
+	std::queue<Response>	_responses;
 
 	Connection&	operator=(const Connection& src);
 	Connection(const Connection& src);

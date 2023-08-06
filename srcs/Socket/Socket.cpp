@@ -8,10 +8,9 @@
 #include <unistd.h>
 
 //Constructors
-
-Socket::Socket(unsigned short port, std::string root, std::string suffix) :
+Socket::Socket(unsigned short port, std::string root, std::string extension) :
 	_root(root),
-	_suffix(suffix),
+	_extension(extension),
 	_is_listening(false),
 	_port(port)
 {
