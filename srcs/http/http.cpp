@@ -77,9 +77,5 @@ Response	getResponse(const std::string& request, const std::string& root,
 	}
 	else
 		throw BadRequestException();
-<<<<<<< HEAD
-		
-=======
 	return (response);
->>>>>>> develop
 }
