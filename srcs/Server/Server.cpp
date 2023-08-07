@@ -99,10 +99,32 @@ void	Server::handlePoll(void) {
 	for (std::vector<struct pollfd>::iterator i = _polls.begin();
 			 i != _polls.end(); ++i)
 	{
-		if (i->events == POLLIN)
+		if (isSocket(i->fd))
 			this->handleSocket(*i);
-		else
+		else if (isConnection(i->fd))
 			this->handleConnection(*i);
+		else
+			std::cerr << "Impossble file descriptor found: " << i->fd << std::endl;
+	}
+}
+
+bool	Server::isSocket(int fd) const {
+	try {
+		_sockets.at(fd);
+		return (true);
+	}
+	catch (std::exception& e) {
+		return (false);
+	}
+}
+
+bool	Server::isConnection(int fd) const {
+	try {
+		_connections.at(fd);
+		return (true);
+	}
+	catch (std::exception& e) {
+		return (false);
 	}
 }
 
@@ -137,7 +159,7 @@ void	Server::closeConnection(int fd) {
 void	Server::organizePoll(void) {
 	struct pollfd	temp;
 	memset(&temp, 0, sizeof(temp));
-	temp.events = POLLIN;
+	temp.events = POLLIN | POLLOUT;
 	_polls.clear();
 	for (std::map<int, Socket*>::iterator i = _sockets.begin();
 		i != _sockets.end(); ++i)
@@ -145,7 +167,6 @@ void	Server::organizePoll(void) {
 		temp.fd = i->first;
 		_polls.push_back(temp);
 	}
-	temp.events = POLLIN | POLLOUT;
 	for (std::map<int, Connection*>::iterator i = _connections.begin();
 		i != _connections.end(); ++i)
 	{

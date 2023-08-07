@@ -38,6 +38,8 @@ private:
 	void	handleConnection(struct pollfd spoll);
 	void	organizePoll(void);
 	void	handlePoll(void);
+	bool	isSocket(int fd) const;
+	bool	isConnection(int fd) const;
 
 	Server(const Server& src);
 	Server&	operator=(const Server& src);
