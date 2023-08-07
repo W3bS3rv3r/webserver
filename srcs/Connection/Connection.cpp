@@ -15,7 +15,17 @@ Connection::Connection(int fd, const Socket& socket) :
 	_port(socket._port),
 	_root(socket._root),
 	_extension(socket._extension),
-	_done(false){}
+	_done(false) {
+
+    struct timeval timeout;      
+    timeout.tv_sec = 10;
+    timeout.tv_usec = 0;
+
+	if (setsockopt (_fd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof timeout) < 0)
+        throw InternalServerErrorException();
+    if (setsockopt (_fd, SOL_SOCKET, SO_SNDTIMEO, &timeout, sizeof timeout) < 0)
+        throw InternalServerErrorException();
+}
 
 Connection::~Connection(void) {
 	close(_fd);
