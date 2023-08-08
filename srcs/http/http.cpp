@@ -19,7 +19,7 @@ std::string	getRequest(const int client_fd) {
 	const std::string	delimiter("\r\n\r\n");
 
 	memset(buff, 0, BUFFER_SIZE + 1);
-	while ((n = recv(client_fd, buff, BUFFER_SIZE - 1, MSG_PEEK)) > 0) {
+	while ((n = recv(client_fd, buff, BUFFER_SIZE - 1, MSG_PEEK | MSG_DONTWAIT)) > 0) {
 		char*	i = std::search(buff, buff + n, delimiter.begin(), delimiter.end());
 		if (i == buff + n) {
 			try {
