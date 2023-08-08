@@ -5,7 +5,6 @@
 #include <sys/wait.h>
 #include <cstring>
 #include <sstream>
-#include <iostream>
 
 Cgi::Cgi(pid_t pid, int fd, time_t start) :
 	_pid(pid),

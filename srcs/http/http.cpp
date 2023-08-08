@@ -10,7 +10,6 @@
 #include <algorithm>
 #include <sys/socket.h>
 #include <sstream>
-#include <iostream>
 
 std::string	getRequest(const int client_fd) {
 	int					n;
