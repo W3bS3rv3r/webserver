@@ -23,6 +23,7 @@ Response	cgiPost(std::string path, std::string request) {
 		argv.push_back(path.c_str());
 		argv.push_back(NULL);
         dup2(fd[0], STDIN_FILENO);
+		dup2(fd[1], STDOUT_FILENO);
 		close(fd[0]);
 		close(fd[1]);
 		execve(argv[0], const_cast<char* const*>(argv.data()), NULL);
