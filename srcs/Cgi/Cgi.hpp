@@ -8,7 +8,7 @@
 
 class Cgi {
 public:
-	Cgi(pid_t pid = 0, int _fd = 0);
+	Cgi(pid_t pid = 0, int _fd = 0, time_t start = time(NULL));
 	Cgi(const Cgi& src);
 	virtual	~Cgi(void);
 

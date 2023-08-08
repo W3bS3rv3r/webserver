@@ -7,12 +7,12 @@
 #include <sstream>
 #include <iostream>
 
-Cgi::Cgi(pid_t pid, int fd) :
+Cgi::Cgi(pid_t pid, int fd, time_t start) :
 	_pid(pid),
 	_fd(fd),
 	_status(0),
 	_done(true),
-	_start(time(NULL)) {}
+	_start(start) {}
 
 Cgi::Cgi(const Cgi& src) { *this = src; }
 
@@ -42,7 +42,6 @@ bool	Cgi::done(void) {
 	_status = status;
 	time_t now = time(NULL);
 	double timespan = difftime(now, _start);
-	std::cout << timespan << std::endl;
 	if (timespan >= TIMELIMIT)
 		throw RequestTimeoutException();
 	return (_done);

@@ -30,7 +30,7 @@ Response	cgiPost(std::string path, std::string request) {
 		exit(0);
 	}
 	else {
-		Cgi	cgi(pid, fd[0]);
+		Cgi	cgi(pid, fd[0], time(NULL));
 		cgi.setActive();
 		write(fd[1], request.c_str(), request.size());
 		close(fd[1]);
