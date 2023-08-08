@@ -4,6 +4,7 @@
 #include <sys/types.h>
 #include <string>
 #include <ctime>
+#define TIMELIMIT 30
 
 class Cgi {
 public:

@@ -43,7 +43,7 @@ bool	Cgi::done(void) {
 	time_t now = time(NULL);
 	double timespan = difftime(now, _start);
 	std::cout << timespan << std::endl;
-	if (timespan >= 10)
+	if (timespan >= TIMELIMIT)
 		throw RequestTimeoutException();
 	return (_done);
 }
