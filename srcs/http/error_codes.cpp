@@ -2,10 +2,8 @@
 
 const char*	RequestTimeoutException::what(void) const throw() {
 	return ( \
-		"HTTP/1.1 408 Request Timeout\r\n"								\
-		"Content-Length: 185\r\n"											\
-		"Allow: GET, DELETE, POST\r\n"										\
-		"\r\n"																\
+		"HTTP/1.1 408 Request Timeout\r\n"									\
+		"Content-Length: 193\r\n\r\n"										\
 		"<html>"															\
 		"<body style=\"background-color:292D39\">"							\
 		"<div>"																\
