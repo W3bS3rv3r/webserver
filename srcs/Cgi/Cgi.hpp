@@ -3,6 +3,7 @@
 
 #include <sys/types.h>
 #include <string>
+#include <ctime>
 
 class Cgi {
 public:
@@ -22,6 +23,7 @@ private:
 	int		_fd;
 	int		_status;
 	bool	_done;
+	time_t	_start;
 };
 
 #endif
