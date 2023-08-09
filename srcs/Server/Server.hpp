@@ -18,7 +18,7 @@ public:
 	struct DuplicateException: std::exception {
 		const char*	what(void) const throw();
 	};
-	struct NoUserException: std::exception {
+	struct NoHomeException: std::exception {
 		const char*	what(void) const throw();
 	};
 	struct AllPortsFailedException: std::exception {

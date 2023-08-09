@@ -5,6 +5,7 @@
 #include <utility>
 #include <unistd.h>
 #include <cstring>
+#include <cstdlib>
 
 //CONSTRUCTORS
 Server::Server(void) : _changed(false) {}
@@ -41,11 +42,10 @@ void	Server::addSocket(unsigned short port, std::string root) {
 
 void	Server::init(std::string file) {
 	/*FILE INTERPRETATION HERE ON THE FUTURE*/
-    const char* user_name = getlogin();
-	if (!user_name)
-		throw Server::NoUserException();
-	std::string path = "/home/";
-    path += user_name;
+    const char*  home = getenv("HOME");
+	if (!home)
+		throw Server::NoHomeException();
+	std::string path(home);
     path += "/webserver";
 	std::cout << "Default path: " << path << std::endl;
 	(void)file;
@@ -158,8 +158,8 @@ void	Server::organizePoll(void) {
 const char*	Server::DuplicateException::what(void) const throw() {
 	return ("FD already in use");
 }
-const char*	Server::NoUserException::what(void) const throw() {
-	return ("USER environment variable not set");
+const char*	Server::NoHomeException::what(void) const throw() {
+	return ("HOME environment variable not set");
 }
 const char*	Server::AllPortsFailedException::what(void) const throw() {
 	return ("No single port is working");
