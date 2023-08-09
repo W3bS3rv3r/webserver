@@ -144,7 +144,7 @@ void	Server::handlePoll(void) {
 		else if (this->isConnection(i->fd))
 			this->handleConnection(*i);
 		else
-			std::cerr << "Impossble file descriptor found: " << i->fd << std::endl;
+			std::cerr << "Impossible file descriptor found: " << i->fd << std::endl;
 	}
 }
 
