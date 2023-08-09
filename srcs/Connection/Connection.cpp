@@ -15,7 +15,7 @@ Connection::Connection(int fd, const Socket& socket) :
 	_port(socket._port),
 	_root(socket._root),
 	_extension(socket._extension),
-	_done(false){}
+	_done(false) {}
 
 Connection::~Connection(void) {
 	close(_fd);
