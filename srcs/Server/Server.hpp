@@ -28,6 +28,8 @@ private:
 	std::map<int, Socket*>		_sockets;
 	std::map<int, Connection*>	_connections;
 	std::vector<struct pollfd>	_polls;
+	std::vector<int>			_removed_fds;
+	std::vector<int>			_new_fds;
 	bool						_changed;
 
 	void	startListening(void);
@@ -36,8 +38,12 @@ private:
 	void	closeConnection(int fd);
 	void	handleSocket(struct pollfd spoll);
 	void	handleConnection(struct pollfd spoll);
-	void	organizePoll(void);
+	void	removeOldFds(void);
+	void	addNewFds(void);
+	void	setPoll(void);
 	void	handlePoll(void);
+	bool	isSocket(int fd) const;
+	bool	isConnection(int fd) const;
 
 	Server(const Server& src);
 	Server&	operator=(const Server& src);
