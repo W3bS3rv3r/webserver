@@ -45,7 +45,7 @@ Connection*	Socket::acceptConnection(void) {
 	const int	client_fd = accept(_fd, NULL, NULL);
 	if (client_fd < 0)
 		throw Socket::CantAcceptConnectionException();
-	return (new Connection(client_fd, *this));
+	return (new Connection(client_fd, this));
 }
 
 int				Socket::getFd(void) const { return _fd; }
