@@ -9,7 +9,7 @@ class Socket;
 
 class Connection {
 public:
-	Connection(int	fd, const Socket& socket);
+	Connection(int	fd, const Socket* socket);
 	virtual	~Connection(void);
 
 	void			readRequest(void);
@@ -20,10 +20,7 @@ public:
 
 private:
 	int						_fd;
-	const unsigned short	_port;
-	const std::string		_root;
-	const std::string		_extension;
-
+	const Socket*			_socket;
 	bool					_done;
 	std::queue<std::string>	_requests;
 	std::queue<Response>	_responses;
