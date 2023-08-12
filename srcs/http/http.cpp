@@ -15,7 +15,7 @@
 std::string	getRequest(const int client_fd) {
 	int					n;
 	char				buff[BUFFER_SIZE + 1];
-	std::string			header;
+	std::string			headers;
 	// size_t				contentLength;
 	// std::string			body;
 	std::string			request;
@@ -27,7 +27,7 @@ std::string	getRequest(const int client_fd) {
 		char*	i = std::search(buff, buff + n, delimiter.begin(), delimiter.end());
 		if (i == buff + n) {
 			try {
-				header += buff;
+				headers += buff;
 			}
 			catch (const std::exception& e) {
 				throw InternalServerErrorException();
@@ -37,7 +37,7 @@ std::string	getRequest(const int client_fd) {
 		else {
 			recv(client_fd, buff, i - buff + delimiter.size(), 0);
 			try {
-				header += buff;
+				headers += buff;
 			}
 			catch (const std::exception& e) {
 				throw InternalServerErrorException();
@@ -54,7 +54,7 @@ std::string	getRequest(const int client_fd) {
 
 
 	// std::cout << " TEST \n";
-	request += header;
+	request += headers;
 	return (request);
 }
 
