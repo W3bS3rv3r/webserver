@@ -60,7 +60,7 @@ std::string	getRequest(const int client_fd) {
             
 	while (bodyBytes < contentLength) {
 		memset(buff, 0, BUFFER_SIZE);
-		if (n = recv(client_fd, buff, std::min(BUFFER_SIZE - 1, contentLength - bodyBytes), MSG_DONTWAIT) <= 0)
+		if ((n = recv(client_fd, buff, std::min(BUFFER_SIZE - 1, contentLength - bodyBytes), MSG_DONTWAIT)) <= 0)
 			break;
 		body += buff;
 		bodyBytes += n;
