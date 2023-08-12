@@ -16,9 +16,9 @@ std::string	getRequest(const int client_fd) {
 	int					n;
 	char				buff[BUFFER_SIZE + 1];
 	std::string			headers;
-	unsigned long		contentLength;
+	int					contentLength;
 	size_t				contentLengthPos;
-	// std::string			body;
+	std::string			body;
 	std::string			request;
 	const std::string	delimiter("\r\n\r\n");
 	
@@ -48,15 +48,28 @@ std::string	getRequest(const int client_fd) {
 		memset(buff, 0, BUFFER_SIZE);
 	}
 
+	request += headers;
+
 	// find content-length
 	contentLengthPos = headers.find("Content-Length: ");
 	contentLength = strtol(headers.c_str() + contentLengthPos + 16, NULL, 10); // 16 = "Content-Length: ""
 	std::cout << "C-Len: " << contentLength << std::endl;
+	
 	// read body until content-length
+	int bodyBytes = 0;
+            
+	while (bodyBytes < contentLength) {
+		memset(buff, 0, BUFFER_SIZE);
+		if (n = recv(client_fd, buff, std::min(BUFFER_SIZE - 1, contentLength - bodyBytes), MSG_DONTWAIT) <= 0)
+			break;
+		body += buff;
+		bodyBytes += n;
+	}
 
+	request += body;
+	
+	std::cout << "\nUMA\n";
 
-	// std::cout << " TEST \n";
-	request += headers;
 	return (request);
 }
 
