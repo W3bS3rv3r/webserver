@@ -10,19 +10,24 @@
 #include <algorithm>
 #include <sys/socket.h>
 #include <sstream>
+#include <iostream>
 
 std::string	getRequest(const int client_fd) {
 	int					n;
 	char				buff[BUFFER_SIZE + 1];
+	std::string			header;
+	// size_t				contentLength;
+	// std::string			body;
 	std::string			request;
 	const std::string	delimiter("\r\n\r\n");
+	
 
 	memset(buff, 0, BUFFER_SIZE + 1);
 	while ((n = recv(client_fd, buff, BUFFER_SIZE - 1, MSG_PEEK | MSG_DONTWAIT)) > 0) {
 		char*	i = std::search(buff, buff + n, delimiter.begin(), delimiter.end());
 		if (i == buff + n) {
 			try {
-				request += buff;
+				header += buff;
 			}
 			catch (const std::exception& e) {
 				throw InternalServerErrorException();
@@ -32,7 +37,7 @@ std::string	getRequest(const int client_fd) {
 		else {
 			recv(client_fd, buff, i - buff + delimiter.size(), 0);
 			try {
-				request += buff;
+				header += buff;
 			}
 			catch (const std::exception& e) {
 				throw InternalServerErrorException();
@@ -41,6 +46,15 @@ std::string	getRequest(const int client_fd) {
 		}
 		memset(buff, 0, BUFFER_SIZE);
 	}
+
+	// find content-length
+
+
+	// read body until content-length
+
+
+	// std::cout << " TEST \n";
+	request += header;
 	return (request);
 }
 
