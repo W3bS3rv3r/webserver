@@ -52,6 +52,8 @@ std::string	getRequest(const int client_fd) {
 
 	// find content-length
 	contentLengthPos = headers.find("Content-Length: ");
+	if (contentLengthPos == std::string::npos)
+		return (headers);
 	contentLength = strtol(headers.c_str() + contentLengthPos + 16, NULL, 10); // 16 = "Content-Length: ""
 	std::cout << "C-Len: " << contentLength << std::endl;
 
@@ -60,7 +62,7 @@ std::string	getRequest(const int client_fd) {
 
 	while (bodyBytes < contentLength) {
 		memset(buff, 0, BUFFER_SIZE);
-		if ((n = recv(client_fd, buff, std::min(BUFFER_SIZE - 1, contentLength - bodyBytes), 0)) <= 0)
+		if ((n = recv(client_fd, buff, std::min(BUFFER_SIZE - 1, contentLength - bodyBytes), MSG_DONTWAIT)) <= 0)
 			break;
 		body += buff;
 		bodyBytes += n;
