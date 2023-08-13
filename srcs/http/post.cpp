@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <vector>
 #include <sstream>
+#include <sys/wait.h>
 
 Response	cgiPost(std::string path, std::string request) {
 	Response	resp;
@@ -19,22 +20,25 @@ Response	cgiPost(std::string path, std::string request) {
 		throw InternalServerErrorException();
 	else if (pid == 0) {
 		std::vector<const char*>	argv;
-        argv.push_back("/usr/bin/python3");
+		argv.push_back("/usr/bin/python3");
 		argv.push_back(path.c_str());
 		argv.push_back(NULL);
-        dup2(fd[0], STDIN_FILENO);
-		dup2(fd[1], STDOUT_FILENO);
+		dup2(fd[0], STDIN_FILENO);
+		// dup2(fd[1], STDOUT_FILENO);  // this makes CGI hang
 		close(fd[0]);
 		close(fd[1]);
 		execve(argv[0], const_cast<char* const*>(argv.data()), NULL);
-		exit(0);
+		exit(1);
 	}
 	else {
 		Cgi	cgi(pid, fd[0], time(NULL));
 		cgi.setActive();
 		write(fd[1], request.c_str(), request.size());
+		close(fd[0]);
 		close(fd[1]);
 		resp.setCgi(cgi);
+		waitpid(pid, NULL, 0);
 	}
 	return (resp);
 }
+
