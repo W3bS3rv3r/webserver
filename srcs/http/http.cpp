@@ -22,7 +22,6 @@ std::string	getRequest(const int client_fd) {
 	std::string			request;
 	const std::string	delimiter("\r\n\r\n");
 
-
 	memset(buff, 0, BUFFER_SIZE + 1);
 	while ((n = recv(client_fd, buff, BUFFER_SIZE - 1, MSG_PEEK | MSG_DONTWAIT)) > 0) {
 		char*	i = std::search(buff, buff + n, delimiter.begin(), delimiter.end());
@@ -47,31 +46,22 @@ std::string	getRequest(const int client_fd) {
 		}
 		memset(buff, 0, BUFFER_SIZE);
 	}
-
 	request += headers;
 
-	// find content-length
 	contentLengthPos = headers.find("Content-Length: ");
 	if (contentLengthPos == std::string::npos)
 		return (headers);
 	contentLength = strtol(headers.c_str() + contentLengthPos + 16, NULL, 10); // 16 = "Content-Length: ""
-	std::cout << "C-Len: " << contentLength << std::endl;
 
-	// read body until content-length
 	int bodyBytes = 0;
-
 	while (bodyBytes < contentLength) {
 		memset(buff, 0, BUFFER_SIZE);
-		if ((n = recv(client_fd, buff, std::min(BUFFER_SIZE - 1, contentLength - bodyBytes), MSG_DONTWAIT)) <= 0)
+		if ((n = recv(client_fd, buff, std::min(BUFFER_SIZE - 1, contentLength - bodyBytes), 0)) <= 0)
 			break;
 		body += buff;
 		bodyBytes += n;
 	}
-
 	request += body;
-
-	std::cout << "\nUMA\n";
-
 	return (request);
 }
 
