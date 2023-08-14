@@ -4,12 +4,14 @@
 #include <netinet/in.h>
 #include <exception>
 #include <string>
+#include <map>
 #include <sys/socket.h>
 #include "../Connection/Connection.hpp"
 
 class Socket {
 public:
 	Socket(unsigned short port, std::string root, std::string extension);
+	Socket(std::map<std::string, std::string> parameters);
 	~Socket(void);
 
 	void			listen(void);
@@ -35,12 +37,15 @@ public:
 	struct CantSetSocketOptionException : std::exception {
 		const char*	what(void) const throw();
 	};
+	struct NoHomeException: std::exception {
+		const char*	what(void) const throw();
+	};
 private:
 	std::string				_root;
 	std::string				_extension;
 	bool					_is_listening;
 	int						_fd;
-	const unsigned short	_port;
+	unsigned short			_port;
 	struct sockaddr_in		_socket;
 
 	Socket(const Socket& src);

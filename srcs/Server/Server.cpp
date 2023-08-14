@@ -1,4 +1,5 @@
 #include "Server.hpp"
+#include "../parser/parser.hpp"
 #include <exception>
 #include <iostream>
 #include <sys/poll.h>
@@ -6,6 +7,8 @@
 #include <unistd.h>
 #include <cstring>
 #include <cstdlib>
+#include <sstream>
+#include <fstream>
 
 //CONSTRUCTORS
 Server::Server(void) : _changed(false) {}
@@ -24,36 +27,28 @@ Server::~Server(void) {
 }
 
 //METHODS
-void	Server::addSocket(unsigned short port, std::string root) {
-	Socket*	socket = NULL;
-	try {
-		std::pair<std::map<int, Socket*>::iterator, bool>	p;
-		socket = new Socket(port, root, ".py");
-		p = _sockets.insert(std::make_pair(socket->getFd(), socket));
-		if (!p.second)
-			throw Server::DuplicateException();
+
+void	Server::init(std::string path) {
+	std::string			buff;
+	std::stringstream	str;
+	std::fstream		file(path.c_str());
+
+	while(std::getline(file >> std::ws, buff)) {
+		if (buff == "server {")
+			this->addSocket(newSocket(file));
+		else {
+			std::cerr << "at line: '" << buff << "'" << std::endl;
+			throw InvalidSyntaxException();
+		}
 	}
-	catch (const std::exception& e) {
-		delete socket;
-		std::cerr << "failed to create socket on port: " << port << std::endl;
-		std::cerr << "Error: " << e.what() << std::endl; 
-	}
+	std::cout << "Config file parsed" << std::endl;
 }
 
-void	Server::init(std::string file) {
-	/*FILE INTERPRETATION HERE ON THE FUTURE*/
-    const char*  home = getenv("HOME");
-	if (!home)
-		throw Server::NoHomeException();
-	std::string path(home);
-    path += "/webserver";
-	std::cout << "Default path: " << path << std::endl;
-	(void)file;
-
-	this->addSocket(4242, path);
-	this->addSocket(8484, path);
-	this->addSocket(2121, path);
-	std::cout << "Config file parsed" << std::endl;
+void	Server::addSocket(Socket* socket) {
+	std::pair<std::map<int, Socket*>::iterator, bool>	p;
+	p = _sockets.insert(std::make_pair(socket->getFd(), socket));
+	if (!p.second)
+		throw Server::DuplicateException();
 }
 
 void	Server::run(void) {
@@ -201,9 +196,6 @@ void	Server::closeConnection(int fd) {
 //EXCEPTIONS
 const char*	Server::DuplicateException::what(void) const throw() {
 	return ("FD already in use");
-}
-const char*	Server::NoHomeException::what(void) const throw() {
-	return ("HOME environment variable not set");
 }
 const char*	Server::AllPortsFailedException::what(void) const throw() {
 	return ("No single port is working");

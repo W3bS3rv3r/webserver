@@ -27,7 +27,11 @@ HTTP = $(addprefix srcs/http/,	\
 	error_codes.cpp				\
 )
 
-SRCS = $(MAIN) $(CLASSES) $(HTTP) $(CGI)
+PARSER = $(addprefix srcs/parser/,	\
+		 parser.cpp					\
+)
+
+SRCS = $(MAIN) $(CLASSES) $(HTTP) $(PARSER)
 
 OBJS = $(SRCS:.cpp=.o)
 
