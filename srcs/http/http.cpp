@@ -53,7 +53,7 @@ Response	getResponse(const std::string& request, const std::string& root,
 	stream >> method;
 	stream >> path;
 	if (method == "GET") {
-		if (path.rfind(extension) == path.size() - extension.size())
+		if (!extension.empty() && path.rfind(extension) == path.size() - extension.size())
 			response = cgiGet(root + path);
 		else
 			response.setResponse(get(root + path));

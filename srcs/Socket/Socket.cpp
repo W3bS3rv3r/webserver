@@ -11,7 +11,6 @@
 #include <iostream>
 //Constructors
 Socket::Socket(std::map<std::string, std::string> parameters) :
-	_extension(".py"),
 	_is_listening(false)
 {
 	_fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -34,6 +33,8 @@ Socket::Socket(std::map<std::string, std::string> parameters) :
 		_root += home;
 		_root += "/webserver";
 	}
+	if (parameters.find("cgi_extension") != parameters.end())
+		_extension = parameters["cgi_extension"];
 	bzero(&_socket, sizeof(_socket));
 	_socket.sin_family		= AF_INET;
 	_socket.sin_addr.s_addr	= htonl(INADDR_ANY);

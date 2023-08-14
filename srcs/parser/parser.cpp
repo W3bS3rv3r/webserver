@@ -6,6 +6,26 @@
 
 Socket* newSocket(std::fstream& file) {
 	Socket*								socket;
+	std::map<std::string, std::string>	parameters = readParameters(file);
+
+	try {
+		socket = new Socket(parameters);
+	}
+	catch (const std::exception& e) {
+		std::string	port;
+
+		if (parameters.find("port") != parameters.end())
+			port = parameters["port"];
+		else
+			port = "80";
+		delete socket;
+		socket = NULL;
+		std::cerr << "failed to create socket on port: " << port << std::endl;
+		std::cerr << "Error: " << e.what() << std::endl; 
+	}
+	return (socket);
+}
+std::map<std::string, std::string>	readParameters(std::fstream& file) {
 	std::string							buff, field, content;
 	std::stringstream					stream;
 	std::map<std::string, std::string>	parameters;
@@ -30,26 +50,11 @@ Socket* newSocket(std::fstream& file) {
 		content.clear();
 		stream.clear();
 	}
-	try {
-		socket = new Socket(parameters);
-	}
-	catch (const std::exception& e) {
-		std::string	port;
-
-		if (parameters.find("port") != parameters.end())
-			port = parameters["port"];
-		else
-			port = "80";
-		delete socket;
-		socket = NULL;
-		std::cerr << "failed to create socket on port: " << port << std::endl;
-		std::cerr << "Error: " << e.what() << std::endl; 
-	}
-	return (socket);
+	return (parameters);
 }
 
-bool	validFieldName(std::string field_name) {
-	if (field_name == "port" || field_name == "location")
+bool	validFieldName(std::string field) {
+	if (field == "port" || field == "location" || field == "cgi_extension")
 		return true;
 	return false;
 }
