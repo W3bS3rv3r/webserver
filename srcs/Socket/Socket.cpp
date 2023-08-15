@@ -8,7 +8,6 @@
 #include <unistd.h>
 #include <sstream>
 
-#include <iostream>
 //Constructors
 Socket::Socket(std::map<std::string, std::string> parameters) :
 	_is_listening(false)
@@ -62,6 +61,7 @@ Socket::~Socket(void) {
 // Methods
 void	Socket::listen(void) {
 	int	reuse = 1;
+	//REMOVE SO_REUSEPORT BEFORE TURNING IN THE PROJECT
 	if (setsockopt(_fd, SOL_SOCKET, SO_REUSEPORT, &reuse, sizeof(reuse)))
 		throw Socket::CantSetSocketOptionException();
 	if (bind(_fd, (struct sockaddr *) &_socket, sizeof(_socket)))
