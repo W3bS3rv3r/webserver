@@ -25,6 +25,7 @@ Socket* newSocket(std::fstream& file) {
 	}
 	return (socket);
 }
+
 std::map<std::string, std::string>	readParameters(std::fstream& file) {
 	std::string							buff, field, content;
 	std::stringstream					stream;
