@@ -5,7 +5,8 @@
 int	main(int argc, char *argv[]) {
 
 	if (argc != 2) {
-		std::cerr << "Invalid cmd line argument" << std::endl;
+		std::cerr << "Invalid cmd line argument, please run the progam ";
+		std::cerr << "like this: './webserver <config_file_path>'" << std::endl;
 		return (1);
 	}
 	Server	server;
