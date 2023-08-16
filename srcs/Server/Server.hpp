@@ -4,6 +4,7 @@
 #include <map>
 #include <vector>
 #include <poll.h>
+#include <fstream>
 #include "../Socket/Socket.hpp"
 
 class Server {
@@ -12,13 +13,9 @@ public:
 	virtual	~Server(void);
 
 	void	init(std::string file);
-	void	addSocket(unsigned short port, std::string root);
 	void	run(void);
 
 	struct DuplicateException: std::exception {
-		const char*	what(void) const throw();
-	};
-	struct NoHomeException: std::exception {
 		const char*	what(void) const throw();
 	};
 	struct AllPortsFailedException: std::exception {
@@ -32,6 +29,7 @@ private:
 	std::vector<int>			_new_fds;
 	bool						_changed;
 
+	void	addSocket(Socket* socket);
 	void	startListening(void);
 	void	closeSocket(int socket_fd);
 	void	addConnection(int socket_fd);

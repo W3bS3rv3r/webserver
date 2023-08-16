@@ -4,23 +4,24 @@
 
 int	main(int argc, char *argv[]) {
 
+	if (argc != 2) {
+		std::cerr << "Invalid cmd line argument, please run the progam ";
+		std::cerr << "like this: './webserver <config_file_path>'" << std::endl;
+		return (1);
+	}
 	Server	server;
 	try {
-		server.init("PLACEHOLDER" /* argv[1] in the future */);
+		server.init(argv[1]);
 	}
 	catch (const std::exception& e) {
 		std::cerr << "Error: " << e.what() << std::endl;
-		return (1);
+		return (2);
 	}
 	try {
 		server.run();
 	}
 	catch (const std::exception& e) {
 		std::cerr << "Error: " << e.what() << std::endl;
-		return (2);
+		return (3);
 	}
-	if (argc > 2)
-		return (1);
-	(void)argv;
-	return (0);
 }
