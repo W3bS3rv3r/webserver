@@ -37,3 +37,6 @@ tests-build
 
 # VSCode
 .vscode
+
+# Uploads
+/cgi-bin/tmp
