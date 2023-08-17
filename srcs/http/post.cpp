@@ -53,6 +53,11 @@ Response	cgiPost(std::string path, std::string request) {
 		env.push_back(NULL);
 
 		execve(argv[0], const_cast<char* const*>(argv.data()), env.data());
+
+		for (std::vector<char*>::iterator it = env.begin(); it != env.end(); ++it)
+			free(*it);
+		env.clear();
+
 		exit(1);
 	}
 	else {
