@@ -3,51 +3,24 @@
 #include "../http/error_codes.hpp"
 #include <exception>
 #include <cstring>
-#include <cstdlib>
 #include <sys/socket.h>
 #include <unistd.h>
 #include <sstream>
 
 //Constructors
-Socket::Socket(std::map<std::string, std::string> parameters) :
+
+Socket::Socket(unsigned short port, VirtualServer vserver) :
 	_is_listening(false)
 {
 	_fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (_fd < 0)
 		throw Socket::CantCreateSocketException();
-
-	if (parameters.find("port") != parameters.end()) {
-		std::stringstream stream(parameters["port"]);
-		stream >> _port;
-	}
-	else
-		_port = 80;
-
-	if (parameters.find("location") != parameters.end())
-		_root = parameters["location"];
-	else {
-	    const char*  home = getenv("HOME");
-		if (!home)
-			throw Socket::NoHomeException();
-		_root += home;
-		_root += "/webserver";
-	}
-	if (parameters.find("cgi_extension") != parameters.end())
-		_extension = parameters["cgi_extension"];
-	bzero(&_socket, sizeof(_socket));
-	_socket.sin_family		= AF_INET;
-	_socket.sin_addr.s_addr	= htonl(INADDR_ANY);
-	_socket.sin_port		= htons(_port);
-}
-Socket::Socket(unsigned short port, std::string root, std::string extension) :
-	_root(root),
-	_extension(extension),
-	_is_listening(false),
-	_port(port)
-{
-	_fd = socket(AF_INET, SOCK_STREAM, 0);
-	if (_fd < 0)
-		throw Socket::CantCreateSocketException();
+	_port = port;
+	_root = vserver.getRoot();
+	_extension = vserver.getExtension();
+	if (_vservers.empty())
+		_default_vserver = vserver.getName();
+	_vservers.insert(std::make_pair(vserver.getName(), vserver));
 	bzero(&_socket, sizeof(_socket));
 	_socket.sin_family		= AF_INET;
 	_socket.sin_addr.s_addr	= htonl(INADDR_ANY);
@@ -61,7 +34,6 @@ Socket::~Socket(void) {
 // Methods
 void	Socket::listen(void) {
 	int	reuse = 1;
-	//REMOVE SO_REUSEPORT BEFORE TURNING IN THE PROJECT
 	if (setsockopt(_fd, SOL_SOCKET, SO_REUSEPORT, &reuse, sizeof(reuse)))
 		throw Socket::CantSetSocketOptionException();
 	if (bind(_fd, (struct sockaddr *) &_socket, sizeof(_socket)))
@@ -101,7 +73,4 @@ const char*	Socket::CantAcceptConnectionException::what(void) const throw() {
 }
 const char*	Socket::CantSetSocketOptionException::what(void) const throw() {
 	return ("Unable to set socket options");
-}
-const char*	Socket::NoHomeException::what(void) const throw() {
-	return ("HOME environment variable not set");
 }

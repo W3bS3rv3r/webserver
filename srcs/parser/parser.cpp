@@ -3,27 +3,19 @@
 #include <string>
 #include <iostream>
 #include <sstream>
+#include <utility>
 
-Socket* newSocket(std::fstream& file) {
-	Socket*								socket;
+std::pair<unsigned short, VirtualServer>	getVServer(std::fstream& file) {
 	std::map<std::string, std::string>	parameters = readParameters(file);
+	unsigned short	port;
 
-	try {
-		socket = new Socket(parameters);
+	if (parameters.find("port") != parameters.end()) {
+		std::stringstream	str(parameters["port"]);
+		str >> port;
 	}
-	catch (const std::exception& e) {
-		std::string	port;
-
-		if (parameters.find("port") != parameters.end())
-			port = parameters["port"];
-		else
-			port = "80";
-		delete socket;
-		socket = NULL;
-		std::cerr << "failed to create socket on port: " << port << std::endl;
-		std::cerr << "Error: " << e.what() << std::endl; 
-	}
-	return (socket);
+	else
+		port = 80;
+	return (std::make_pair(port, VirtualServer(parameters)));
 }
 
 std::map<std::string, std::string>	readParameters(std::fstream& file) {
