@@ -1,5 +1,6 @@
 #include "http.hpp"
 #include "error_codes.hpp"
+#include "request_utils.hpp"
 #include "get.hpp"
 #include "post.hpp"
 #include "delete.hpp"
@@ -17,7 +18,6 @@ std::string	getRequest(const int client_fd) {
 	char				buff[BUFFER_SIZE + 1];
 	std::string			headers;
 	int					contentLength;
-	size_t				contentLengthPos;
 	std::string			body;
 	std::string			request;
 	const std::string	delimiter("\r\n\r\n");
@@ -48,10 +48,10 @@ std::string	getRequest(const int client_fd) {
 	}
 	request += headers;
 
-	contentLengthPos = headers.find("Content-Length: ");
-	if (contentLengthPos == std::string::npos)
+	std::string contentLengthStr = getHeaderValue(headers, "Content-Length");
+	if (contentLengthStr.empty())
 		return (headers);
-	contentLength = strtol(headers.c_str() + contentLengthPos + 16, NULL, 10); // 16 = "Content-Length: ""
+	contentLength = strtol(contentLengthStr.c_str(), NULL, 10);
 
 	int bodyBytes = 0;
 	while (bodyBytes < contentLength) {

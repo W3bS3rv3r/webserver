@@ -26,6 +26,7 @@ HTTP = $(addprefix srcs/http/,	\
 	post.cpp					\
 	delete.cpp					\
 	error_codes.cpp				\
+	request_utils.cpp			\
 )
 
 SRCS = $(MAIN) $(CLASSES) $(HTTP) $(CGI)
