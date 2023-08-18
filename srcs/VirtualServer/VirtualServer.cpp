@@ -34,8 +34,19 @@ VirtualServer&	VirtualServer::operator=(const VirtualServer& src) {
 
 // Methods
 std::string	VirtualServer::getName(void) const { return _name; }
-std::string	VirtualServer::getRoot(void) const { return _root; }
-std::string	VirtualServer::getExtension(void) const { return _extension; }
+
+std::string	VirtualServer::buildPath(std::string route) const {
+	return _root + route;
+}
+
+bool	VirtualServer::isCgi(std::string route) const {
+	if (!_extension.empty() &&
+		route.rfind(_extension) == route.size() - _extension.size())
+	{
+		return (true);
+	}
+	return (false);
+}
 
 // Exceptions
 const char*	VirtualServer::NoHomeException::what(void) const throw() {

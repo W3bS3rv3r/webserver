@@ -14,10 +14,8 @@ public:
 	VirtualServer&	operator=(const VirtualServer& src);
 
 	std::string	getName(void) const;
-
-	//temporary getters
-	std::string	getRoot(void) const;
-	std::string	getExtension(void) const;
+	std::string	buildPath(std::string route) const;
+	bool		isCgi(std::string route) const;
 
 	struct NoHomeException: std::exception {
 		const char*	what(void) const throw();

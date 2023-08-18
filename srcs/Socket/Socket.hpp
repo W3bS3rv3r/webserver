@@ -20,6 +20,7 @@ public:
 	Connection*		acceptConnection(void);
 	int				getFd(void) const;
 	unsigned short	getPort(void) const;
+	VirtualServer	getVServer(void) const;
 
 	struct CantAcceptConnectionException: std::exception {
 		const char*	what(void) const throw();
@@ -30,9 +31,6 @@ public:
 	struct CantBindSocketException : std::exception {
 		const char*	what(void) const throw();
 	};
-	struct InactiveSocketException: std::exception {
-		const char*	what(void) const throw();
-	};
 	struct CantListenOnSocketException : std::exception {
 		const char*	what(void) const throw();
 	};
@@ -40,9 +38,6 @@ public:
 		const char*	what(void) const throw();
 	};
 private:
-	std::string								_root;
-	std::string								_extension;
-	bool									_is_listening;
 	int										_fd;
 	unsigned short							_port;
 	struct sockaddr_in						_socket;

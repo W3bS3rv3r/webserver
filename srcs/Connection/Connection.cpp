@@ -42,8 +42,7 @@ void	Connection::writeResponse(void) {
 		return ;
 	else if (_responses.empty()) {
 		try {
-			_responses.push(getResponse(_requests.front(), _socket->_root,
-										_socket->_extension));
+			_responses.push(getResponse(_requests.front(), *_socket));
 		}
 		catch(const std::exception& e) {
 			_responses.push(Response(e.what()));
