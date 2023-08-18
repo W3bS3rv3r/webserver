@@ -17,6 +17,7 @@ public:
 	~Socket(void);
 
 	void			listen(void);
+	void			addVserver(const VirtualServer& server);
 	Connection*		acceptConnection(void);
 	int				getFd(void) const;
 	unsigned short	getPort(void) const;
@@ -35,6 +36,9 @@ public:
 		const char*	what(void) const throw();
 	};
 	struct CantSetSocketOptionException : std::exception {
+		const char*	what(void) const throw();
+	};
+	struct DuplicateException : std::exception {
 		const char*	what(void) const throw();
 	};
 private:

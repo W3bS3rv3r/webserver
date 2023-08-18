@@ -44,6 +44,14 @@ Connection*	Socket::acceptConnection(void) {
 	return (new Connection(client_fd, this));
 }
 
+void	Socket::addVserver(const VirtualServer& server) {
+	std::pair<std::map<std::string, VirtualServer>::iterator, bool> p;
+
+	p = _vservers.insert(std::make_pair(server.getName(), server));
+	if (!p.second)
+		throw DuplicateException();
+}
+
 int				Socket::getFd(void) const { return _fd; }
 unsigned short	Socket::getPort(void) const { return _port; }
 VirtualServer	Socket::getVServer(void) const { return _vservers.begin()->second; }
@@ -63,4 +71,7 @@ const char*	Socket::CantAcceptConnectionException::what(void) const throw() {
 }
 const char*	Socket::CantSetSocketOptionException::what(void) const throw() {
 	return ("Unable to set socket options");
+}
+const char*	Socket::DuplicateException::what(void) const throw() {
+	return ("Duplicate server name on the same port in the config file");
 }

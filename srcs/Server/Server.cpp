@@ -44,6 +44,12 @@ void	Server::init(std::string path) {
 }
 
 void	Server::addSocket(std::pair<unsigned short, VirtualServer> p) {
+	for (std::map<int, Socket*>::iterator i = _sockets.begin(); i != _sockets.end(); ++i) {
+		if (i->second->getPort() == p.first) {
+			i->second->addVserver(p.second);
+			return ;
+		}
+	}
 	Socket*	socket = new Socket(p.first, p.second);
 	 _sockets.insert(std::make_pair(socket->getFd(), socket));
 }

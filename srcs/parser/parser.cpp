@@ -47,8 +47,11 @@ std::map<std::string, std::string>	readParameters(std::fstream& file) {
 }
 
 bool	validFieldName(std::string field) {
-	if (field == "port" || field == "location" || field == "cgi_extension")
+	if (field == "port" || field == "location" || field == "cgi_extension" ||
+		field == "server_name")
+	{
 		return true;
+	}
 	return false;
 }
 
