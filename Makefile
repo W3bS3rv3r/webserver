@@ -23,8 +23,10 @@ CLASSES = $(addprefix srcs/,	\
 HTTP = $(addprefix srcs/http/,	\
 	http.cpp					\
 	get.cpp						\
+	post.cpp					\
 	delete.cpp					\
 	error_codes.cpp				\
+	request_utils.cpp			\
 )
 
 PARSER = $(addprefix srcs/parser/,	\

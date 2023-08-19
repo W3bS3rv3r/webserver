@@ -6,7 +6,12 @@
 #include <cstring>
 #include <sstream>
 
-Cgi::Cgi(pid_t pid, int fd) : _pid(pid), _fd(fd), _status(0), _done(true) {}
+Cgi::Cgi(pid_t pid, int fd, time_t start) :
+	_pid(pid),
+	_fd(fd),
+	_status(0),
+	_done(true),
+	_start(start) {}
 
 Cgi::Cgi(const Cgi& src) { *this = src; }
 
@@ -34,6 +39,10 @@ bool	Cgi::done(void) {
 		_done = true;
 	}
 	_status = status;
+	time_t now = time(NULL);
+	double timespan = difftime(now, _start);
+	if (timespan >= TIMELIMIT)
+		throw RequestTimeoutException();
 	return (_done);
 }
 
