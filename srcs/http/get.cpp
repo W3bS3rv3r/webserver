@@ -60,7 +60,7 @@ Response	cgiGet(std::string path) {
 		exit(0);
 	}
 	else {
-		Cgi	cgi(pid, fd[0]);
+		Cgi	cgi(pid, fd[0], time(NULL));
 		cgi.setActive();
 		close(fd[1]);
 		resp.setCgi(cgi);

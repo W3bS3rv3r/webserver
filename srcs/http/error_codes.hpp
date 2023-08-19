@@ -3,6 +3,10 @@
 
 #include <exception>
 
+struct RequestTimeoutException: std::exception {
+	const char*	what(void) const throw();
+};
+
 struct MethodNotAllowedException: std::exception {
 	const char*	what(void) const throw();
 };

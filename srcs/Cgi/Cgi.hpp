@@ -3,10 +3,12 @@
 
 #include <sys/types.h>
 #include <string>
+#include <ctime>
+#define TIMELIMIT 30
 
 class Cgi {
 public:
-	Cgi(pid_t pid = 0, int _fd = 0);
+	Cgi(pid_t pid = 0, int _fd = 0, time_t start = time(NULL));
 	Cgi(const Cgi& src);
 	virtual	~Cgi(void);
 
@@ -22,6 +24,7 @@ private:
 	int		_fd;
 	int		_status;
 	bool	_done;
+	time_t	_start;
 };
 
 #endif
