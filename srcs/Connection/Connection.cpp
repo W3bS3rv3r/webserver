@@ -10,12 +10,10 @@
 #include <unistd.h>
 
 //CONSTRUCTORS
-Connection::Connection(int fd, const Socket& socket) :
+Connection::Connection(int fd, const Socket* socket) :
 	_fd(fd),
-	_port(socket._port),
-	_root(socket._root),
-	_extension(socket._extension),
-	_done(false) {}
+	_socket(socket),
+	_done(false){}
 
 Connection::~Connection(void) {
 	close(_fd);
@@ -30,7 +28,7 @@ void	Connection::readRequest(void) {
 			_requests.pop();
 			return ;
 		}
-		std::cout << _fd << ':' << _port << " <- ";
+		std::cout << _fd << ':' << _socket->_port << " <- ";
 		std::cout << _requests.back().substr(0, _requests.back().find('\n'));
 		std::cout << std::endl;
 	}
@@ -44,7 +42,8 @@ void	Connection::writeResponse(void) {
 		return ;
 	else if (_responses.empty()) {
 		try {
-			_responses.push(getResponse(_requests.front(), _root, _extension));
+			_responses.push(getResponse(_requests.front(), _socket->_root,
+										_socket->_extension));
 		}
 		catch(const std::exception& e) {
 			_responses.push(Response(e.what()));
@@ -53,12 +52,12 @@ void	Connection::writeResponse(void) {
 	}
 	if (!_responses.front().isReady())
 		return ;
-	std::cout << _fd << ':' << _port << " -> ";
+	std::cout << _fd << ':' << _socket->_port << " -> ";
 	std::cout << _responses.front().getStatus() << std::endl;
 	send(_fd, _responses.front().getResponse(), _responses.front().size(), 0);
 	_responses.pop();
 }
 
 bool	Connection::done(void) const { return _done; }
-unsigned short Connection::getPort(void) { return _port; }
+unsigned short Connection::getPort(void) { return _socket->_port; }
 int	Connection::getFd(void) { return _fd; }
