@@ -46,24 +46,13 @@ static std::string getRequestHeaders(const int client_fd) {
 	return (headers);
 }
 
-std::string	getRequest(const int client_fd) {
-	int					n;
-	char				buff[BUFFER_SIZE + 1];
-	std::string			headers;
-	int					contentLength;
-	std::string			body;
-	std::string			request;
-	const std::string	delimiter("\r\n\r\n");
+static std::string getRequestBody(const int client_fd, int contentLength) {
+	int			n;
+	char		buff[BUFFER_SIZE + 1];
+	int			bodyBytes;
+	std::string	body;
 
-	headers = getRequestHeaders(client_fd);
-	request += headers;
-
-	std::string contentLengthStr = getHeaderValue(headers, "Content-Length");
-	if (contentLengthStr.empty())
-		return (headers);
-	contentLength = strtol(contentLengthStr.c_str(), NULL, 10);
-
-	int bodyBytes = 0;
+	bodyBytes = 0;
 	while (bodyBytes < contentLength) {
 		memset(buff, 0, BUFFER_SIZE);
 		if ((n = recv(client_fd, buff, std::min(BUFFER_SIZE - 1, contentLength - bodyBytes), 0)) <= 0)
@@ -71,7 +60,26 @@ std::string	getRequest(const int client_fd) {
 		body += buff;
 		bodyBytes += n;
 	}
+	return (body);
+}
+
+std::string	getRequest(const int client_fd) {
+	std::string		headers;
+	int				contentLength;
+	std::string		body;
+	std::string		request;
+
+	headers = getRequestHeaders(client_fd);
+	request += headers;
+
+	std::string contentLengthStr = getHeaderValue(headers, "Content-Length");
+	if (contentLengthStr.empty())
+		return (headers);
+	
+	contentLength = strtol(contentLengthStr.c_str(), NULL, 10);
+	body = getRequestBody(client_fd, contentLength);
 	request += body;
+
 	return (request);
 }
 
