@@ -13,14 +13,11 @@
 #include <sstream>
 #include <iostream>
 
-std::string	getRequest(const int client_fd) {
+static std::string getRequestHeaders(const int client_fd) {
 	int					n;
 	char				buff[BUFFER_SIZE + 1];
-	std::string			headers;
-	int					contentLength;
-	std::string			body;
-	std::string			request;
 	const std::string	delimiter("\r\n\r\n");
+	std::string			headers;
 
 	memset(buff, 0, BUFFER_SIZE + 1);
 	while ((n = recv(client_fd, buff, BUFFER_SIZE - 1, MSG_PEEK | MSG_DONTWAIT)) > 0) {
@@ -46,6 +43,19 @@ std::string	getRequest(const int client_fd) {
 		}
 		memset(buff, 0, BUFFER_SIZE);
 	}
+	return (headers);
+}
+
+std::string	getRequest(const int client_fd) {
+	int					n;
+	char				buff[BUFFER_SIZE + 1];
+	std::string			headers;
+	int					contentLength;
+	std::string			body;
+	std::string			request;
+	const std::string	delimiter("\r\n\r\n");
+
+	headers = getRequestHeaders(client_fd);
 	request += headers;
 
 	std::string contentLengthStr = getHeaderValue(headers, "Content-Length");
