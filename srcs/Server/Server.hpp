@@ -29,7 +29,7 @@ private:
 	std::vector<int>			_new_fds;
 	bool						_changed;
 
-	void	addSocket(std::pair<unsigned short, VirtualServer> p);
+	void	addVServer(std::pair<unsigned short, VirtualServer> p);
 	void	startListening(void);
 	void	closeSocket(int socket_fd);
 	void	addConnection(int socket_fd);

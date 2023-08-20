@@ -34,7 +34,7 @@ void	Server::init(std::string path) {
 
 	while(std::getline(file >> std::ws, buff)) {
 		if (buff == "server {")
-			this->addSocket(getVServer(file));
+			this->addVServer(getVServer(file));
 		else {
 			std::cerr << "at line: '" << buff << "'" << std::endl;
 			throw InvalidSyntaxException();
@@ -43,7 +43,7 @@ void	Server::init(std::string path) {
 	std::cout << "Config file parsed" << std::endl;
 }
 
-void	Server::addSocket(std::pair<unsigned short, VirtualServer> p) {
+void	Server::addVServer(std::pair<unsigned short, VirtualServer> p) {
 	for (std::map<int, Socket*>::iterator i = _sockets.begin(); i != _sockets.end(); ++i) {
 		if (i->second->getPort() == p.first) {
 			i->second->addVserver(p.second);
