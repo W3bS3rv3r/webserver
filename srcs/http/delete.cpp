@@ -5,8 +5,8 @@
 #include <dirent.h>
 #include <unistd.h>
 
-std::string	del(const std::string& path, const std::string& root) {
-	std::string		open_string(root + path);
+std::string	del(const std::string& path) {
+	std::string		open_string(path);
 	DIR*			dir;
 
 	if ( (dir = opendir(open_string.c_str())) ) {

@@ -3,6 +3,6 @@
 
 #include <string>
 
-std::string	del(const std::string& path, const std::string& root);
+std::string	del(const std::string& path);
 
 #endif

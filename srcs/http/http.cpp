@@ -65,28 +65,26 @@ std::string	getRequest(const int client_fd) {
 	return (request);
 }
 
-Response	getResponse(const std::string& request, const std::string& root,
-		const std::string& extension)
-{
+Response	getResponse(const std::string& request, const Socket& socket) {
 	std::stringstream	stream(request);
-	std::string			method, path;
+	std::string			method, route, path;
 	Response			response;
 
+	const VirtualServer&	server = socket.getVServer(getHeaderValue(request, "Host"));
 	stream >> method;
-	stream >> path;
+	stream >> route;
+	path = server.buildPath(route);
 	if (method == "GET") {
-		if (!extension.empty() && path.rfind(extension) == path.size() - extension.size())
-			response = cgiGet(root + path);
+		if (server.isCgi(route))
+			response = cgiGet(path);
 		else
-			response.setResponse(get(root + path));
+			response.setResponse(get(path));
 	}
 	else if (method == "DELETE")
-		response.setResponse(del(path, root));
+		response.setResponse(del(path));
 	else if (method == "POST") {
-		if (path.rfind(extension) == path.size() - extension.size()) {
-			response = cgiPost(root + path, request);
-			return (response);
-		}
+		if (server.isCgi(route))
+			response = cgiPost(path, request);
 		else
 			throw MethodNotAllowedException();
 	}
