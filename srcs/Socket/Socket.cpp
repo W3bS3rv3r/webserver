@@ -54,7 +54,15 @@ void	Socket::addVserver(const VirtualServer& server) {
 
 int				Socket::getFd(void) const { return _fd; }
 unsigned short	Socket::getPort(void) const { return _port; }
-VirtualServer	Socket::getVServer(void) const { return _vservers.begin()->second; }
+
+VirtualServer	Socket::getVServer(std::string host_header) const {
+	std::map<std::string, VirtualServer>::const_iterator	i;
+	host_header = host_header.substr(0, host_header.find_last_of(":"));
+
+	if ((i = _vservers.find(host_header)) != _vservers.end())
+		return (i->second);
+	return _vservers.begin()->second;
+}
 
 // Exceptions
 const char*	Socket::CantCreateSocketException::what(void) const throw() {

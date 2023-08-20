@@ -70,7 +70,7 @@ Response	getResponse(const std::string& request, const Socket& socket) {
 	std::string			method, route, path;
 	Response			response;
 
-	const VirtualServer&	server = socket.getVServer();
+	const VirtualServer&	server = socket.getVServer(getHeaderValue(request, "Host"));
 	stream >> method;
 	stream >> route;
 	path = server.buildPath(route);

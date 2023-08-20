@@ -21,7 +21,7 @@ public:
 	Connection*		acceptConnection(void);
 	int				getFd(void) const;
 	unsigned short	getPort(void) const;
-	VirtualServer	getVServer(void) const;
+	VirtualServer	getVServer(std::string host_header) const;
 
 	struct CantAcceptConnectionException: std::exception {
 		const char*	what(void) const throw();
