@@ -1,21 +1,14 @@
 #include "VirtualServer.hpp"
 #include <cstdlib>
+#include <sstream>
 
 // Constructors
-VirtualServer::VirtualServer(std::map<std::string, std::string> parameters) {
-	if (parameters.find("root") != parameters.end())
-		_root = parameters["root"];
-	else {
-	    const char*  home = getenv("HOME");
-		if (!home)
-			throw VirtualServer::NoHomeException();
-		_root += home;
-		_root += "/webserver";
-	}
-	if (parameters.find("cgi_extension") != parameters.end())
-		_extension = parameters["cgi_extension"];
-	if (parameters.find("server_name") != parameters.end())
-		_name = parameters["server_name"];
+VirtualServer::VirtualServer(void) {
+    const char*  home = getenv("HOME");
+	if (!home)
+		throw VirtualServer::NoHomeException();
+	_root += home;
+	_root += "/webserver";
 }
 
 VirtualServer::VirtualServer(const VirtualServer& src) { *this = src; }
@@ -48,7 +41,44 @@ bool	VirtualServer::isCgi(std::string route) const {
 	return (false);
 }
 
+int	VirtualServer::interpretLine(std::string str) {
+	std::string			field, content;
+	std::stringstream	stream;
+
+	stream << str;
+	stream >> field;
+	if (_fields.find(field) == _fields.end())
+		return (-1);
+	stream >> content;
+	stream >> std::ws;
+	if (!stream.eof() || content.empty())
+		return (-1);
+	if (field == "port")
+		return (std::atoi(content.c_str()));
+	this->insertGeneralField(field, content);
+	return (0);
+}
+
+void	VirtualServer::insertGeneralField(std::string field, std::string content) {
+	if (field == "root")
+		_root = content;
+	else if (field == "server_name")
+		_name = content;
+	else if (field == "cgi_extension")
+		_extension = content;
+}
+
 // Exceptions
 const char*	VirtualServer::NoHomeException::what(void) const throw() {
 	return ("HOME environment variable not set");
 }
+
+// Static variables
+const char*	VirtualServer::_fields_array[] = {
+	"port",
+	"root",
+	"cgi_extension",
+	"server_name"
+};
+
+const std::set<std::string>	VirtualServer::_fields(_fields_array, _fields_array + 4);
