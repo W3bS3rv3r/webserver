@@ -14,12 +14,14 @@ std::pair<unsigned short, VirtualServer>	getVServer(std::fstream& file) {
 	while(std::getline(file >> std::ws, buff)) {
 		if (buff == "}")
 			break ;
-		status = vserver.interpretLine(buff);
-		if (status == -1) {
+		try {
+			status = vserver.interpretLine(buff);
+		}
+		catch (const std::exception& e) {
 			std::cerr << "at line: '" << buff << "'" << std::endl;
 			throw InvalidSyntaxException();
 		}
-		else if (status != 0)
+		if (status)
 			port = static_cast<unsigned int>(status);
 	}
 	return (std::make_pair(port, vserver));

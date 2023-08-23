@@ -1,6 +1,8 @@
 #include "VirtualServer.hpp"
 #include <cstdlib>
+#include <exception>
 #include <sstream>
+#include <utility>
 
 // Constructors
 VirtualServer::VirtualServer(void) {
@@ -26,6 +28,21 @@ VirtualServer&	VirtualServer::operator=(const VirtualServer& src) {
 }
 
 // Methods
+namespace {
+	int	getPort(std::stringstream& stream) {
+		std::string	str;
+
+		stream >> str;
+		stream >> std::ws;
+		if (str.empty() || !stream.eof())
+			throw std::exception();
+		int port = std::atoi(str.c_str());
+		if (!port)
+			throw std::exception();
+		return (port);
+	}
+}
+
 std::string	VirtualServer::getName(void) const { return _name; }
 
 std::string	VirtualServer::buildPath(std::string route) const {
@@ -42,24 +59,40 @@ bool	VirtualServer::isCgi(std::string route) const {
 }
 
 int	VirtualServer::interpretLine(std::string str) {
-	std::string			field, content;
+	std::string			field;
 	std::stringstream	stream;
 
 	stream << str;
 	stream >> field;
 	if (_fields.find(field) == _fields.end())
-		return (-1);
-	stream >> content;
-	stream >> std::ws;
-	if (!stream.eof() || content.empty())
-		return (-1);
-	if (field == "port")
-		return (std::atoi(content.c_str()));
-	this->insertGeneralField(field, content);
+		throw std::exception();
+	else if (field == "port")
+		return (getPort(stream));
+	if (field == "error_page")
+		this->insertErrorCode(stream);
+	else
+		this->insertGeneralField(field, stream);
 	return (0);
 }
 
-void	VirtualServer::insertGeneralField(std::string field, std::string content) {
+void	VirtualServer::insertErrorCode(std::stringstream& stream) {
+	std::string			error, path;
+
+	stream >> error;
+	stream >> path;
+	stream >> std::ws;
+	if (error.empty() || path.empty() || !stream.eof())
+		throw std::exception();
+	_error_pages.insert(std::make_pair(error, path));
+}
+
+void	VirtualServer::insertGeneralField(std::string field, std::stringstream& stream) {
+	std::string			content;
+
+	stream >> content;
+	stream >> std::ws;
+	if (!stream.eof() || content.empty())
+		throw std::exception();
 	if (field == "root")
 		_root = content;
 	else if (field == "server_name")
@@ -78,7 +111,8 @@ const char*	VirtualServer::_fields_array[] = {
 	"port",
 	"root",
 	"cgi_extension",
-	"server_name"
+	"server_name",
+	"error_page"
 };
 
-const std::set<std::string>	VirtualServer::_fields(_fields_array, _fields_array + 4);
+const std::set<std::string>	VirtualServer::_fields(_fields_array, _fields_array + 5);

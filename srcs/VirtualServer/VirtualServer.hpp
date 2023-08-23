@@ -23,13 +23,15 @@ public:
 		const char*	what(void) const throw();
 	};
 private:
-	std::string				_root;
-	std::string				_extension;
-	std::string				_name;
+	std::map<std::string, std::string>	_error_pages;
+	std::string							_root;
+	std::string							_extension;
+	std::string							_name;
 
-	void		insertGeneralField(std::string field, std::string content);
+	void	insertGeneralField(std::string field, std::stringstream& stream);
+	void	insertErrorCode(std::stringstream& stream);
 
-	static const char*	_fields_array[];
+	static const char*					_fields_array[];
 	static const std::set<std::string>	_fields;
 };
 
