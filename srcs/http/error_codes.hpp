@@ -3,13 +3,20 @@
 
 #include <exception>
 #include <string>
+#include "../Socket/Socket.hpp"
 
-struct HTTPException : public std::exception {
+class HTTPException : public std::exception {
+public:
 	HTTPException(std::string h, std::string s_l);
 	virtual ~HTTPException(void) throw();
-	const std::string	host;
-	const std::string	status_line;
+
 	virtual const char*	what(void) const throw() = 0;
+	std::string			getResponse(const Socket& socket) const;
+	std::string			getErrorCode(void) const;
+
+private:
+	const std::string	_host;
+	const std::string	_status_line;
 };
 
 struct RequestTimeoutException : public HTTPException {

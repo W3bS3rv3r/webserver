@@ -1,12 +1,28 @@
 #include "error_codes.hpp"
 
+//HTTP CLASS CODE
 HTTPException::HTTPException(std::string h, std::string s_l) :
-	host(h),
-	status_line(s_l)
+	_host(h),
+	_status_line(s_l)
 {}
 
 HTTPException::~HTTPException(void) throw() {}
 
+std::string	HTTPException::getResponse(const Socket& socket) const {
+	VirtualServer vserver		= socket.getVServer(_host);
+	std::string	error_message	= vserver.getCustomError(this->getErrorCode());
+	if (error_message.empty())
+		error_message = this->what();
+	return (_status_line + error_message);
+}
+
+std::string	HTTPException::getErrorCode(void) const {
+	std::string::size_type	begining = _status_line.find(" ") + 1;
+	std::string	code = _status_line.substr(begining, 3);
+	return (code);
+}
+
+//HTTP ERRORS
 RequestTimeoutException::RequestTimeoutException(std::string h) :
 	HTTPException(h, "HTTP/1.1 408 Request Timeout\r\n"){}
 const char*	RequestTimeoutException::what(void) const throw() {

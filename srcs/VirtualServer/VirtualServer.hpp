@@ -16,6 +16,7 @@ public:
 
 	std::string	getName(void) const;
 	std::string	buildPath(std::string route) const;
+	std::string	getCustomError(std::string code) const;
 	bool		isCgi(std::string route) const;
 	int			interpretLine(std::string str);
 

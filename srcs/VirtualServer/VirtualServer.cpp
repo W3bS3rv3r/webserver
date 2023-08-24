@@ -3,6 +3,7 @@
 #include <exception>
 #include <sstream>
 #include <utility>
+#include <fstream>
 
 // Constructors
 VirtualServer::VirtualServer(void) {
@@ -23,6 +24,7 @@ VirtualServer&	VirtualServer::operator=(const VirtualServer& src) {
 		_root = src._root;
 		_extension = src._extension;
 		_name = src._name;
+		_error_pages = src._error_pages;
 	}
 	return (*this);
 }
@@ -99,6 +101,35 @@ void	VirtualServer::insertGeneralField(std::string field, std::stringstream& str
 		_name = content;
 	else if (field == "cgi_extension")
 		_extension = content;
+}
+
+std::string	VirtualServer::getCustomError(std::string code) const {
+	std::string	path;
+	try {
+		path = _error_pages.at(code);
+		std::string		content;
+		std::string		buff;
+		std::fstream	file(path.c_str(), std::ios_base::in);
+		while(std::getline(file, buff)) {
+			try {
+				content += buff;
+			}
+			catch (const std::exception& e) {
+				file.close();
+				throw std::exception();
+			}
+		}
+		file.close();
+		if (content.empty())
+			throw std::exception();
+		std::stringstream	response;
+		response << "Content-Length: " << content.size() << "\r\n\r\n";
+		response << content;
+		return (response.str());
+	}
+	catch(...) {
+		return ("");
+	}
 }
 
 // Exceptions
