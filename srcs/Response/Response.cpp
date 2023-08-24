@@ -1,4 +1,5 @@
 #include "Response.hpp"
+#include "../http/request_utils.hpp"
 #include "../http/error_codes.hpp"
 
 Response::Response(std::string response) : _response(response) {}
@@ -29,8 +30,8 @@ bool	Response::isReady(void) {
 		}
 		return (false);
 	}
-	catch (const std::exception& e) {
-		_response = e.what();
+	catch (const HTTPException& e) {
+		_response = e.status_line + e.what();
 		return (true);
 	}
 }

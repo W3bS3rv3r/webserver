@@ -32,8 +32,8 @@ void	Connection::readRequest(void) {
 		std::cout << _requests.back().substr(0, _requests.back().find('\n'));
 		std::cout << std::endl;
 	}
-	catch(const std::exception& e) {
-		_responses.push(Response(e.what()));
+	catch(const HTTPException& e) {
+		_responses.push(Response(e.status_line + e.what()));
 	}
 }
 
@@ -44,8 +44,8 @@ void	Connection::writeResponse(void) {
 		try {
 			_responses.push(getResponse(_requests.front(), *_socket));
 		}
-		catch(const std::exception& e) {
-			_responses.push(Response(e.what()));
+		catch(const HTTPException& e) {
+			_responses.push(Response(e.status_line + e.what()));
 		}
 		_requests.pop();
 	}

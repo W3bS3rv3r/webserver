@@ -2,36 +2,53 @@
 # define ERROR_CODES_HPP
 
 #include <exception>
+#include <string>
 
-struct RequestTimeoutException: std::exception {
+struct HTTPException : public std::exception {
+	HTTPException(std::string h, std::string s_l);
+	virtual ~HTTPException(void) throw();
+	const std::string	host;
+	const std::string	status_line;
+	virtual const char*	what(void) const throw() = 0;
+};
+
+struct RequestTimeoutException : public HTTPException {
+	RequestTimeoutException(std::string h);
 	const char*	what(void) const throw();
 };
 
-struct MethodNotAllowedException: std::exception {
+struct MethodNotAllowedException : public HTTPException {
+	MethodNotAllowedException(std::string h);
 	const char*	what(void) const throw();
 };
 
-struct NotFoundException: std::exception {
+struct NotFoundException : public HTTPException {
+	NotFoundException(std::string h);
 	const char*	what(void) const throw();
 };
 
-struct ForbiddenException: std::exception {
+struct ForbiddenException : public HTTPException {
+	ForbiddenException(std::string h);
 	const char*	what(void) const throw();
 };
 
-struct BadRequestException: std::exception {
+struct BadRequestException : public HTTPException {
+	BadRequestException(std::string h);
 	const char*	what(void) const throw();
 };
 
-struct ServiceUnavailableException: std::exception {
+struct ServiceUnavailableException : public HTTPException {
+	ServiceUnavailableException(std::string h);
 	const char*	what(void) const throw();
 };
 
-struct InternalServerErrorException: std::exception {
+struct InternalServerErrorException : public HTTPException {
+	InternalServerErrorException(std::string h);
 	const char*	what(void) const throw();
 };
 
-struct BadGatewayException: std::exception {
+struct BadGatewayException : public HTTPException {
+	BadGatewayException(std::string h);
 	const char*	what(void) const throw();
 };
 

@@ -30,7 +30,8 @@ std::string	getRequest(const int client_fd) {
 				headers += buff;
 			}
 			catch (const std::exception& e) {
-				throw InternalServerErrorException();
+				std::string	host = getHeaderValue(request, "Host");
+				throw InternalServerErrorException(host);
 			}
 			recv(client_fd, buff, n, 0);
 		}
@@ -40,7 +41,8 @@ std::string	getRequest(const int client_fd) {
 				headers += buff;
 			}
 			catch (const std::exception& e) {
-				throw InternalServerErrorException();
+				std::string	host = getHeaderValue(request, "Host");
+				throw InternalServerErrorException(host);
 			}
 			break ;
 		}
@@ -70,28 +72,29 @@ Response	getResponse(const std::string& request, const Socket& socket) {
 	std::string			method, route, path;
 	Response			response;
 
-	const VirtualServer&	server = socket.getVServer(getHeaderValue(request, "Host"));
+	std::string				host = getHeaderValue(request, "Host");
+	const VirtualServer&	server = socket.getVServer(host);
 	stream >> method;
 	stream >> route;
 	path = server.buildPath(route);
 	if (method == "GET") {
 		if (server.isCgi(route))
-			response = cgiGet(path);
+			response = cgiGet(path, request);
 		else
-			response.setResponse(get(path));
+			response.setResponse(get(path, request));
 	}
 	else if (method == "DELETE")
-		response.setResponse(del(path));
+		response.setResponse(del(path, request));
 	else if (method == "POST") {
 		if (server.isCgi(route))
 			response = cgiPost(path, request);
 		else
-			throw MethodNotAllowedException();
+			throw MethodNotAllowedException(host);
 	}
 	else if (method == "HEAD" || method == "PUT" || method == "CONNECT"
 			|| method == "OPTIONS" || method == "TRACE")
-		throw ServiceUnavailableException();
+		throw ServiceUnavailableException(host);
 	else
-		throw BadRequestException();
+		throw BadRequestException(host);
 	return (response);
 }

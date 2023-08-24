@@ -15,12 +15,13 @@
 Response	cgiPost(std::string path, std::string request) {
 	Response	resp;
 	int			fd[2];
+	std::string	host = getHeaderValue(request, "Host");
 
 	if (pipe(fd))
-		throw InternalServerErrorException();
+		throw InternalServerErrorException(host);
 	pid_t	pid = fork();
 	if (pid == -1)
-		throw InternalServerErrorException();
+		throw InternalServerErrorException(host);
 	else if (pid == 0) {
 		std::vector<const char*>	argv;
 		argv.push_back("/usr/bin/python3");
