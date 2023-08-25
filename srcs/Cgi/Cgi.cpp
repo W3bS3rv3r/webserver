@@ -68,12 +68,15 @@ std::string	Cgi::readResponse(void) {
 		throw InternalServerErrorException();
 	std::string::size_type	i = content.find("\r\n\r\n");
 	if (i == std::string::npos)
-		throw InternalServerErrorException();
+	{
+		i = content.find("\n\n");
+		if (i == std::string::npos)
+			throw InternalServerErrorException();
+	}
 	std::stringstream	response;
 	response << "HTTP/1.1 200 OK\r\n";
 	response << "Content-Length: " << content.substr(i + 4).size() << "\r\n";
-	response << content.substr(0, i + 4);
-	response << content.substr(i + 4);
+	response << content;
 	return (response.str());
 }
 
