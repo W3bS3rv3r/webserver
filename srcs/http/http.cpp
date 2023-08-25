@@ -13,57 +13,21 @@
 #include <sstream>
 #include <iostream>
 
+// Helper functions
+namespace {
+	std::string	getHeaders(int fd);
+	std::string	getBody(int fd, int content_length, std::string host);
+};
+
 std::string	getRequest(const int client_fd) {
-	int					n;
-	char				buff[BUFFER_SIZE + 1];
-	std::string			headers;
-	int					contentLength;
-	std::string			body;
 	std::string			request;
-	const std::string	delimiter("\r\n\r\n");
 
-	memset(buff, 0, BUFFER_SIZE + 1);
-	while ((n = recv(client_fd, buff, BUFFER_SIZE - 1, MSG_PEEK | MSG_DONTWAIT)) > 0) {
-		char*	i = std::search(buff, buff + n, delimiter.begin(), delimiter.end());
-		if (i == buff + n) {
-			try {
-				headers += buff;
-			}
-			catch (const std::exception& e) {
-				std::string	host = getHeaderValue(request, "Host");
-				throw InternalServerErrorException(host);
-			}
-			recv(client_fd, buff, n, 0);
-		}
-		else {
-			recv(client_fd, buff, i - buff + delimiter.size(), 0);
-			try {
-				headers += buff;
-			}
-			catch (const std::exception& e) {
-				std::string	host = getHeaderValue(request, "Host");
-				throw InternalServerErrorException(host);
-			}
-			break ;
-		}
-		memset(buff, 0, BUFFER_SIZE);
-	}
-	request += headers;
-
-	std::string contentLengthStr = getHeaderValue(headers, "Content-Length");
+	request += getHeaders(client_fd);
+	std::string contentLengthStr = getHeaderValue(request, "Content-Length");
 	if (contentLengthStr.empty())
-		return (headers);
-	contentLength = strtol(contentLengthStr.c_str(), NULL, 10);
-
-	int bodyBytes = 0;
-	while (bodyBytes < contentLength) {
-		memset(buff, 0, BUFFER_SIZE);
-		if ((n = recv(client_fd, buff, std::min(BUFFER_SIZE - 1, contentLength - bodyBytes), 0)) <= 0)
-			break;
-		body += buff;
-		bodyBytes += n;
-	}
-	request += body;
+		return (request);
+	int	content_length = strtol(contentLengthStr.c_str(), NULL, 10);
+	request += getBody(client_fd, content_length, getHeaderValue(request, "Host"));
 	return (request);
 }
 
@@ -97,4 +61,57 @@ Response	getResponse(const std::string& request, const Socket& socket) {
 	else
 		throw BadRequestException(host);
 	return (response);
+}
+
+// Helper functions definitions
+namespace {
+std::string	getHeaders(int fd) {
+	int					n;
+	char				buff[BUFFER_SIZE + 1];
+	std::string			headers, delimiter("\r\n\r\n");
+
+	memset(buff, 0, BUFFER_SIZE + 1);
+	while ((n = recv(fd, buff, BUFFER_SIZE - 1, MSG_PEEK | MSG_DONTWAIT)) > 0) {
+		char*	i = std::search(buff, buff + n, delimiter.begin(), delimiter.end());
+		try {
+			if (i == buff + n) {
+				headers += buff;
+				recv(fd, buff, n, 0);
+			}
+			else {
+				recv(fd, buff, i - buff + delimiter.size(), 0);
+				headers += buff;
+				break ;
+			}
+		}
+		catch (const std::exception& e) {
+			std::string	host = getHeaderValue(headers, "Host");
+			throw InternalServerErrorException(host);
+		}
+		memset(buff, 0, BUFFER_SIZE);
+	}
+	return (headers);
+}
+
+std::string	getBody(int fd, int content_length, std::string host) {
+	std::string	body;
+	int			n = 1;
+	int			bodyBytes = 0;
+	char		buff[BUFFER_SIZE + 1];
+
+	memset(buff, 0, BUFFER_SIZE + 1);
+	while (bodyBytes < content_length && n > 0) {
+		if ((n = recv(fd, buff, std::min(BUFFER_SIZE - 1, content_length - bodyBytes), 0)) <= 0)
+			break;
+		try {
+			body += buff;
+			bodyBytes += n;
+		}
+		catch (const std::exception& e) {
+			throw InternalServerErrorException(host);
+		}
+		memset(buff, 0, BUFFER_SIZE);
+	}
+	return (body);
+}
 }

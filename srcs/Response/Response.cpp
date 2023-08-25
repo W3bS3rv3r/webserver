@@ -23,17 +23,11 @@ std::string	Response::getStatus(void) const {
 bool	Response::isReady(void) {
 	if (!_cgi.isActive())
 		return (true);
-	try {
-		if (_cgi.done()) {
-			_response = _cgi.readResponse();
-			return (true);
-		}
-		return (false);
-	}
-	catch (const HTTPException& e) {
-		_response = e.status_line + e.what();
+	else if (_cgi.done()) {
+		_response = _cgi.readResponse();
 		return (true);
 	}
+	return (false);
 }
 
 size_t	Response::size(void) const { return _response.size(); }
