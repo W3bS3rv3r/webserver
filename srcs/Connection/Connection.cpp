@@ -54,7 +54,7 @@ void	Connection::writeResponse(void) {
 			return ;
 	}
 	catch(const HTTPException& e) {
-		_responses.push(Response(e.getResponse(*_socket)));
+		_responses.front() = Response(e.getResponse(*_socket));
 	}
 	std::cout << _fd << ':' << _socket->_port << " -> ";
 	std::cout << _responses.front().getStatus() << std::endl;
