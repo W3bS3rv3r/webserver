@@ -74,7 +74,7 @@ std::string	Cgi::readResponse(void) {
 	if (i == std::string::npos) {
 		i = content.find("\n\n");
 		if (i == std::string::npos)
-			throw InternalServerErrorException();
+			throw InternalServerErrorException(_host);
 	}
 	std::stringstream	response;
 	response << "HTTP/1.1 200 OK\r\n";
