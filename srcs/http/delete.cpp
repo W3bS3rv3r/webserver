@@ -1,5 +1,5 @@
 #include "delete.hpp"
-#include "error_codes.hpp"
+#include "../HTTPException/HTTPException.hpp"
 #include "request_utils.hpp"
 #include <fstream>
 #include <string>

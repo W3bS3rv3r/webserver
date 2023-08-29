@@ -1,6 +1,6 @@
 #include "Response.hpp"
 #include "../http/request_utils.hpp"
-#include "../http/error_codes.hpp"
+#include "../HTTPException/HTTPException.hpp"
 
 Response::Response(std::string response) : _response(response) {}
 

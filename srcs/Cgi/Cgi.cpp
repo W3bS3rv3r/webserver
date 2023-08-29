@@ -1,5 +1,5 @@
 #include "Cgi.hpp"
-#include "../http/error_codes.hpp"
+#include "../HTTPException/HTTPException.hpp"
 #include <unistd.h>
 #include <signal.h>
 #include <sys/wait.h>

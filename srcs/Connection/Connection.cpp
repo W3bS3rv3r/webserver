@@ -2,7 +2,7 @@
 #include "../http/http.hpp"
 #include "../Socket/Socket.hpp"
 #include "../Response/Response.hpp"
-#include "../http/error_codes.hpp"
+#include "../HTTPException/HTTPException.hpp"
 #include <exception>
 #include <sys/types.h>
 #include <sys/socket.h>

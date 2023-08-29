@@ -1,5 +1,5 @@
 #include "http.hpp"
-#include "error_codes.hpp"
+#include "../HTTPException/HTTPException.hpp"
 #include "request_utils.hpp"
 #include "get.hpp"
 #include "post.hpp"

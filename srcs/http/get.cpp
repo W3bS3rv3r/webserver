@@ -1,5 +1,5 @@
 #include "get.hpp"
-#include "error_codes.hpp"
+#include "../HTTPException/HTTPException.hpp"
 #include <fstream>
 #include "request_utils.hpp"
 #include <dirent.h>

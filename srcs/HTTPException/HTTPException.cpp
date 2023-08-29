@@ -1,4 +1,4 @@
-#include "error_codes.hpp"
+#include "HTTPException.hpp"
 
 //HTTP CLASS CODE
 HTTPException::HTTPException(std::string h, std::string s_l) :
