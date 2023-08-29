@@ -6,44 +6,25 @@
 #include <utility>
 
 std::pair<unsigned short, VirtualServer>	getVServer(std::fstream& file) {
-	std::map<std::string, std::string>	parameters = readParameters(file);
+	VirtualServer	vserver;
 	unsigned short	port;
-
-	if (parameters.find("port") != parameters.end()) {
-		std::stringstream	str(parameters["port"]);
-		str >> port;
-	}
-	else
-		port = 80;
-	return (std::make_pair(port, VirtualServer(parameters)));
-}
-
-std::map<std::string, std::string>	readParameters(std::fstream& file) {
-	std::string							buff, field, content;
-	std::stringstream					stream;
-	std::map<std::string, std::string>	parameters;
+	std::string		buff;
+	int				status;
 
 	while(std::getline(file >> std::ws, buff)) {
 		if (buff == "}")
 			break ;
-		stream << buff;
-		stream >> field;
-		if (!validFieldName(field)) {
+		try {
+			status = vserver.interpretLine(buff);
+		}
+		catch (const std::exception& e) {
 			std::cerr << "at line: '" << buff << "'" << std::endl;
 			throw InvalidSyntaxException();
 		}
-		stream >> content;
-		stream >> std::ws;
-		if (!stream.eof() || content.empty()) {
-			std::cerr << "at line: '" << buff << "'" << std::endl;
-			throw InvalidSyntaxException();
-		}
-		parameters.insert(std::make_pair(field, content));
-		field.clear();
-		content.clear();
-		stream.clear();
+		if (status)
+			port = static_cast<unsigned int>(status);
 	}
-	return (parameters);
+	return (std::make_pair(port, vserver));
 }
 
 bool	validFieldName(std::string field) {

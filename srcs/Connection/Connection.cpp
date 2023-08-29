@@ -2,7 +2,7 @@
 #include "../http/http.hpp"
 #include "../Socket/Socket.hpp"
 #include "../Response/Response.hpp"
-#include "../http/error_codes.hpp"
+#include "../HTTPException/HTTPException.hpp"
 #include <exception>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -32,8 +32,8 @@ void	Connection::readRequest(void) {
 		std::cout << _requests.back().substr(0, _requests.back().find('\n'));
 		std::cout << std::endl;
 	}
-	catch(const std::exception& e) {
-		_responses.push(Response(e.what()));
+	catch(const HTTPException& e) {
+		_responses.push(Response(e.getResponse(*_socket)));
 	}
 }
 
@@ -44,13 +44,18 @@ void	Connection::writeResponse(void) {
 		try {
 			_responses.push(getResponse(_requests.front(), *_socket));
 		}
-		catch(const std::exception& e) {
-			_responses.push(Response(e.what()));
+		catch(const HTTPException& e) {
+			_responses.push(Response(e.getResponse(*_socket)));
 		}
 		_requests.pop();
 	}
-	if (!_responses.front().isReady())
-		return ;
+	try {
+		if (!_responses.front().isReady())
+			return ;
+	}
+	catch(const HTTPException& e) {
+		_responses.front() = Response(e.getResponse(*_socket));
+	}
 	std::cout << _fd << ':' << _socket->_port << " -> ";
 	std::cout << _responses.front().getStatus() << std::endl;
 	send(_fd, _responses.front().getResponse(), _responses.front().size(), 0);

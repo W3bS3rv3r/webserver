@@ -1,6 +1,6 @@
 #include "Socket.hpp"
 #include "../http/http.hpp"
-#include "../http/error_codes.hpp"
+#include "../HTTPException/HTTPException.hpp"
 #include <exception>
 #include <cstring>
 #include <sys/socket.h>

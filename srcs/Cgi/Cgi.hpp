@@ -8,7 +8,7 @@
 
 class Cgi {
 public:
-	Cgi(pid_t pid = 0, int _fd = 0, time_t start = time(NULL));
+	Cgi(pid_t pid = 0, int _fd = 0, time_t start = time(NULL), std::string host = "");
 	Cgi(const Cgi& src);
 	virtual	~Cgi(void);
 
@@ -20,11 +20,12 @@ public:
 
 	void	setActive(void);
 private:
-	pid_t	_pid;
-	int		_fd;
-	int		_status;
-	bool	_done;
-	time_t	_start;
+	pid_t		_pid;
+	int			_fd;
+	int			_status;
+	bool		_done;
+	time_t		_start;
+	std::string	_host;
 };
 
 #endif
