@@ -28,6 +28,7 @@ private:
 	std::string							_root;
 	std::string							_extension;
 	std::string							_name;
+	unsigned long						_body_size;
 
 	void	insertGeneralField(std::string field, std::stringstream& stream);
 	void	insertErrorCode(std::stringstream& stream);
