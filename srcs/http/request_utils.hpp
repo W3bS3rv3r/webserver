@@ -7,5 +7,6 @@
 
 std::string	getHeaderValue(const std::string& request, const std::string& headerName);
 std::string	getFileContent(const std::string& path, std::string host);
+bool		pollFd(int fd);
 
 #endif

@@ -1,5 +1,6 @@
 #include "request_utils.hpp"
 #include "../HTTPException/HTTPException.hpp"
+#include <sys/poll.h>
 #include <fstream>
 #include <fcntl.h>
 #include <unistd.h>
@@ -27,7 +28,7 @@ std::string	getFileContent(const std::string& path, std::string host) {
 	int				n;
 	int				fd = open(path.c_str(), O_NONBLOCK);
 
-	if (fd < 0)
+	if (fd < 0 || !pollFd(fd))
 		throw InternalServerErrorException(host);
 	memset(buff, 0, BUFFER_SIZE + 1);
 	while ((n = read(fd, buff, BUFFER_SIZE - 1)) > 0) {
@@ -44,4 +45,16 @@ std::string	getFileContent(const std::string& path, std::string host) {
 		throw InternalServerErrorException(host);
 	close(fd);
 	return (content);
+}
+
+bool	pollFd(int fd) {
+	struct pollfd	temp;
+
+	memset(&temp, 0, sizeof(temp));
+	temp.events = POLLIN | POLLOUT;
+	temp.fd = fd;
+	poll(&temp, 1, 0);
+	if (temp.revents & POLLIN)
+		return (true);
+	return (false);
 }
