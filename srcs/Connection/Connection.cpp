@@ -58,7 +58,7 @@ void	Connection::writeResponse(void) {
 	}
 	std::cout << _fd << ':' << _socket->_port << " -> ";
 	std::cout << _responses.front().getStatus() << std::endl;
-	send(_fd, _responses.front().getResponse(), _responses.front().size(), 0);
+	send(_fd, _responses.front().getResponse(), _responses.front().size(), MSG_DONTWAIT);
 	_responses.pop();
 }
 
