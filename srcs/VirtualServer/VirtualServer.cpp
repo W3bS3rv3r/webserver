@@ -1,4 +1,5 @@
 #include "VirtualServer.hpp"
+#include "../http/request_utils.hpp"
 #include <cstdlib>
 #include <exception>
 #include <sstream>
@@ -29,22 +30,12 @@ VirtualServer&	VirtualServer::operator=(const VirtualServer& src) {
 	return (*this);
 }
 
-// Methods
+// Helper Functions declarations
 namespace {
-	int	getPort(std::stringstream& stream) {
-		std::string	str;
-
-		stream >> str;
-		stream >> std::ws;
-		if (str.empty() || !stream.eof())
-			throw std::exception();
-		int port = std::atoi(str.c_str());
-		if (!port)
-			throw std::exception();
-		return (port);
-	}
+	int	getPort(std::stringstream& stream);
 }
 
+// Methods
 std::string	VirtualServer::getName(void) const { return _name; }
 
 std::string	VirtualServer::buildPath(std::string route) const {
@@ -107,21 +98,7 @@ std::string	VirtualServer::getCustomError(std::string code) const {
 	std::string	path;
 	try {
 		path = _error_pages.at(code);
-		std::string		content;
-		std::string		buff;
-		std::fstream	file(path.c_str(), std::ios_base::in);
-		while(std::getline(file, buff)) {
-			try {
-				content += buff;
-			}
-			catch (const std::exception& e) {
-				file.close();
-				throw std::exception();
-			}
-		}
-		file.close();
-		if (content.empty())
-			throw std::exception();
+		std::string			content = getFileContent(path, "");
 		std::stringstream	response;
 		response << "Content-Length: " << content.size() << "\r\n\r\n";
 		response << content;
@@ -147,3 +124,19 @@ const char*	VirtualServer::_fields_array[] = {
 };
 
 const std::set<std::string>	VirtualServer::_fields(_fields_array, _fields_array + 5);
+
+// Helper functions definitions
+namespace {
+int	getPort(std::stringstream& stream) {
+	std::string	str;
+
+	stream >> str;
+	stream >> std::ws;
+	if (str.empty() || !stream.eof())
+		throw std::exception();
+	int port = std::atoi(str.c_str());
+	if (!port)
+		throw std::exception();
+	return (port);
+}
+}
