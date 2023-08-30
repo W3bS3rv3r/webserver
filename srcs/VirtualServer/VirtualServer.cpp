@@ -26,6 +26,7 @@ VirtualServer&	VirtualServer::operator=(const VirtualServer& src) {
 		_extension = src._extension;
 		_name = src._name;
 		_error_pages = src._error_pages;
+		_body_size = src._body_size;
 	}
 	return (*this);
 }
@@ -39,6 +40,8 @@ namespace {
 
 // Methods
 std::string	VirtualServer::getName(void) const { return _name; }
+
+unsigned long	VirtualServer::getBodySize(void) const { return _body_size; }
 
 std::string	VirtualServer::buildPath(std::string route) const {
 	return _root + route;

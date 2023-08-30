@@ -8,6 +8,7 @@
 #include <sstream>
 
 //Constructors
+#include <iostream>
 Socket::Socket(unsigned short port, VirtualServer vserver) {
 	_fd = socket(AF_INET, SOCK_STREAM, 0);
 	if (_fd < 0)

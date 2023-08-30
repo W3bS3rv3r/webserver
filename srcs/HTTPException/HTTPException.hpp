@@ -59,4 +59,9 @@ struct BadGatewayException : public HTTPException {
 	const char*	what(void) const throw();
 };
 
+struct ContentTooLargeException : public HTTPException {
+	ContentTooLargeException(std::string h);
+	const char*	what(void) const throw();
+};
+
 #endif

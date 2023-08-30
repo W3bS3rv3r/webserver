@@ -22,7 +22,7 @@ Connection::~Connection(void) {
 //METHODS
 void	Connection::readRequest(void) {
 	try {
-		_requests.push(getRequest(_fd));
+		_requests.push(getRequest(_fd, *_socket));
 		if (_requests.front().empty()) {
 			_done = true;
 			_requests.pop();
@@ -34,6 +34,8 @@ void	Connection::readRequest(void) {
 	}
 	catch(const HTTPException& e) {
 		_responses.push(Response(e.getResponse(*_socket)));
+		if (e.getErrorCode() == "413")
+			_done = true;
 	}
 }
 
