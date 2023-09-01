@@ -1,5 +1,6 @@
 #include "VirtualServer.hpp"
 #include "../http/request_utils.hpp"
+#include <cctype>
 #include <cstdlib>
 #include <exception>
 #include <sstream>
@@ -7,7 +8,7 @@
 #include <fstream>
 
 // Constructors
-VirtualServer::VirtualServer(void) {
+VirtualServer::VirtualServer(void) : _body_size(1024) {
     const char*  home = getenv("HOME");
 	if (!home)
 		throw VirtualServer::NoHomeException();
@@ -26,17 +27,22 @@ VirtualServer&	VirtualServer::operator=(const VirtualServer& src) {
 		_extension = src._extension;
 		_name = src._name;
 		_error_pages = src._error_pages;
+		_body_size = src._body_size;
 	}
 	return (*this);
 }
 
-// Helper Functions declarations
+// Helper Functions Declarations
 namespace {
-	int	getPort(std::stringstream& stream);
+	int				getPort(std::stringstream& stream);
+	bool			validClientSize(const std::string& s);
+	unsigned long	bodySizeToBytes(const std::string& s);
 }
 
 // Methods
 std::string	VirtualServer::getName(void) const { return _name; }
+
+unsigned long	VirtualServer::getBodySize(void) const { return _body_size; }
 
 std::string	VirtualServer::buildPath(std::string route) const {
 	return _root + route;
@@ -92,6 +98,12 @@ void	VirtualServer::insertGeneralField(std::string field, std::stringstream& str
 		_name = content;
 	else if (field == "cgi_extension")
 		_extension = content;
+	else if (field == "body_size") {
+		if(!validClientSize(content))
+			throw std::exception();
+		else
+			_body_size = bodySizeToBytes(content);
+	}
 }
 
 std::string	VirtualServer::getCustomError(std::string code) const {
@@ -120,12 +132,13 @@ const char*	VirtualServer::_fields_array[] = {
 	"root",
 	"cgi_extension",
 	"server_name",
-	"error_page"
+	"error_page",
+	"body_size"
 };
 
-const std::set<std::string>	VirtualServer::_fields(_fields_array, _fields_array + 5);
+const std::set<std::string>	VirtualServer::_fields(_fields_array, _fields_array + 6);
 
-// Helper functions definitions
+// Helper functions implementation
 namespace {
 int	getPort(std::stringstream& stream) {
 	std::string	str;
@@ -138,5 +151,22 @@ int	getPort(std::stringstream& stream) {
 	if (!port)
 		throw std::exception();
 	return (port);
+}
+
+bool	validClientSize(const std::string& s) {
+	if (*(s.end() - 1) != 'M' && *(s.end() - 1) != 'K')
+		return (false);
+	for (std::string::size_type i = 0; i < s.size() - 1; ++i) {
+		if (!std::isdigit(s[i]))
+			return (false);
+	}
+	return (true);
+}
+
+unsigned long	bodySizeToBytes(const std::string& s) {
+	unsigned long	bytes = std::strtoul(s.c_str(), NULL, 10) * 1024;
+	if (*(s.end() - 1) == 'M')
+		bytes *= 1024;
+	return (bytes);
 }
 }

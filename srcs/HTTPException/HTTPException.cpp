@@ -137,3 +137,18 @@ const char*	BadGatewayException::what(void) const throw() {
 	);
 	
 }
+
+ContentTooLargeException::ContentTooLargeException(std::string h) :
+	HTTPException(h, "HTTP/1.1 413 Request Entity Too Large\r\n") {}
+const char*	ContentTooLargeException::what(void) const throw() {
+	return ( \
+		"Content-Length: 202\r\n\r\n"														\
+		"<html>"																			\
+		"<body style=\"background-color:292D39\">"											\
+		"<div>"																				\
+		"<h1 align=\"center\", style=\"color:00BABC\">413 Request Entity Too Large</h1>"	\
+		"<p align=\"center\", style=\"color:00BABC\">W3B53RB3RU5 1.0</p>"					\
+		"</div></body></html>"																\
+	);
+	
+}

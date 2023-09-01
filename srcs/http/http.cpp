@@ -19,15 +19,19 @@ namespace {
 	std::string	getBody(int fd, unsigned long content_length, std::string host);
 }
 
-std::string	getRequest(const int client_fd) {
-	std::string			request;
+std::string	getRequest(const int client_fd, const Socket& socket) {
+	std::string				request;
 
 	request += getHeaders(client_fd);
 	std::string contentLengthStr = getHeaderValue(request, "Content-Length");
 	if (contentLengthStr.empty())
 		return (request);
-	int	content_length = strtol(contentLengthStr.c_str(), NULL, 10);
-	request += getBody(client_fd, content_length, getHeaderValue(request, "Host"));
+	std::string	host = getHeaderValue(request, "Host");
+	const VirtualServer&	vserver = socket.getVServer(host);
+	unsigned long	content_length = strtoul(contentLengthStr.c_str(), NULL, 10);
+	if (vserver.getBodySize()!= 0 && content_length > vserver.getBodySize())
+		throw ContentTooLargeException(host);
+	request += getBody(client_fd, content_length, host);
 	return (request);
 }
 

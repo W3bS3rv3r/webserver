@@ -14,11 +14,12 @@ public:
 
 	VirtualServer&	operator=(const VirtualServer& src);
 
-	std::string	getName(void) const;
-	std::string	buildPath(std::string route) const;
-	std::string	getCustomError(std::string code) const;
-	bool		isCgi(std::string route) const;
-	int			interpretLine(std::string str);
+	std::string		getName(void) const;
+	std::string		buildPath(std::string route) const;
+	std::string		getCustomError(std::string code) const;
+	bool			isCgi(std::string route) const;
+	int				interpretLine(std::string str);
+	unsigned long	getBodySize(void) const;
 
 	struct NoHomeException: std::exception {
 		const char*	what(void) const throw();
@@ -28,6 +29,7 @@ private:
 	std::string							_root;
 	std::string							_extension;
 	std::string							_name;
+	unsigned long						_body_size;
 
 	void	insertGeneralField(std::string field, std::stringstream& stream);
 	void	insertErrorCode(std::stringstream& stream);
