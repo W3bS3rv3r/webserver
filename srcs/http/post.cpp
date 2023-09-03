@@ -28,7 +28,7 @@ static std::vector	<char*> setCgiEnv(const std::string& request) {
 	env.push_back(strdup(("SCRIPT_NAME=" + requestURI.substr(1)).c_str()));
 	env.push_back(strdup(("SCRIPT_FILENAME=" + getScriptFilename(requestURI)).c_str()));
 
-	env.push_back(strdup("REMOTE_ADDR=localhost:4242"));
+	env.push_back(strdup(("REMOTE_ADDR=" + serverName + ":" + serverPort).c_str())); //not sure if always localhost
 	env.push_back(strdup(("SERVER_NAME=" + serverName).c_str()));
 	env.push_back(strdup(("SERVER_PORT=" + serverPort).c_str()));
 
