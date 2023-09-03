@@ -1,5 +1,5 @@
 #include "post.hpp"
-#include "error_codes.hpp"
+#include "../HTTPException/HTTPException.hpp"
 #include "request_utils.hpp"
 #include <fstream>
 #include <dirent.h>
@@ -42,12 +42,13 @@ Response	cgiPost(std::string path, std::string request) {
 	Response	resp;
 	int			fd_req[2];
 	int			fd_res[2];
+	std::string	host = getHeaderValue(request, "Host");
 
 	if (pipe(fd_req) || pipe(fd_res))
-		throw InternalServerErrorException();
+		throw InternalServerErrorException(host);
 	pid_t	pid = fork();
 	if (pid == -1)
-		throw InternalServerErrorException();
+		throw InternalServerErrorException(host);
 	else if (pid == 0) {
 	
 		std::vector<const char*>	argv;
@@ -62,7 +63,6 @@ Response	cgiPost(std::string path, std::string request) {
 
         std::vector<char*> env = setCgiEnv(request);
 		execve(argv[0], const_cast<char* const*>(argv.data()), env.data());
-
 		exit(1);
 	}
 	else {

@@ -4,7 +4,7 @@
 #include <string>
 #include "../Response/Response.hpp"
 
-Response	cgiGet(std::string path);
-std::string	get(std::string path);
+Response	cgiGet(std::string path, std::string request);
+std::string	get(std::string path, std::string request);
 
 #endif

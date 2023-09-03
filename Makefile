@@ -19,6 +19,7 @@ CLASSES = $(addprefix srcs/,		\
 	Response/Response.cpp			\
 	Cgi/Cgi.cpp						\
 	VirtualServer/VirtualServer.cpp	\
+	HTTPException/HTTPException.cpp	\
 )
 
 HTTP = $(addprefix srcs/http/,	\
@@ -26,7 +27,6 @@ HTTP = $(addprefix srcs/http/,	\
 	get.cpp						\
 	post.cpp					\
 	delete.cpp					\
-	error_codes.cpp				\
 	request_utils.cpp			\
 )
 

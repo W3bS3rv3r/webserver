@@ -7,7 +7,7 @@
 
 #define BUFFER_SIZE 1024
 
-std::string	getRequest(const int client_fd);
+std::string	getRequest(const int client_fd, const Socket& socket);
 Response	getResponse(const std::string& request, const Socket& socket);
 
 #endif
