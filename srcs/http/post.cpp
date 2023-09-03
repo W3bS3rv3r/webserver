@@ -26,7 +26,7 @@ static std::vector	<char*> setCgiEnv(const std::string& request) {
 
 	env.push_back(strdup("REMOTE_ADDR=localhost:4242"));
 	env.push_back(strdup(("SERVER_NAME=" + getServerName(request)).c_str()));
-	env.push_back(strdup("SERVER_PORT=4242"));
+	env.push_back(strdup(("SERVER_PORT=" + getServerPort(request)).c_str()));
 
 	env.push_back(strdup("AUTH_TYPE=Basic"));
 	env.push_back(strdup("REQUEST_METHOD=POST"));

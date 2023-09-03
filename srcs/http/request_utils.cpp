@@ -38,3 +38,11 @@ std::string getServerName(const std::string& request) {
         return host.substr(0, pos);
     return host;
 }
+
+std::string getServerPort(const std::string& request) {
+    std::string host = getHeaderValue(request, "Host");
+    size_t pos = host.find(":");
+    if (pos != std::string::npos && pos + 1 < host.size()) 
+        return host.substr(pos + 1);
+    return "";
+}
