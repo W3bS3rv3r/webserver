@@ -13,10 +13,14 @@
 
 static std::vector	<char*> setCgiEnv(const std::string& request) {
 	std::vector<char*> env;
+	std::string requestURI;
+	
+	requestURI = getRequestURI(request);
 
 	env.push_back(strdup(("CONTENT_TYPE=" + getHeaderValue(request, "Content-Type")).c_str()));
 	env.push_back(strdup(("CONTENT_LENGTH=" + getHeaderValue(request, "Content-Length")).c_str()));
-	env.push_back(strdup(("REQUEST_URI=" + getRequestURI(request)).c_str()));
+	env.push_back(strdup(("REQUEST_URI=" + requestURI).c_str()));
+	env.push_back(strdup("SCRIPT_NAME=cgi-bin/upload.py"));
 
 	env.push_back(strdup("AUTH_TYPE=Basic"));
 	env.push_back(strdup("REQUEST_METHOD=POST"));
@@ -27,8 +31,7 @@ static std::vector	<char*> setCgiEnv(const std::string& request) {
 	env.push_back(strdup("PATH_TRANSLATED=.//"));
 	env.push_back(strdup("QUERY_STRING="));
 	env.push_back(strdup("REMOTE_ADDR=localhost:4242"));
-	env.push_back(strdup("SCRIPT_FILENAME=upload.py"));
-	env.push_back(strdup("SCRIPT_NAME=cgi-bin/upload.py"));
+	env.push_back(strdup("SCRIPT_FILENAME=upload.py"));	
 	env.push_back(strdup("SERVER_NAME=localhost"));
 	env.push_back(strdup("SERVER_PORT=4242"));
 	env.push_back(strdup("SERVER_PROTOCOL=HTTP/1.1"));
