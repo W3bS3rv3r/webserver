@@ -46,7 +46,6 @@ static std::vector	<char*> setCgiEnv(const std::string& request) {
 	return (env);
 }
 
-#include <iostream>
 Response	cgiPost(std::string path, std::string request) {
 	Response	resp;
 	int			fd_req[2];
