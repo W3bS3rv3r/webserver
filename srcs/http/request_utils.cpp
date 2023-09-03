@@ -23,3 +23,5 @@ std::string getRequestURI(const std::string& request) {
         return ("");
     return (request.substr(startPos, endPos - startPos));
 }
+
+

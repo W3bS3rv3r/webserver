@@ -17,10 +17,11 @@ static std::vector	<char*> setCgiEnv(const std::string& request) {
 	
 	requestURI = getRequestURI(request);
 
+
 	env.push_back(strdup(("CONTENT_TYPE=" + getHeaderValue(request, "Content-Type")).c_str()));
 	env.push_back(strdup(("CONTENT_LENGTH=" + getHeaderValue(request, "Content-Length")).c_str()));
 	env.push_back(strdup(("REQUEST_URI=" + requestURI).c_str()));
-	env.push_back(strdup("SCRIPT_NAME=cgi-bin/upload.py"));
+	env.push_back(strdup(("SCRIPT_NAME=" + requestURI.substr(1)).c_str()));
 
 	env.push_back(strdup("AUTH_TYPE=Basic"));
 	env.push_back(strdup("REQUEST_METHOD=POST"));
