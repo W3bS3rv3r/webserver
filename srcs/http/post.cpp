@@ -16,11 +16,10 @@ static std::vector	<char*> setCgiEnv(const std::string& request) {
 	std::string requestURI;
 	std::string serverName;
 	std::string serverPort;
-	
+
 	requestURI = getRequestURI(request);
 	serverName = getServerName(request);
 	serverPort = getServerPort(request);
-
 
 	env.push_back(strdup(("CONTENT_TYPE=" + getHeaderValue(request, "Content-Type")).c_str()));
 	env.push_back(strdup(("CONTENT_LENGTH=" + getHeaderValue(request, "Content-Length")).c_str()));
