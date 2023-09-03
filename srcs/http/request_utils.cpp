@@ -15,3 +15,11 @@ std::string getHeaderValue(const std::string& request, const std::string& header
 	headerValue = request.substr(valueStart, valueEnd - valueStart);
     return (headerValue);
 }
+
+std::string getRequestURI(const std::string& request) {
+    size_t startPos = request.find(" ") + 1;
+    size_t endPos = request.find(" ", startPos);
+    if (startPos == std::string::npos || endPos == std::string::npos)
+        return ("");
+    return (request.substr(startPos, endPos - startPos));
+}

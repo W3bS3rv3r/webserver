@@ -14,10 +14,12 @@
 static std::vector	<char*> setCgiEnv(const std::string& request) {
 	std::vector<char*> env;
 
-	env.push_back(strdup("AUTH_TYPE=Basic"));
-	env.push_back(strdup("REQUEST_METHOD=POST"));
 	env.push_back(strdup(("CONTENT_TYPE=" + getHeaderValue(request, "Content-Type")).c_str()));
 	env.push_back(strdup(("CONTENT_LENGTH=" + getHeaderValue(request, "Content-Length")).c_str()));
+	env.push_back(strdup(("REQUEST_URI=" + getRequestURI(request)).c_str()));
+
+	env.push_back(strdup("AUTH_TYPE=Basic"));
+	env.push_back(strdup("REQUEST_METHOD=POST"));
 	env.push_back(strdup("REDIRECT_STATUS=200"));
 	env.push_back(strdup("DOCUMENT_ROOT=./"));
 	env.push_back(strdup("GATEWAY_INTERFACE=CGI/1.1"));
@@ -25,7 +27,6 @@ static std::vector	<char*> setCgiEnv(const std::string& request) {
 	env.push_back(strdup("PATH_TRANSLATED=.//"));
 	env.push_back(strdup("QUERY_STRING="));
 	env.push_back(strdup("REMOTE_ADDR=localhost:4242"));
-	env.push_back(strdup("REQUEST_URI=/cgi-bin/upload.py"));
 	env.push_back(strdup("SCRIPT_FILENAME=upload.py"));
 	env.push_back(strdup("SCRIPT_NAME=cgi-bin/upload.py"));
 	env.push_back(strdup("SERVER_NAME=localhost"));
@@ -37,13 +38,15 @@ static std::vector	<char*> setCgiEnv(const std::string& request) {
 	return (env);
 }
 
-
+#include <iostream>
 Response	cgiPost(std::string path, std::string request) {
 	Response	resp;
 	int			fd_req[2];
 	int			fd_res[2];
 	std::string	host = getHeaderValue(request, "Host");
-
+	std::cout << "VAI\n";
+	std::cout << request;
+	std::cout << "END\n";
 	if (pipe(fd_req) || pipe(fd_res))
 		throw InternalServerErrorException(host);
 	pid_t	pid = fork();
