@@ -24,6 +24,10 @@ static std::vector	<char*> setCgiEnv(const std::string& request) {
 	env.push_back(strdup(("SCRIPT_NAME=" + requestURI.substr(1)).c_str()));
 	env.push_back(strdup(("SCRIPT_FILENAME=" + getScriptFilename(requestURI)).c_str()));
 
+	env.push_back(strdup("REMOTE_ADDR=localhost:4242"));
+	env.push_back(strdup(("SERVER_NAME=" + getServerName(request)).c_str()));
+	env.push_back(strdup("SERVER_PORT=4242"));
+
 	env.push_back(strdup("AUTH_TYPE=Basic"));
 	env.push_back(strdup("REQUEST_METHOD=POST"));
 	env.push_back(strdup("REDIRECT_STATUS=200"));
@@ -32,9 +36,6 @@ static std::vector	<char*> setCgiEnv(const std::string& request) {
 	env.push_back(strdup("PATH_INFO="));
 	env.push_back(strdup("PATH_TRANSLATED=.//"));
 	env.push_back(strdup("QUERY_STRING="));
-	env.push_back(strdup("REMOTE_ADDR=localhost:4242"));
-	env.push_back(strdup("SERVER_NAME=localhost"));
-	env.push_back(strdup("SERVER_PORT=4242"));
 	env.push_back(strdup("SERVER_PROTOCOL=HTTP/1.1"));
 	env.push_back(strdup("SERVER_SOFTWARE=AMANIX"));
 	env.push_back(NULL);

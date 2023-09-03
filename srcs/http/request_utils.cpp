@@ -30,3 +30,11 @@ std::string getScriptFilename(const std::string& requestURI) {
         return (requestURI);
     return (requestURI.substr(lastSlashPos + 1));
 }
+
+std::string getServerName(const std::string& request) {
+    std::string host = getHeaderValue(request, "Host");
+    size_t pos = host.find(":");
+    if (pos != std::string::npos)
+        return host.substr(0, pos);
+    return host;
+}
