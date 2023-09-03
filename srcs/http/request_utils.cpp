@@ -24,4 +24,9 @@ std::string getRequestURI(const std::string& request) {
     return (request.substr(startPos, endPos - startPos));
 }
 
-
+std::string getScriptFilename(const std::string& requestURI) {
+    size_t lastSlashPos = requestURI.find_last_of("/");
+    if (lastSlashPos == std::string::npos)
+        return (requestURI);
+    return (requestURI.substr(lastSlashPos + 1));
+}
