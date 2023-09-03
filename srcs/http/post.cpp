@@ -53,9 +53,7 @@ Response	cgiPost(std::string path, std::string request) {
 	int			fd_req[2];
 	int			fd_res[2];
 	std::string	host = getHeaderValue(request, "Host");
-	std::cout << "VAI\n";
-	std::cout << request;
-	std::cout << "END\n";
+
 	if (pipe(fd_req) || pipe(fd_res))
 		throw InternalServerErrorException(host);
 	pid_t	pid = fork();
@@ -73,7 +71,7 @@ Response	cgiPost(std::string path, std::string request) {
 		close(fd_req[1]);
 		close(fd_res[0]);
 
-        std::vector<char*> env = setCgiEnv(request);
+		std::vector<char*> env = setCgiEnv(request);
 		execve(argv[0], const_cast<char* const*>(argv.data()), env.data());
 		exit(1);
 	}
