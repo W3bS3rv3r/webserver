@@ -1,4 +1,5 @@
 #include "VirtualServer.hpp"
+#include "../http/request_utils.hpp"
 #include <cctype>
 #include <cstdlib>
 #include <exception>
@@ -109,21 +110,7 @@ std::string	VirtualServer::getCustomError(std::string code) const {
 	std::string	path;
 	try {
 		path = _error_pages.at(code);
-		std::string		content;
-		std::string		buff;
-		std::fstream	file(path.c_str(), std::ios_base::in);
-		while(std::getline(file, buff)) {
-			try {
-				content += buff;
-			}
-			catch (const std::exception& e) {
-				file.close();
-				throw std::exception();
-			}
-		}
-		file.close();
-		if (content.empty())
-			throw std::exception();
+		std::string			content = getFileContent(path, "");
 		std::stringstream	response;
 		response << "Content-Length: " << content.size() << "\r\n\r\n";
 		response << content;
@@ -175,6 +162,7 @@ bool	validClientSize(const std::string& s) {
 	}
 	return (true);
 }
+
 unsigned long	bodySizeToBytes(const std::string& s) {
 	unsigned long	bytes = std::strtoul(s.c_str(), NULL, 10) * 1024;
 	if (*(s.end() - 1) == 'M')
