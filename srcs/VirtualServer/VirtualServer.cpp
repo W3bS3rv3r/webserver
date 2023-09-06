@@ -30,6 +30,7 @@ namespace {
 	int				getPort(std::stringstream& stream);
 	bool			validClientSize(const std::string& s);
 	unsigned long	bodySizeToBytes(const std::string& s);
+	int				matchingCharacters(std::string s1, std::string s2);
 }
 
 // Methods
@@ -38,8 +39,22 @@ std::string	VirtualServer::getName(void) const { return _name; }
 unsigned long	VirtualServer::getBodySize(void) const { return _body_size; }
 
 const Location&	VirtualServer::getLocation(std::string route) const {
-	(void)route;
-	return (_locations.begin()->second);
+	std::string::size_type	max = 0;
+	std::string				best_match;
+	std::map<std::string, Location>::const_iterator i;
+
+	for	(i = _locations.begin(); i != _locations.end(); ++i) {
+		if (max > i->first.size())
+			continue ;
+		std::string::size_type	tmp = matchingCharacters(route, i->first);
+		if (tmp > max || best_match.empty()) {
+			max = tmp;
+			best_match = i->first;
+		}
+		if (max == route.size())
+			break ;
+	}
+	return (_locations.at(best_match));
 }
 
 int	VirtualServer::interpretAttribute(std::string str, std::fstream& file) {
@@ -139,6 +154,14 @@ int	getPort(std::stringstream& stream) {
 	if (!port)
 		throw std::exception();
 	return (port);
+}
+
+int	matchingCharacters(std::string s1, std::string s2) {
+	int	i = 0;
+	
+	while (s1[i] == s2[i])
+		++i;
+	return (i);
 }
 
 bool	validClientSize(const std::string& s) {
