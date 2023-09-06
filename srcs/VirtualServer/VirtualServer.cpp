@@ -1,5 +1,6 @@
 #include "VirtualServer.hpp"
 #include "../http/request_utils.hpp"
+#include "../parser/parser.hpp"
 #include <cctype>
 #include <cstdlib>
 #include <exception>
@@ -57,7 +58,7 @@ bool	VirtualServer::isCgi(std::string route) const {
 	return (false);
 }
 
-int	VirtualServer::interpretLine(std::string str) {
+int	VirtualServer::interpretAttribute(std::string str, std::fstream& file) {
 	std::string			field;
 	std::stringstream	stream;
 
@@ -69,6 +70,8 @@ int	VirtualServer::interpretLine(std::string str) {
 		return (getPort(stream));
 	if (field == "error_page")
 		this->insertErrorCode(stream);
+	else if (field == "location")
+		this->insertLocation(stream, file);
 	else
 		this->insertGeneralField(field, stream);
 	return (0);
@@ -83,6 +86,17 @@ void	VirtualServer::insertErrorCode(std::stringstream& stream) {
 	if (error.empty() || path.empty() || !stream.eof())
 		throw std::exception();
 	_error_pages.insert(std::make_pair(error, path));
+}
+
+void	VirtualServer::insertLocation(std::stringstream& stream, std::fstream& file) {
+	std::string			path, bracket;
+
+	stream >> path;
+	stream >> bracket;
+	stream >> std::ws;
+	if (!stream.eof() || path.empty() || bracket.empty() || bracket != "{")
+		throw std::exception();
+	_locations.insert(std::make_pair(path, getLocation(file)));
 }
 
 void	VirtualServer::insertGeneralField(std::string field, std::stringstream& stream) {
@@ -133,10 +147,11 @@ const char*	VirtualServer::_fields_array[] = {
 	"cgi_extension",
 	"server_name",
 	"error_page",
-	"body_size"
+	"body_size",
+	"location"
 };
 
-const std::set<std::string>	VirtualServer::_fields(_fields_array, _fields_array + 6);
+const std::set<std::string>	VirtualServer::_fields(_fields_array, _fields_array + 7);
 
 // Helper functions implementation
 namespace {

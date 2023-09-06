@@ -15,10 +15,10 @@ std::pair<unsigned short, VirtualServer>	getVServer(std::fstream& file) {
 		if (buff == "}")
 			break ;
 		try {
-			status = vserver.interpretLine(buff);
+			status = vserver.interpretAttribute(buff, file);
 		}
 		catch (const std::exception& e) {
-			std::cerr << "at line: '" << buff << "'" << std::endl;
+			std::cerr << "at: '" << buff << "'" << std::endl;
 			throw InvalidSyntaxException();
 		}
 		if (status)
@@ -38,4 +38,18 @@ bool	validFieldName(std::string field) {
 
 const char*	InvalidSyntaxException::what(void) const throw() {
 	return ("Invalid syntax on config file");
+}
+
+Location	getLocation(std::fstream& file) {
+	Location		location;
+	std::string		buff;
+
+	while(std::getline(file >> std::ws, buff)) {
+		if (buff == "}")
+			break ;
+		location.interpretAttribute(buff);
+	}
+	if (!location.checkIntegrity())
+		throw std::exception();
+	return (location);
 }
