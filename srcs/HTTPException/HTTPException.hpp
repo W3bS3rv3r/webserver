@@ -13,9 +13,10 @@ public:
 	virtual const char*	what(void) const throw() = 0;
 	std::string			getResponse(const Socket& socket) const;
 	std::string			getErrorCode(void) const;
+	void				setHost(std::string host);
 
 private:
-	const std::string	_host;
+	std::string	_host;
 	const std::string	_status_line;
 };
 

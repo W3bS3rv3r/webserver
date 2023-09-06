@@ -36,34 +36,22 @@ std::string	getRequest(const int client_fd, const Socket& socket) {
 }
 
 Response	getResponse(const std::string& request, const Socket& socket) {
-	std::stringstream	stream(request);
-	std::string			method, route, path;
-	Response			response;
-
+	std::stringstream		stream(request);
+	std::string				method, route, path;
+	Response				response;
 	std::string				host = getHeaderValue(request, "Host");
 	const VirtualServer&	server = socket.getVServer(host);
+
 	stream >> method;
 	stream >> route;
-	path = server.buildPath(route);
-	if (method == "GET") {
-		if (server.isCgi(route))
-			response = cgiGet(path, request);
-		else
-			response.setResponse(get(path, request));
+	const Location&	location = server.getLocation(route);
+	try {
+		response = location.handleRequest(method, route, request);
 	}
-	else if (method == "DELETE")
-		response.setResponse(del(path, request));
-	else if (method == "POST") {
-		if (server.isCgi(route))
-			response = cgiPost(path, request);
-		else
-			throw MethodNotAllowedException(host);
+	catch (HTTPException& e) {
+		e.setHost(host);
+		throw ;
 	}
-	else if (method == "HEAD" || method == "PUT" || method == "CONNECT"
-			|| method == "OPTIONS" || method == "TRACE")
-		throw ServiceUnavailableException(host);
-	else
-		throw BadRequestException(host);
 	return (response);
 }
 

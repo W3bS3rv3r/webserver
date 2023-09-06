@@ -9,7 +9,7 @@
 #include <vector>
 #include <sstream>
 
-std::string	get(std::string path, std::string request) {
+std::string	get(std::string path, const std::string& request) {
 	DIR*			dir;
 	std::string		host = getHeaderValue(request, "Host");
 
@@ -29,7 +29,7 @@ std::string	get(std::string path, std::string request) {
 	return (response.str());
 }
 
-Response	cgiGet(std::string path, std::string request) {
+Response	cgiGet(std::string path, const std::string& request) {
 	Response	resp;
 	int			fd[2];
 	std::string	host = getHeaderValue(request, "Host");

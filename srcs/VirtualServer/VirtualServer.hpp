@@ -17,20 +17,15 @@ public:
 	VirtualServer&	operator=(const VirtualServer& src);
 
 	std::string		getName(void) const;
-	std::string		buildPath(std::string route) const;
 	std::string		getCustomError(std::string code) const;
-	bool			isCgi(std::string route) const;
 	int				interpretAttribute(std::string str, std::fstream& file);
 	unsigned long	getBodySize(void) const;
+	const Location&	getLocation(std::string route) const;
 
-	struct NoHomeException: std::exception {
-		const char*	what(void) const throw();
-	};
+
 private:
 	std::map<std::string, std::string>	_error_pages;
 	std::map<std::string, Location>		_locations;
-	std::string							_root;
-	std::string							_extension;
 	std::string							_name;
 	unsigned long						_body_size;
 

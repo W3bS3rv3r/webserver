@@ -22,6 +22,10 @@ std::string	HTTPException::getErrorCode(void) const {
 	return (code);
 }
 
+void	HTTPException::setHost(std::string host) {
+	_host = host;
+}
+
 //HTTP ERRORS
 RequestTimeoutException::RequestTimeoutException(std::string h) :
 	HTTPException(h, "HTTP/1.1 408 Request Timeout\r\n"){}

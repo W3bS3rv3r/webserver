@@ -5,17 +5,10 @@
 #include <cstdlib>
 #include <exception>
 #include <sstream>
-#include <utility>
 #include <fstream>
 
 // Constructors
-VirtualServer::VirtualServer(void) : _body_size(1024) {
-    const char*  home = getenv("HOME");
-	if (!home)
-		throw VirtualServer::NoHomeException();
-	_root += home;
-	_root += "/webserver";
-}
+VirtualServer::VirtualServer(void) : _body_size(1024) {}
 
 VirtualServer::VirtualServer(const VirtualServer& src) { *this = src; }
 
@@ -24,11 +17,10 @@ VirtualServer::~VirtualServer(void) {}
 // Operators
 VirtualServer&	VirtualServer::operator=(const VirtualServer& src) {
 	if (this != &src) {
-		_root = src._root;
-		_extension = src._extension;
 		_name = src._name;
 		_error_pages = src._error_pages;
 		_body_size = src._body_size;
+		_locations = src._locations;
 	}
 	return (*this);
 }
@@ -45,17 +37,9 @@ std::string	VirtualServer::getName(void) const { return _name; }
 
 unsigned long	VirtualServer::getBodySize(void) const { return _body_size; }
 
-std::string	VirtualServer::buildPath(std::string route) const {
-	return _root + route;
-}
-
-bool	VirtualServer::isCgi(std::string route) const {
-	if (!_extension.empty() &&
-		route.rfind(_extension) == route.size() - _extension.size())
-	{
-		return (true);
-	}
-	return (false);
+const Location&	VirtualServer::getLocation(std::string route) const {
+	(void)route;
+	return (_locations.begin()->second);
 }
 
 int	VirtualServer::interpretAttribute(std::string str, std::fstream& file) {
@@ -96,7 +80,7 @@ void	VirtualServer::insertLocation(std::stringstream& stream, std::fstream& file
 	stream >> std::ws;
 	if (!stream.eof() || path.empty() || bracket.empty() || bracket != "{")
 		throw std::exception();
-	_locations.insert(std::make_pair(path, getLocation(file)));
+	_locations.insert(std::make_pair(path, ::getLocation(file)));
 }
 
 void	VirtualServer::insertGeneralField(std::string field, std::stringstream& stream) {
@@ -106,12 +90,8 @@ void	VirtualServer::insertGeneralField(std::string field, std::stringstream& str
 	stream >> std::ws;
 	if (!stream.eof() || content.empty())
 		throw std::exception();
-	if (field == "root")
-		_root = content;
-	else if (field == "server_name")
+	if (field == "server_name")
 		_name = content;
-	else if (field == "cgi_extension")
-		_extension = content;
 	else if (field == "body_size") {
 		if(!validClientSize(content))
 			throw std::exception();
@@ -135,23 +115,16 @@ std::string	VirtualServer::getCustomError(std::string code) const {
 	}
 }
 
-// Exceptions
-const char*	VirtualServer::NoHomeException::what(void) const throw() {
-	return ("HOME environment variable not set");
-}
-
 // Static variables
 const char*	VirtualServer::_fields_array[] = {
 	"port",
-	"root",
-	"cgi_extension",
 	"server_name",
 	"error_page",
 	"body_size",
 	"location"
 };
 
-const std::set<std::string>	VirtualServer::_fields(_fields_array, _fields_array + 7);
+const std::set<std::string>	VirtualServer::_fields(_fields_array, _fields_array + 5);
 
 // Helper functions implementation
 namespace {
