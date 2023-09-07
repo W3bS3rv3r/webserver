@@ -13,7 +13,7 @@ std::pair<unsigned short, VirtualServer>	getVServer(std::fstream& file) {
 
 	while(std::getline(file >> std::ws, buff)) {
 		if (buff == "}")
-			break ;
+			return (std::make_pair(port, vserver));
 		try {
 			status = vserver.interpretAttribute(buff, file);
 		}
@@ -25,7 +25,8 @@ std::pair<unsigned short, VirtualServer>	getVServer(std::fstream& file) {
 		if (status)
 			port = static_cast<unsigned int>(status);
 	}
-	return (std::make_pair(port, vserver));
+	std::cerr << "missing final '}'" << std::endl;
+	throw InvalidSyntaxException();
 }
 
 bool	validFieldName(std::string field) {
