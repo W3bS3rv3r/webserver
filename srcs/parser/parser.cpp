@@ -52,6 +52,6 @@ Location	getLocation(std::fstream& file) {
 		location.interpretAttribute(buff);
 	}
 	if (!location.checkIntegrity())
-		throw std::exception();
+		throw InvalidSyntaxException();
 	return (location);
 }

@@ -2,6 +2,7 @@
 # define LOCATION_HPP
 
 #include <string>
+#include <sstream>
 #include <set>
 #include "../Response/Response.hpp"
 
@@ -21,15 +22,17 @@ public:
 		const char*	what(void) const throw();
 	};
 private:
-	std::string	_root;
-	std::string	_extension;
-	std::string	_name;
-	std::string	_index;
+	std::string				_root;
+	std::string				_extension;
+	std::string				_name;
+	std::string				_index;
+	std::set<std::string>	_methods;
 
 	static const char*					_fields_array[];
 	static const std::set<std::string>	_fields;
 
-	void		insertGeneralField(std::string field, std::string content);
+	void		insertGeneralField(std::string field, std::stringstream& stream);
+	void		insertMethods(std::stringstream& stream);
 	Response	callGet(std::string route, const std::string& request) const;
 	Response	callPost(std::string route, const std::string& request) const;
 	std::string	buildPath(std::string route) const;

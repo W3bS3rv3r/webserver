@@ -1,8 +1,8 @@
 #include "Location.hpp"
-#include <sstream>
 #include <dirent.h>
 #include <cstdlib>
 #include <unistd.h>
+#include "../parser/parser.hpp"
 #include "../http/get.hpp"
 #include "../http/post.hpp"
 #include "../http/delete.hpp"
@@ -28,6 +28,7 @@ Location&	Location::operator=(const Location& src) {
 		_root = src._root;
 		_extension = src._extension;
 		_index = src._index;
+		_methods = src._methods;
 	}
 	return (*this);
 }
@@ -41,14 +42,32 @@ void	Location::interpretAttribute(std::string line) {
 	stream >> field;
 	if (_fields.find(field) == _fields.end())
 		throw std::exception();
+	if (field == "methods")
+		this->insertMethods(stream);
+	else
+		this->insertGeneralField(field, stream);
+}
+
+void	Location::insertMethods(std::stringstream& stream) {
+	std::string	temp;
+
+	stream >> std::ws;
+	if (stream.eof())
+		throw InvalidSyntaxException();
+	while (!stream.eof()) {
+		stream >> temp;
+		stream >> std::ws;
+		_methods.insert(temp);
+	}
+}
+
+void	Location::insertGeneralField(std::string field, std::stringstream& stream) {
+	std::string	content;
+
 	stream >> content;
 	stream >> std::ws;
 	if (!stream.eof() || content.empty())
-		throw std::exception();
-	this->insertGeneralField(field, content);
-}
-
-void	Location::insertGeneralField(std::string field, std::string content) {
+		throw InvalidSyntaxException();
 	if (field == "root")
 		_root = content;
 	else if (field == "cgi_extension")
@@ -66,6 +85,8 @@ bool	Location::checkIntegrity(void) const {
 Response	Location::handleRequest(std::string method, std::string route,
 		const std::string& request) const
 {
+	if (!_methods.empty() && _methods.find(method) == _methods.end())
+		throw MethodNotAllowedException("");
 	std::string	path = this->buildPath(route);
 	if (method == "GET")
 		return (this->callGet(path, request));
@@ -119,7 +140,8 @@ const char*	Location::NoHomeException::what(void) const throw() {
 const char*	Location::_fields_array[] = {
 	"root",
 	"cgi_extension",
-	"index"
+	"index",
+	"methods"
 };
 
-const std::set<std::string>	Location::_fields(_fields_array, _fields_array + 3);
+const std::set<std::string>	Location::_fields(_fields_array, _fields_array + 4);
