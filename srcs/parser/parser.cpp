@@ -18,8 +18,9 @@ std::pair<unsigned short, VirtualServer>	getVServer(std::fstream& file) {
 			status = vserver.interpretAttribute(buff, file);
 		}
 		catch (const std::exception& e) {
-			std::cerr << "at: '" << buff << "'" << std::endl;
-			throw InvalidSyntaxException();
+			if (!dynamic_cast<const Location::NoHomeException*>(&e))
+				std::cerr << "at: '" << buff << "'" << std::endl;
+			throw ;
 		}
 		if (status)
 			port = static_cast<unsigned int>(status);

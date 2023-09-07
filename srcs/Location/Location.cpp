@@ -111,7 +111,7 @@ std::string	Location::buildPath(std::string route) const {
 
 // Exceptions
 const char*	Location::NoHomeException::what(void) const throw() {
-	return ("HOME environment variable not set");
+	return ("HOME environment variable not set, unable to construct default path");
 }
 
 
