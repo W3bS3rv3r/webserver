@@ -95,7 +95,7 @@ Response	Location::handleRequest(std::string method, std::string route,
 	else if (method == "POST")
 		return (this->callPost(path, request));
 	else
-		throw ServiceUnavailableException("");
+		throw NotImplementedException("");
 }
 
 Response	Location::callGet(std::string path, const std::string& request) const {
