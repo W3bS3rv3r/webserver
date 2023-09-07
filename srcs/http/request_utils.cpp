@@ -41,7 +41,7 @@ std::string	getFileContent(const std::string& path, std::string host) {
 		}
 		memset(buff, 0, BUFFER_SIZE);
 	}
-	if (n < 0)
+	if (n < 0) 
 		throw InternalServerErrorException(host);
 	close(fd);
 	return (content);

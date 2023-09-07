@@ -9,19 +9,12 @@
 #include <vector>
 #include <sstream>
 
-std::string	get(std::string path, const std::string& request) {
-	DIR*			dir;
-	std::string		host = getHeaderValue(request, "Host");
-
-	if ( (dir = opendir(path.c_str())) ) {
-		closedir(dir);
-		path += "/index.html";
-	}
+std::string	get(std::string path) {
 	if (access(path.c_str(), F_OK))
-		throw NotFoundException(host);
+		throw NotFoundException("");
 	else if (access(path.c_str(), R_OK))
-		throw ForbiddenException(host);
-	std::string	content = getFileContent(path, host);
+		throw ForbiddenException("");
+	std::string	content = getFileContent(path, "");
 	std::stringstream	response;
 	response << "HTTP/1.1 200 OK\r\n";
 	response << "Content-Length: " << content.size() << "\r\n\r\n";

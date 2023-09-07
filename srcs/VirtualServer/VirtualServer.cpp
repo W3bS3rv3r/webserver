@@ -27,10 +27,10 @@ VirtualServer&	VirtualServer::operator=(const VirtualServer& src) {
 
 // Helper Functions Declarations
 namespace {
-	int				getPort(std::stringstream& stream);
-	bool			validClientSize(const std::string& s);
-	unsigned long	bodySizeToBytes(const std::string& s);
-	int				matchingCharacters(std::string s1, std::string s2);
+	int						getPort(std::stringstream& stream);
+	bool					validClientSize(const std::string& s);
+	unsigned long			bodySizeToBytes(const std::string& s);
+	std::string::size_type	matchingCharacters(std::string s1, std::string s2);
 }
 
 // Methods
@@ -156,10 +156,10 @@ int	getPort(std::stringstream& stream) {
 	return (port);
 }
 
-int	matchingCharacters(std::string s1, std::string s2) {
-	int	i = 0;
+std::string::size_type	matchingCharacters(std::string s1, std::string s2) {
+	std::string::size_type	i = 0;
 	
-	while (s1[i] == s2[i])
+	while (s1[i] == s2[i] && i < s1.size() && i < s2.size())
 		++i;
 	return (i);
 }

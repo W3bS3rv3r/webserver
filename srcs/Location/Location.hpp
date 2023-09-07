@@ -23,6 +23,8 @@ public:
 private:
 	std::string	_root;
 	std::string	_extension;
+	std::string	_name;
+	std::string	_index;
 
 	static const char*					_fields_array[];
 	static const std::set<std::string>	_fields;
@@ -30,6 +32,7 @@ private:
 	void		insertGeneralField(std::string field, std::string content);
 	Response	callGet(std::string route, const std::string& request) const;
 	Response	callPost(std::string route, const std::string& request) const;
+	std::string	buildPath(std::string route) const;
 };
 
 #endif

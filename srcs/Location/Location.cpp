@@ -1,6 +1,8 @@
 #include "Location.hpp"
 #include <sstream>
+#include <dirent.h>
 #include <cstdlib>
+#include <unistd.h>
 #include "../http/get.hpp"
 #include "../http/post.hpp"
 #include "../http/delete.hpp"
@@ -8,7 +10,7 @@
 
 //Constructors
 
-Location::Location(void) {
+Location::Location(void) : _index("index.html") {
     const char*  home = getenv("HOME");
 	if (!home)
 		throw Location::NoHomeException();
@@ -25,6 +27,7 @@ Location&	Location::operator=(const Location& src) {
 	if (this != &src) {
 		_root = src._root;
 		_extension = src._extension;
+		_index = src._index;
 	}
 	return (*this);
 }
@@ -50,6 +53,8 @@ void	Location::insertGeneralField(std::string field, std::string content) {
 		_root = content;
 	else if (field == "cgi_extension")
 		_extension = content;
+	else if (field == "index")
+		_index = content;
 }
 
 bool	Location::checkIntegrity(void) const {
@@ -61,32 +66,47 @@ bool	Location::checkIntegrity(void) const {
 Response	Location::handleRequest(std::string method, std::string route,
 		const std::string& request) const
 {
+	std::string	path = this->buildPath(route);
 	if (method == "GET")
-		return (this->callGet(route, request));
+		return (this->callGet(path, request));
 	else if (method == "DELETE")
-		return (Response(del(_root + route, request)));
+		return (Response(del(path)));
 	else if (method == "POST")
-		return (this->callPost(route, request));
+		return (this->callPost(path, request));
 	else
 		throw ServiceUnavailableException("");
 }
 
-Response	Location::callGet(std::string route, const std::string& request) const {
+Response	Location::callGet(std::string path, const std::string& request) const {
 	if (!_extension.empty() &&
-		route.rfind(_extension) == route.size() - _extension.size())
+		path.rfind(_extension) == path.size() - _extension.size())
 	{
-		return (cgiGet(_root + route, request));
+		return (cgiGet(path, request));
 	}
-	return (Response(get(_root + route, request)));
+	return (Response(get(path)));
 }
 
-Response	Location::callPost(std::string route, const std::string& request) const {
+Response	Location::callPost(std::string path, const std::string& request) const {
 	if (!_extension.empty() &&
-		route.rfind(_extension) == route.size() - _extension.size())
+		path.rfind(_extension) == path.size() - _extension.size())
 	{
-		return (cgiPost(_root + route, request));
+		return (cgiPost(path, request));
 	}
 	throw MethodNotAllowedException("");
+}
+
+std::string	Location::buildPath(std::string route) const {
+	std::string	path = _root + route;
+	DIR*		dir;
+
+	if ( (dir = opendir(path.c_str())) ) {
+		closedir(dir);
+		if (!access((path + _index).c_str(), F_OK))
+			path += _index;
+		else 
+			throw ForbiddenException("");
+	}
+	return (path);
 }
 
 // Exceptions
@@ -98,7 +118,8 @@ const char*	Location::NoHomeException::what(void) const throw() {
 //Static variables
 const char*	Location::_fields_array[] = {
 	"root",
-	"cgi_extension"
+	"cgi_extension",
+	"index"
 };
 
-const std::set<std::string>	Location::_fields(_fields_array, _fields_array + 2);
+const std::set<std::string>	Location::_fields(_fields_array, _fields_array + 3);
