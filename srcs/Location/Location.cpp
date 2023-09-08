@@ -1,6 +1,7 @@
 #include "Location.hpp"
 #include <dirent.h>
 #include <cstdlib>
+#include <sstream>
 #include <unistd.h>
 #include "../parser/parser.hpp"
 #include "../http/get.hpp"
@@ -30,6 +31,7 @@ Location&	Location::operator=(const Location& src) {
 		_index = src._index;
 		_methods = src._methods;
 		_autoindex = src._autoindex;
+		_redirect = src._redirect;
 	}
 	return (*this);
 }
@@ -77,6 +79,8 @@ void	Location::insertGeneralField(std::string field, std::stringstream& stream) 
 		_index = content;
 	else if (field == "autoindex")
 		_autoindex = ((content == "on") ? content : "");
+	else if (field == "return")
+		_redirect = content;
 }
 
 bool	Location::checkIntegrity(void) const {
@@ -88,6 +92,8 @@ bool	Location::checkIntegrity(void) const {
 Response	Location::handleRequest(std::string method, std::string route,
 		const std::string& request) const
 {
+	if (!_redirect.empty())
+		return (Response(this->redirectResponse()));
 	if (!_methods.empty() && _methods.find(method) == _methods.end())
 		throw MethodNotAllowedException("");
 	std::string	path = this->buildPath(route);
@@ -99,6 +105,15 @@ Response	Location::handleRequest(std::string method, std::string route,
 		return (this->callPost(path, request));
 	else
 		throw NotImplementedException("");
+}
+
+std::string	Location::redirectResponse(void) const {
+	std::stringstream	response;
+
+response << "HTTP/1.1 301 Moved Permanently\r\n";
+	response << "Location: " + _redirect + "\r\n";
+	response << "Content-Length: 0\r\n\r\n";
+	return (response.str());
 }
 
 Response	Location::callGet(std::string path, const std::string& request) const {
@@ -151,7 +166,8 @@ const char*	Location::_fields_array[] = {
 	"cgi_extension",
 	"index",
 	"methods",
-	"autoindex"
+	"autoindex",
+	"return"
 };
 
-const std::set<std::string>	Location::_fields(_fields_array, _fields_array + 5);
+const std::set<std::string>	Location::_fields(_fields_array, _fields_array + 6);

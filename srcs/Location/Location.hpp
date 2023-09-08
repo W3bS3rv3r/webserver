@@ -27,6 +27,7 @@ private:
 	std::string				_name;
 	std::string				_index;
 	std::string				_autoindex;
+	std::string				_redirect;
 	std::set<std::string>	_methods;
 
 	static const char*					_fields_array[];
@@ -37,6 +38,7 @@ private:
 	Response	callGet(std::string route, const std::string& request) const;
 	Response	callPost(std::string route, const std::string& request) const;
 	std::string	buildPath(std::string route) const;
+	std::string	redirectResponse(void) const;
 };
 
 #endif
