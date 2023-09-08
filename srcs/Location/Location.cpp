@@ -110,7 +110,7 @@ Response	Location::handleRequest(std::string method, std::string route,
 std::string	Location::redirectResponse(void) const {
 	std::stringstream	response;
 
-response << "HTTP/1.1 301 Moved Permanently\r\n";
+	response << "HTTP/1.1 301 Moved Permanently\r\n";
 	response << "Location: " + _redirect + "\r\n";
 	response << "Content-Length: 0\r\n\r\n";
 	return (response.str());
@@ -124,7 +124,7 @@ Response	Location::callGet(std::string path, const std::string& request) const {
 	{
 		return (cgiGet(path, request));
 	}
-	if ( (dir = opendir(path.c_str())) ) {
+	else if ((dir = opendir(path.c_str()))) {
 		closedir(dir);
 		return (Response(getDir(path)));
 	}
