@@ -29,6 +29,7 @@ Location&	Location::operator=(const Location& src) {
 		_extension = src._extension;
 		_index = src._index;
 		_methods = src._methods;
+		_autoindex = src._autoindex;
 	}
 	return (*this);
 }
@@ -74,6 +75,8 @@ void	Location::insertGeneralField(std::string field, std::stringstream& stream) 
 		_extension = content;
 	else if (field == "index")
 		_index = content;
+	else if (field == "autoindex")
+		_autoindex = ((content == "on") ? content : "");
 }
 
 bool	Location::checkIntegrity(void) const {
@@ -99,10 +102,16 @@ Response	Location::handleRequest(std::string method, std::string route,
 }
 
 Response	Location::callGet(std::string path, const std::string& request) const {
+	DIR*		dir;
+
 	if (!_extension.empty() &&
 		path.rfind(_extension) == path.size() - _extension.size())
 	{
 		return (cgiGet(path, request));
+	}
+	if ( (dir = opendir(path.c_str())) ) {
+		closedir(dir);
+		return (Response(getDir(path)));
 	}
 	return (Response(get(path)));
 }
@@ -124,7 +133,7 @@ std::string	Location::buildPath(std::string route) const {
 		closedir(dir);
 		if (!access((path + _index).c_str(), F_OK))
 			path += _index;
-		else 
+		else if (_autoindex.empty())
 			throw ForbiddenException("");
 	}
 	return (path);
@@ -141,7 +150,8 @@ const char*	Location::_fields_array[] = {
 	"root",
 	"cgi_extension",
 	"index",
-	"methods"
+	"methods",
+	"autoindex"
 };
 
-const std::set<std::string>	Location::_fields(_fields_array, _fields_array + 4);
+const std::set<std::string>	Location::_fields(_fields_array, _fields_array + 5);

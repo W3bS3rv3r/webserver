@@ -6,5 +6,6 @@
 
 Response	cgiGet(std::string path, const std::string& request);
 std::string	get(std::string path);
+std::string	getDir(std::string path);
 
 #endif
