@@ -6,7 +6,6 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <sstream>
-#include <arpa/inet.h> 
 
 //Constructors
 Socket::Socket(unsigned short port, VirtualServer vserver) {
@@ -26,7 +25,6 @@ Socket::Socket(unsigned short port, VirtualServer vserver) {
 Socket::~Socket(void) {
 	close(_fd);
 }
-
 
 // Methods
 void	Socket::listen(void) {
