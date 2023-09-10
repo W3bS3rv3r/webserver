@@ -53,8 +53,9 @@ void	Socket::addVserver(const VirtualServer& server) {
 		throw DuplicateException();
 }
 
-int				Socket::getFd(void) const { return _fd; }
-unsigned short	Socket::getPort(void) const { return _port; }
+int					Socket::getFd(void) const { return _fd; }
+struct sockaddr_in	Socket::getClientInfo(void) const { return _client_info; }
+unsigned short		Socket::getPort(void) const { return _port; }
 
 VirtualServer	Socket::getVServer(std::string host_header) const {
 	std::map<std::string, VirtualServer>::const_iterator	i;

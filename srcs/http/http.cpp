@@ -55,7 +55,7 @@ Response	getResponse(const std::string& request, const Socket& socket) {
 		response.setResponse(del(path, request));
 	else if (method == "POST") {
 		if (server.isCgi(route))
-			response = cgiPost(path, request);
+			response = cgiPost(path, request, socket);
 		else
 			throw MethodNotAllowedException(host);
 	}

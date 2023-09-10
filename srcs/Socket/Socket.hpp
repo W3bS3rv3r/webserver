@@ -16,12 +16,13 @@ public:
 	Socket(std::map<std::string, std::string> parameters);
 	~Socket(void);
 
-	void			listen(void);
-	void			addVserver(const VirtualServer& server);
-	Connection*		acceptConnection(void);
-	int				getFd(void) const;
-	unsigned short	getPort(void) const;
-	VirtualServer	getVServer(std::string host_header) const;
+	void				listen(void);
+	void				addVserver(const VirtualServer& server);
+	Connection*			acceptConnection(void);
+	int					getFd(void) const;
+	struct sockaddr_in	getClientInfo(void) const;
+	unsigned short		getPort(void) const;
+	VirtualServer		getVServer(std::string host_header) const;
 
 	struct CantAcceptConnectionException: std::exception {
 		const char*	what(void) const throw();
