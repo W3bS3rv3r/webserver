@@ -21,6 +21,9 @@ public:
 	struct AllPortsFailedException: std::exception {
 		const char*	what(void) const throw();
 	};
+	struct NoFileException: std::exception {
+		const char*	what(void) const throw();
+	};
 private:
 	std::map<int, Socket*>		_sockets;
 	std::map<int, Connection*>	_connections;
