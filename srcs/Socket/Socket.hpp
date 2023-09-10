@@ -43,6 +43,8 @@ public:
 	};
 private:
 	int										_fd;
+	struct sockaddr_in						_client_info;
+	socklen_t								_client_info_len;
 	unsigned short							_port;
 	struct sockaddr_in						_socket;
 	std::string								_default_vserver;

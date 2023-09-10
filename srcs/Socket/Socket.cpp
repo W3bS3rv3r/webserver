@@ -6,6 +6,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include <sstream>
+#include <arpa/inet.h> 
 
 //Constructors
 Socket::Socket(unsigned short port, VirtualServer vserver) {
@@ -26,6 +27,7 @@ Socket::~Socket(void) {
 	close(_fd);
 }
 
+
 // Methods
 void	Socket::listen(void) {
 	int	reuse = 1;
@@ -38,7 +40,8 @@ void	Socket::listen(void) {
 }
 
 Connection*	Socket::acceptConnection(void) {
-	const int	client_fd = accept(_fd, NULL, NULL);
+	_client_info_len = sizeof(_client_info); 
+	const int	client_fd = accept(_fd, (struct sockaddr*)&_client_info, &_client_info_len);
 	if (client_fd < 0)
 		throw Socket::CantAcceptConnectionException();
 	return (new Connection(client_fd, this));
