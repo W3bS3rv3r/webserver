@@ -16,8 +16,8 @@
 // Helper functions
 namespace {
 	std::string	getHeaders(int fd);
-	std::string	getBody(int fd, int content_length, std::string host);
-};
+	std::string	getBody(int fd, unsigned long content_length, std::string host);
+}
 
 std::string	getRequest(const int client_fd, const Socket& socket) {
 	std::string				request;
@@ -36,34 +36,23 @@ std::string	getRequest(const int client_fd, const Socket& socket) {
 }
 
 Response	getResponse(const std::string& request, const Socket& socket) {
-	std::stringstream	stream(request);
-	std::string			method, route, path;
-	Response			response;
-
+	std::stringstream		stream(request);
+	std::string				method, route, path;
+	Response				response;
 	std::string				host = getHeaderValue(request, "Host");
 	const VirtualServer&	server = socket.getVServer(host);
+
 	stream >> method;
 	stream >> route;
-	path = server.buildPath(route);
-	if (method == "GET") {
-		if (server.isCgi(route))
-			response = cgiGet(path, request);
-		else
-			response.setResponse(get(path, request));
+	const Location&	location = server.getLocation(route);
+	try {
+		response = location.handleRequest(method, route, request, socket);
+//			response = cgiPost(path, request, socket);
 	}
-	else if (method == "DELETE")
-		response.setResponse(del(path, request));
-	else if (method == "POST") {
-		if (server.isCgi(route))
-			response = cgiPost(path, request, socket);
-		else
-			throw MethodNotAllowedException(host);
+	catch (HTTPException& e) {
+		e.setHost(host);
+		throw ;
 	}
-	else if (method == "HEAD" || method == "PUT" || method == "CONNECT"
-			|| method == "OPTIONS" || method == "TRACE")
-		throw ServiceUnavailableException(host);
-	else
-		throw BadRequestException(host);
 	return (response);
 }
 
@@ -80,10 +69,10 @@ std::string	getHeaders(int fd) {
 		try {
 			if (i == buff + n) {
 				headers += buff;
-				recv(fd, buff, n, 0);
+				recv(fd, buff, n, MSG_DONTWAIT);
 			}
 			else {
-				recv(fd, buff, i - buff + delimiter.size(), 0);
+				recv(fd, buff, i - buff + delimiter.size(), MSG_DONTWAIT);
 				headers += buff;
 				break ;
 			}
@@ -97,19 +86,19 @@ std::string	getHeaders(int fd) {
 	return (headers);
 }
 
-std::string	getBody(int fd, int content_length, std::string host) {
+std::string	getBody(int fd, unsigned long content_length, std::string host) {
 	std::string	body;
 	int			n = 1;
-	int			bodyBytes = 0;
 	char		buff[BUFFER_SIZE + 1];
+	unsigned long	size;
 
 	memset(buff, 0, BUFFER_SIZE + 1);
-	while (bodyBytes < content_length && n > 0) {
-		if ((n = recv(fd, buff, std::min(BUFFER_SIZE - 1, content_length - bodyBytes), 0)) <= 0)
+	while (body.size() < content_length && n > 0) {
+		size = std::min(static_cast<unsigned long>(BUFFER_SIZE - 1), content_length - body.size());
+		if ((n = recv(fd, buff, size, MSG_DONTWAIT)) <= 0)
 			break;
 		try {
 			body += buff;
-			bodyBytes += n;
 		}
 		catch (const std::exception& e) {
 			throw InternalServerErrorException(host);

@@ -32,6 +32,8 @@ void	Server::init(std::string path) {
 	std::stringstream	str;
 	std::fstream		file(path.c_str());
 
+	if (!file.is_open())
+		throw Server::NoFileException();
 	while(std::getline(file >> std::ws, buff)) {
 		if (buff == "server {")
 			this->addVServer(getVServer(file));
@@ -202,4 +204,7 @@ const char*	Server::DuplicateException::what(void) const throw() {
 }
 const char*	Server::AllPortsFailedException::what(void) const throw() {
 	return ("No single port is working");
+}
+const char* Server::NoFileException::what(void) const throw() {
+	return ("Could not open file located in the given path");
 }

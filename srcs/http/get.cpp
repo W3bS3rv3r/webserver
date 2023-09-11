@@ -8,40 +8,45 @@
 #include <stdlib.h>
 #include <vector>
 #include <sstream>
+#include <algorithm>
 
-std::string	get(std::string path, std::string request) {
-	DIR*			dir;
-	std::string		host = getHeaderValue(request, "Host");
-
-	if ( (dir = opendir(path.c_str())) ) {
-		closedir(dir);
-		path += "/index.html";
-	}
+std::string	get(std::string path) {
 	if (access(path.c_str(), F_OK))
-		throw NotFoundException(host);
+		throw NotFoundException("");
 	else if (access(path.c_str(), R_OK))
-		throw ForbiddenException(host);
-	std::fstream	file(path.c_str(), std::ios_base::in);
-	std::string		content;
-	std::string		buff;
-	while(std::getline(file, buff)) {
-		try {
-			content += buff;
-		}
-		catch (const std::exception& e) {
-			file.close();
-			throw InternalServerErrorException(host);
-		}
-	}
+		throw ForbiddenException("");
+	std::string	content = getFileContent(path, "");
 	std::stringstream	response;
 	response << "HTTP/1.1 200 OK\r\n";
 	response << "Content-Length: " << content.size() << "\r\n\r\n";
 	response << content;
-	file.close();
 	return (response.str());
 }
 
-Response	cgiGet(std::string path, std::string request) {
+std::string	getDir(std::string path) {
+	DIR*						dir = opendir(path.c_str());
+	std::string					content;
+	std::stringstream			response;
+	struct dirent*				buff;
+	std::vector<std::string>	v;
+
+	if (!dir)
+		throw InternalServerErrorException("");
+	while((buff = readdir(dir)))
+		v.push_back(buff->d_name);
+	closedir(dir);
+	std::sort(v.begin(), v.end());
+	content += "<div><ul>";
+	for(std::vector<std::string>::size_type i = 0; i < v.size(); ++i)
+		content += "<li>" + v[i] + "</li>";
+	content += "</ul></div>";
+	response << "HTTP/1.1 200 OK\r\n";
+	response << "Content-Length: " << content.size() << "\r\n\r\n";
+	response << content;
+	return (response.str());
+}
+
+Response	cgiGet(std::string path, const std::string& request) {
 	Response	resp;
 	int			fd[2];
 	std::string	host = getHeaderValue(request, "Host");

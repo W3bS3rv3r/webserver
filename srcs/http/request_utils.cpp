@@ -1,4 +1,10 @@
 #include "request_utils.hpp"
+#include "../HTTPException/HTTPException.hpp"
+#include <sys/poll.h>
+#include <fstream>
+#include <fcntl.h>
+#include <unistd.h>
+#include <cstring>
 
 std::string getHeaderValue(const std::string& request, const std::string& headerKey) {
 	std::string headerValue;
@@ -45,4 +51,41 @@ std::string getServerPort(const std::string& request) {
 	if (pos != std::string::npos && pos + 1 < host.size()) 
 		return host.substr(pos + 1);
 	return "";
+}
+
+std::string	getFileContent(const std::string& path, std::string host) {
+	std::string		content;
+	char			buff[BUFFER_SIZE + 1];
+	int				n;
+	int				fd = open(path.c_str(), O_NONBLOCK);
+
+	if (fd < 0 || !pollFd(fd))
+		throw InternalServerErrorException(host);
+	memset(buff, 0, BUFFER_SIZE + 1);
+	while ((n = read(fd, buff, BUFFER_SIZE - 1)) > 0) {
+		try {
+			content += buff;
+		}
+		catch (const std::exception& e) {
+			close(fd);
+			throw InternalServerErrorException(host);
+		}
+		memset(buff, 0, BUFFER_SIZE);
+	}
+	if (n < 0)
+		throw InternalServerErrorException(host);
+	close(fd);
+	return (content);
+}
+
+bool	pollFd(int fd) {
+	struct pollfd	temp;
+
+	memset(&temp, 0, sizeof(temp));
+	temp.events = POLLIN | POLLOUT;
+	temp.fd = fd;
+	poll(&temp, 1, 0);
+	if (temp.revents & POLLIN)
+		return (true);
+	return (false);
 }

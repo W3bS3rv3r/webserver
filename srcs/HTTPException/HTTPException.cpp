@@ -22,6 +22,10 @@ std::string	HTTPException::getErrorCode(void) const {
 	return (code);
 }
 
+void	HTTPException::setHost(std::string host) {
+	_host = host;
+}
+
 //HTTP ERRORS
 RequestTimeoutException::RequestTimeoutException(std::string h) :
 	HTTPException(h, "HTTP/1.1 408 Request Timeout\r\n"){}
@@ -134,6 +138,21 @@ const char*	BadGatewayException::what(void) const throw() {
 		"<h1 align=\"center\", style=\"color:00BABC\">502 Bad Gateway</h1>"	\
 		"<p align=\"center\", style=\"color:00BABC\">W3B53RB3RU5 1.0</p>"	\
 		"</div></body></html>"												\
+	);
+	
+}
+
+NotImplementedException::NotImplementedException(std::string h) :
+	HTTPException(h, "HTTP/1.1 501 Not Implemented\r\n"){}
+const char*	NotImplementedException::what(void) const throw() {
+	return ( \
+		"Content-Length: 193\r\n\r\n"											\
+		"<html>"																\
+		"<body style=\"background-color:292D39\">"								\
+		"<div>"																	\
+		"<h1 align=\"center\", style=\"color:00BABC\">501 Not Implemented</h1>"	\
+		"<p align=\"center\", style=\"color:00BABC\">W3B53RB3RU5 1.0</p>"		\
+		"</div></body></html>"													\
 	);
 	
 }

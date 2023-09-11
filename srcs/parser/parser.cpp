@@ -13,18 +13,20 @@ std::pair<unsigned short, VirtualServer>	getVServer(std::fstream& file) {
 
 	while(std::getline(file >> std::ws, buff)) {
 		if (buff == "}")
-			break ;
+			return (std::make_pair(port, vserver));
 		try {
-			status = vserver.interpretLine(buff);
+			status = vserver.interpretAttribute(buff, file);
 		}
 		catch (const std::exception& e) {
-			std::cerr << "at line: '" << buff << "'" << std::endl;
-			throw InvalidSyntaxException();
+			if (!dynamic_cast<const Location::NoHomeException*>(&e))
+				std::cerr << "at: '" << buff << "'" << std::endl;
+			throw ;
 		}
 		if (status)
 			port = static_cast<unsigned int>(status);
 	}
-	return (std::make_pair(port, vserver));
+	std::cerr << "missing final '}'" << std::endl;
+	throw InvalidSyntaxException();
 }
 
 bool	validFieldName(std::string field) {
@@ -38,4 +40,18 @@ bool	validFieldName(std::string field) {
 
 const char*	InvalidSyntaxException::what(void) const throw() {
 	return ("Invalid syntax on config file");
+}
+
+Location	getLocation(std::fstream& file) {
+	Location		location;
+	std::string		buff;
+
+	while(std::getline(file >> std::ws, buff)) {
+		if (buff == "}")
+			break ;
+		location.interpretAttribute(buff);
+	}
+	if (!location.checkIntegrity())
+		throw InvalidSyntaxException();
+	return (location);
 }

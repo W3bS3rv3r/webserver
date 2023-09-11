@@ -20,6 +20,7 @@ CLASSES = $(addprefix srcs/,		\
 	Cgi/Cgi.cpp						\
 	VirtualServer/VirtualServer.cpp	\
 	HTTPException/HTTPException.cpp	\
+	Location/Location.cpp			\
 )
 
 HTTP = $(addprefix srcs/http/,	\

@@ -6,25 +6,17 @@
 #include <dirent.h>
 #include <unistd.h>
 
-std::string	del(const std::string& path, std::string request) {
-	std::string		open_string(path);
-	DIR*			dir;
-	std::string		host = getHeaderValue(request, "Host");
-
-	if ( (dir = opendir(open_string.c_str())) ) {
-		closedir(dir);
-		open_string += "/index.html";
-	}
-	if (access(open_string.c_str(), F_OK))
-		throw NotFoundException(host);
-	else if (access(open_string.c_str(), W_OK))
-		throw ForbiddenException(host);
+std::string	del(const std::string& path) {
+	if (access(path.c_str(), F_OK))
+		throw NotFoundException("");
+	else if (access(path.c_str(), R_OK))
+		throw ForbiddenException("");
 	std::string		response = ("HTTP/1.1 204 OK\r\nContent-Length: 0\r\n\r\n");
 	try {
-		std::remove(open_string.c_str());
+		std::remove(path.c_str());
 	}
 	catch (const std::exception& e) {
-		throw InternalServerErrorException(host);
+		throw InternalServerErrorException("");
 	}
 	return (response);
 }
