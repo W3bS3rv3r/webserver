@@ -46,7 +46,8 @@ Response	getResponse(const std::string& request, const Socket& socket) {
 	stream >> route;
 	const Location&	location = server.getLocation(route);
 	try {
-		response = location.handleRequest(method, route, request);
+		response = location.handleRequest(method, route, request, socket);
+//			response = cgiPost(path, request, socket);
 	}
 	catch (HTTPException& e) {
 		e.setHost(host);

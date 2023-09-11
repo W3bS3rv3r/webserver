@@ -10,26 +10,40 @@
 #include <sstream>
 #include <sys/wait.h>
 #include <string.h>
+#include <arpa/inet.h>
 
-static std::vector	<char*> setCgiEnv(const std::string& request) {
+static std::vector	<char*> setCgiEnv(const std::string& request, const Socket& socket) {
 	std::vector<char*> env;
+	std::string requestURI;
+	std::string serverName;
+	std::string serverPort;
+	std::string clientIp;
+	std::string clientPort;
+
+	requestURI = getRequestURI(request);
+	serverName = getServerName(request);
+	serverPort = getServerPort(request);
+	clientIp = inet_ntoa(socket.getClientInfo().sin_addr);
+	clientPort = ntohs(socket.getClientInfo().sin_port);
+
+	env.push_back(strdup(("CONTENT_TYPE=" + getHeaderValue(request, "Content-Type")).c_str()));
+	env.push_back(strdup(("CONTENT_LENGTH=" + getHeaderValue(request, "Content-Length")).c_str()));
+	env.push_back(strdup(("REQUEST_URI=" + requestURI).c_str()));
+	env.push_back(strdup(("SCRIPT_NAME=" + requestURI.substr(1)).c_str()));
+	env.push_back(strdup(("SCRIPT_FILENAME=" + getScriptFilename(requestURI)).c_str()));
+
+	env.push_back(strdup(("REMOTE_ADDR=" + clientIp + ":" + clientPort).c_str()));
+	env.push_back(strdup(("SERVER_NAME=" + serverName).c_str()));
+	env.push_back(strdup(("SERVER_PORT=" + serverPort).c_str()));
 
 	env.push_back(strdup("AUTH_TYPE=Basic"));
 	env.push_back(strdup("REQUEST_METHOD=POST"));
-	env.push_back(strdup(("CONTENT_TYPE=" + getHeaderValue(request, "Content-Type")).c_str()));
-	env.push_back(strdup(("CONTENT_LENGTH=" + getHeaderValue(request, "Content-Length")).c_str()));
 	env.push_back(strdup("REDIRECT_STATUS=200"));
 	env.push_back(strdup("DOCUMENT_ROOT=./"));
 	env.push_back(strdup("GATEWAY_INTERFACE=CGI/1.1"));
 	env.push_back(strdup("PATH_INFO="));
 	env.push_back(strdup("PATH_TRANSLATED=.//"));
 	env.push_back(strdup("QUERY_STRING="));
-	env.push_back(strdup("REMOTE_ADDR=localhost:4242"));
-	env.push_back(strdup("REQUEST_URI=/cgi-bin/upload.py"));
-	env.push_back(strdup("SCRIPT_FILENAME=upload.py"));
-	env.push_back(strdup("SCRIPT_NAME=cgi-bin/upload.py"));
-	env.push_back(strdup("SERVER_NAME=localhost"));
-	env.push_back(strdup("SERVER_PORT=4242"));
 	env.push_back(strdup("SERVER_PROTOCOL=HTTP/1.1"));
 	env.push_back(strdup("SERVER_SOFTWARE=AMANIX"));
 	env.push_back(NULL);
@@ -37,8 +51,7 @@ static std::vector	<char*> setCgiEnv(const std::string& request) {
 	return (env);
 }
 
-
-Response	cgiPost(std::string path, std::string request) {
+Response	cgiPost(std::string path, std::string request, const Socket& socket) {
 	Response	resp;
 	int			fd_req[2];
 	int			fd_res[2];
@@ -61,7 +74,7 @@ Response	cgiPost(std::string path, std::string request) {
 		close(fd_req[1]);
 		close(fd_res[0]);
 
-        std::vector<char*> env = setCgiEnv(request);
+		std::vector<char*> env = setCgiEnv(request, socket);
 		execve(argv[0], const_cast<char* const*>(argv.data()), env.data());
 		exit(1);
 	}

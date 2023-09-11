@@ -38,7 +38,8 @@ void	Socket::listen(void) {
 }
 
 Connection*	Socket::acceptConnection(void) {
-	const int	client_fd = accept(_fd, NULL, NULL);
+	_client_info_len = sizeof(_client_info); 
+	const int	client_fd = accept(_fd, (struct sockaddr*)&_client_info, &_client_info_len);
 	if (client_fd < 0)
 		throw Socket::CantAcceptConnectionException();
 	return (new Connection(client_fd, this));
@@ -52,8 +53,9 @@ void	Socket::addVserver(const VirtualServer& server) {
 		throw DuplicateException();
 }
 
-int				Socket::getFd(void) const { return _fd; }
-unsigned short	Socket::getPort(void) const { return _port; }
+int					Socket::getFd(void) const { return _fd; }
+struct sockaddr_in	Socket::getClientInfo(void) const { return _client_info; }
+unsigned short		Socket::getPort(void) const { return _port; }
 
 VirtualServer	Socket::getVServer(std::string host_header) const {
 	std::map<std::string, VirtualServer>::const_iterator	i;

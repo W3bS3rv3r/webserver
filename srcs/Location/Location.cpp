@@ -90,7 +90,7 @@ bool	Location::checkIntegrity(void) const {
 }
 
 Response	Location::handleRequest(std::string method, std::string route,
-		const std::string& request) const
+		const std::string& request, const Socket& socket) const
 {
 	if (!_redirect.empty())
 		return (Response(this->redirectResponse()));
@@ -102,7 +102,7 @@ Response	Location::handleRequest(std::string method, std::string route,
 	else if (method == "DELETE")
 		return (Response(del(path)));
 	else if (method == "POST")
-		return (this->callPost(path, request));
+		return (this->callPost(path, request, socket));
 	else
 		throw NotImplementedException("");
 }
@@ -131,11 +131,13 @@ Response	Location::callGet(std::string path, const std::string& request) const {
 	return (Response(get(path)));
 }
 
-Response	Location::callPost(std::string path, const std::string& request) const {
+Response	Location::callPost(std::string path, const std::string& request,
+		const Socket& socket) const
+{
 	if (!_extension.empty() &&
 		path.rfind(_extension) == path.size() - _extension.size())
 	{
-		return (cgiPost(path, request));
+		return (cgiPost(path, request, socket));
 	}
 	throw MethodNotAllowedException("");
 }

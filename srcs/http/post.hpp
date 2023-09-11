@@ -3,7 +3,8 @@
 
 #include <string>
 #include "../Response/Response.hpp"
+#include "../Socket/Socket.hpp"
 
-Response	cgiPost(std::string path, std::string request);
+Response	cgiPost(std::string path, std::string request, const Socket& socket);
 
 #endif

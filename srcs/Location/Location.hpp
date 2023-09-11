@@ -6,6 +6,8 @@
 #include <set>
 #include "../Response/Response.hpp"
 
+class Socket;
+
 class Location {
 public:
 	Location(void);
@@ -16,7 +18,8 @@ public:
 
 	void		interpretAttribute(std::string line);
 	bool		checkIntegrity(void) const;
-	Response	handleRequest(std::string method, std::string route, const std::string& request) const;
+	Response	handleRequest(std::string method, std::string route,
+				const std::string& request, const Socket& socket) const;
 
 	struct NoHomeException: std::exception {
 		const char*	what(void) const throw();
@@ -36,7 +39,7 @@ private:
 	void		insertGeneralField(std::string field, std::stringstream& stream);
 	void		insertMethods(std::stringstream& stream);
 	Response	callGet(std::string route, const std::string& request) const;
-	Response	callPost(std::string route, const std::string& request) const;
+	Response	callPost(std::string route, const std::string& request, const Socket& socket) const;
 	std::string	buildPath(std::string route) const;
 	std::string	redirectResponse(void) const;
 };
