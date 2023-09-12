@@ -116,8 +116,15 @@ std::string	Location::redirectResponse(void) const {
 	return (response.str());
 }
 
+#include <iostream>
+
 Response	Location::callGet(std::string path, const std::string& request) const {
 	DIR*		dir;
+	size_t		paramsPos;
+
+	paramsPos = path.find('?');
+	if (paramsPos != std::string::npos)
+		path.resize(paramsPos);		
 
 	if (!_extension.empty() &&
 		path.rfind(_extension) == path.size() - _extension.size())
