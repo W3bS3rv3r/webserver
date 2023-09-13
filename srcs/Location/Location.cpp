@@ -120,16 +120,19 @@ std::string	Location::redirectResponse(void) const {
 
 Response	Location::callGet(std::string path, const std::string& request) const {
 	DIR*		dir;
-	size_t		paramsPos;
+	size_t		argsPos;
+	std::string	arguments = "";
 
-	paramsPos = path.find('?');
-	if (paramsPos != std::string::npos)
-		path.resize(paramsPos);		
-
+	argsPos = path.find('?');
+	if (argsPos != std::string::npos)
+	{
+		arguments = path.substr(argsPos + 1);
+		path = path.substr(0, argsPos);
+	}
 	if (!_extension.empty() &&
 		path.rfind(_extension) == path.size() - _extension.size())
 	{
-		return (cgiGet(path, request));
+		return (cgiGet(path, request, arguments));
 	}
 	else if ((dir = opendir(path.c_str()))) {
 		closedir(dir);
