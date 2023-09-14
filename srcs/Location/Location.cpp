@@ -92,13 +92,22 @@ bool	Location::checkIntegrity(void) const {
 Response	Location::handleRequest(std::string method, std::string route,
 		const std::string& request, const Socket& socket) const
 {
+	size_t		argsPos;
+	std::string	arguments = "";
+
 	if (!_redirect.empty())
 		return (Response(this->redirectResponse()));
 	if (!_methods.empty() && _methods.find(method) == _methods.end())
 		throw MethodNotAllowedException("");
 	std::string	path = this->buildPath(route);
+	argsPos = path.find('?');
+	if (argsPos != std::string::npos)
+	{
+		arguments = path.substr(argsPos + 1);
+		path = path.substr(0, argsPos);
+	}
 	if (method == "GET")
-		return (this->callGet(path, request));
+		return (this->callGet(path, request, arguments));
 	else if (method == "DELETE")
 		return (Response(del(path)));
 	else if (method == "POST")
@@ -118,17 +127,9 @@ std::string	Location::redirectResponse(void) const {
 
 #include <iostream>
 
-Response	Location::callGet(std::string path, const std::string& request) const {
+Response	Location::callGet(std::string path, const std::string& request, const std::string& arguments) const {
 	DIR*		dir;
-	size_t		argsPos;
-	std::string	arguments = "";
-
-	argsPos = path.find('?');
-	if (argsPos != std::string::npos)
-	{
-		arguments = path.substr(argsPos + 1);
-		path = path.substr(0, argsPos);
-	}
+	
 	if (!_extension.empty() &&
 		path.rfind(_extension) == path.size() - _extension.size())
 	{

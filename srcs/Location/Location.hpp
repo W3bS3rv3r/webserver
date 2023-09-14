@@ -38,7 +38,7 @@ private:
 
 	void		insertGeneralField(std::string field, std::stringstream& stream);
 	void		insertMethods(std::stringstream& stream);
-	Response	callGet(std::string route, const std::string& request) const;
+	Response	callGet(std::string route, const std::string& request, const std::string& arguments) const;
 	Response	callPost(std::string route, const std::string& request, const Socket& socket) const;
 	std::string	buildPath(std::string route) const;
 	std::string	redirectResponse(void) const;
