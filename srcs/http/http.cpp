@@ -27,6 +27,8 @@ std::string	getRequest(const int client_fd, const Socket& socket) {
 	if (contentLengthStr.empty())
 		return (request);
 	std::string	host = getHeaderValue(request, "Host");
+	if (request.find("HTTP/1.1") == std::string::npos)
+		throw HTTPVersionNotSupportedException(host);
 	const VirtualServer&	vserver = socket.getVServer(host);
 	unsigned long	content_length = strtoul(contentLengthStr.c_str(), NULL, 10);
 	if (vserver.getBodySize()!= 0 && content_length > vserver.getBodySize())
