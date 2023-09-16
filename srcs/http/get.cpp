@@ -46,7 +46,7 @@ std::string	getDir(std::string path) {
 	return (response.str());
 }
 
-Response	cgiGet(std::string path, const std::string& request) {
+Response	cgiGet(std::string path, const std::string& request, const std::string& arguments) {
 	Response	resp;
 	int			fd[2];
 	std::string	host = getHeaderValue(request, "Host");
@@ -59,6 +59,7 @@ Response	cgiGet(std::string path, const std::string& request) {
 	else if (pid == 0) {
 		std::vector<const char*>	argv;
 		argv.push_back(path.c_str());
+		argv.push_back(arguments.c_str());
 		argv.push_back(NULL);
 		dup2(fd[0],0);
 		dup2(fd[1],1);
