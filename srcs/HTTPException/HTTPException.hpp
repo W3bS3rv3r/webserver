@@ -65,6 +65,11 @@ struct ContentTooLargeException : public HTTPException {
 	const char*	what(void) const throw();
 };
 
+struct HTTPVersionNotSupportedException : public HTTPException {
+	HTTPVersionNotSupportedException(std::string h);
+	const char*	what(void) const throw();
+};
+
 struct NotImplementedException : public HTTPException {
 	NotImplementedException(std::string h);
 	const char*	what(void) const throw();
