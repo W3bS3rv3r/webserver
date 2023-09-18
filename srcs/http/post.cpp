@@ -51,19 +51,20 @@ static std::vector	<char*> setCgiEnv(const std::string& request, const Socket& s
 	return (env);
 }
 
-Response	cgiPost(std::string path, std::string request, const Socket& socket) {
+Response	cgiPost(std::string path, std::string request,
+					const Socket& socket, std::string upload)
+{
 	Response	resp;
 	int			fd_req[2];
 	int			fd_res[2];
-	std::string	host = getHeaderValue(request, "Host");
 
 	if (pipe(fd_req) || pipe(fd_res))
-		throw InternalServerErrorException(host);
+		throw InternalServerErrorException("");
 	pid_t	pid = fork();
 	if (pid == -1)
-		throw InternalServerErrorException(host);
+		throw InternalServerErrorException("");
 	else if (pid == 0) {
-	
+		chdir(upload.c_str());
 		std::vector<const char*>	argv;
 		argv.push_back("/usr/bin/python3");
 		argv.push_back(path.c_str());
