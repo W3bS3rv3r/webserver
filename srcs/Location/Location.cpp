@@ -83,7 +83,7 @@ void	Location::insertGeneralField(std::string field, std::stringstream& stream) 
 	else if (field == "return")
 		_redirect = content;
 	else if (field == "upload") {
-		if (content[0] == '/')
+		if (content[0] == '/' || content.find("../") != std::string::npos)
 			throw InvalidSyntaxException();
 		_upload = content;
 	}
