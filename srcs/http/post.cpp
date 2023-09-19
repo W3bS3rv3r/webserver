@@ -60,6 +60,7 @@ Response	cgiPost(std::string path, std::string request,
 
 	if (pipe(fd_req) || pipe(fd_res))
 		throw InternalServerErrorException("");
+	write(fd_req[1], request.c_str(), request.size());
 	pid_t	pid = fork();
 	if (pid == -1)
 		throw InternalServerErrorException("");
@@ -84,7 +85,6 @@ Response	cgiPost(std::string path, std::string request,
 		close(fd_req[0]);
 		close(fd_res[1]);
 		cgi.setActive();
-		write(fd_req[1], request.c_str(), request.size());
 		close(fd_req[1]);
 		resp.setCgi(cgi);
 	}
