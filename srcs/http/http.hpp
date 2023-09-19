@@ -5,8 +5,6 @@
 #include "../Response/Response.hpp"
 #include "../Socket/Socket.hpp"
 
-#define BUFFER_SIZE 1024
-
 std::string	getRequest(const int client_fd, const Socket& socket);
 Response	getResponse(const std::string& request, const Socket& socket);
 

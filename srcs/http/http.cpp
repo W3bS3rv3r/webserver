@@ -74,6 +74,7 @@ std::string	getHeaders(int fd) {
 			}
 			else {
 				recv(fd, buff, i - buff + delimiter.size(), MSG_DONTWAIT);
+				*(i + delimiter.size()) = '\0';
 				headers += buff;
 				break ;
 			}
