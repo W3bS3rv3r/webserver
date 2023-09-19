@@ -31,6 +31,7 @@ private:
 	std::string				_index;
 	std::string				_autoindex;
 	std::string				_redirect;
+	std::string				_upload;
 	std::set<std::string>	_methods;
 
 	static const char*					_fields_array[];
@@ -38,6 +39,7 @@ private:
 
 	void		insertGeneralField(std::string field, std::stringstream& stream);
 	void		insertMethods(std::stringstream& stream);
+	Response	callDelete(std::string route) const;
 	Response	callGet(std::string route, const std::string& request, const std::string& arguments) const;
 	Response	callPost(std::string route, const std::string& request, const Socket& socket) const;
 	std::string	buildPath(std::string route) const;

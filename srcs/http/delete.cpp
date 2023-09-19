@@ -12,11 +12,7 @@ std::string	del(const std::string& path) {
 	else if (access(path.c_str(), R_OK))
 		throw ForbiddenException("");
 	std::string		response = ("HTTP/1.1 204 OK\r\nContent-Length: 0\r\n\r\n");
-	try {
-		std::remove(path.c_str());
-	}
-	catch (const std::exception& e) {
+	if (remove(path.c_str()))
 		throw InternalServerErrorException("");
-	}
 	return (response);
 }
