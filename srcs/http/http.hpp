@@ -3,9 +3,10 @@
 
 #include <string>
 #include "../Response/Response.hpp"
+#include "../Request/Request.hpp"
 #include "../Socket/Socket.hpp"
 
-std::string	getRequest(const int client_fd, const Socket& socket);
+Request		getRequest(const int client_fd, const Socket& socket);
 Response	getResponse(const std::string& request, const Socket& socket);
 
 #endif

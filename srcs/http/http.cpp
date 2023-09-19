@@ -19,21 +19,21 @@ namespace {
 	std::string	getBody(int fd, unsigned long content_length, std::string host);
 }
 
-std::string	getRequest(const int client_fd, const Socket& socket) {
-	std::string				request;
+Request	getRequest(const int client_fd, const Socket& socket) {
+	Request	request;
 
-	request += getHeaders(client_fd);
-	std::string contentLengthStr = getHeaderValue(request, "Content-Length");
+	request.append(getHeaders(client_fd));
+	std::string contentLengthStr = getHeaderValue(request.str(), "Content-Length");
 	if (contentLengthStr.empty())
 		return (request);
-	std::string	host = getHeaderValue(request, "Host");
-	if (request.find("HTTP/1.1") == std::string::npos)
+	std::string	host = getHeaderValue(request.str(), "Host");
+	if (request.str().find("HTTP/1.1") == std::string::npos)
 		throw HTTPVersionNotSupportedException(host);
 	const VirtualServer&	vserver = socket.getVServer(host);
 	unsigned long	content_length = strtoul(contentLengthStr.c_str(), NULL, 10);
 	if (vserver.getBodySize()!= 0 && content_length > vserver.getBodySize())
 		throw ContentTooLargeException(host);
-	request += getBody(client_fd, content_length, host);
+	request.append(getBody(client_fd, content_length, host));
 	return (request);
 }
 

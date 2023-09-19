@@ -23,13 +23,13 @@ Connection::~Connection(void) {
 void	Connection::readRequest(void) {
 	try {
 		_requests.push(getRequest(_fd, *_socket));
-		if (_requests.front().empty()) {
+		if (_requests.front().str().empty()) {
 			_done = true;
 			_requests.pop();
 			return ;
 		}
 		std::cout << _fd << ':' << _socket->_port << " <- ";
-		std::cout << _requests.back().substr(0, _requests.back().find('\n'));
+		std::cout << _requests.back().str().substr(0, _requests.back().str().find('\n')); //create a function for this
 		std::cout << std::endl;
 	}
 	catch(const HTTPException& e) {
@@ -44,7 +44,7 @@ void	Connection::writeResponse(void) {
 		return ;
 	else if (_responses.empty()) {
 		try {
-			_responses.push(getResponse(_requests.front(), *_socket));
+			_responses.push(getResponse(_requests.front().str(), *_socket));
 		}
 		catch(const HTTPException& e) {
 			_responses.push(Response(e.getResponse(*_socket)));
