@@ -22,21 +22,31 @@ Connection::~Connection(void) {
 //METHODS
 void	Connection::readRequest(void) {
 	try {
-		if (_requests.empty())
+		if (_requests.empty()) {
 			_requests.push(getRequest(_fd, *_socket));
-		_requests.front().getBody();
-		if (_requests.front().str().empty()) {
-			_done = true;
-			_requests.pop();
-			return ;
+			if (_requests.front().str().empty()) {
+				_done = true;
+				_requests.pop();
+				return ;
+			}
+			else if (!_requests.front().chunked())
+				_requests.front().getBody();
 		}
-		else if (!_requests.front().ready())
+		else if (_requests.front().valid())
+			_requests.front().getBody();
+		if (!_requests.front().ready())
 			return ;
 		std::cout << _fd << ':' << _socket->_port << " <- ";
 		std::cout << _requests.back().str().substr(0, _requests.back().str().find('\n')); //create a function for this
 		std::cout << std::endl;
 	}
 	catch(const HTTPException& e) {
+		if (!_requests.empty()) {
+			std::cout << _fd << ':' << _socket->_port << " <- ";
+			std::cout << _requests.front().str().substr(0, _requests.front().str().find('\n')); //create a function for this
+			std::cout << std::endl;
+			_requests.pop();
+		}
 		_responses.push(Response(e.getResponse(*_socket)));
 		if (e.getErrorCode() == "413")
 			_done = true;
