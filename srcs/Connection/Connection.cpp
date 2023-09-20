@@ -36,15 +36,11 @@ void	Connection::readRequest(void) {
 			_requests.front().getBody();
 		if (!_requests.front().ready())
 			return ;
-		std::cout << _fd << ':' << _socket->_port << " <- ";
-		std::cout << _requests.back().str().substr(0, _requests.back().str().find('\n')); //create a function for this
-		std::cout << std::endl;
+		std::cout << _fd << ':' << _socket->_port << " <- " << _requests.front() << std::endl;
 	}
 	catch(const HTTPException& e) {
 		if (!_requests.empty()) {
-			std::cout << _fd << ':' << _socket->_port << " <- ";
-			std::cout << _requests.front().str().substr(0, _requests.front().str().find('\n')); //create a function for this
-			std::cout << std::endl;
+			std::cout << _fd << ':' << _socket->_port << " <- " << _requests.front() << std::endl;
 			_requests.pop();
 		}
 		_responses.push(Response(e.getResponse(*_socket)));

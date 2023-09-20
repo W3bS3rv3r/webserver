@@ -27,6 +27,12 @@ Request&	Request::operator=(const Request& src) {
 	return (*this);
 }
 
+std::ostream&	operator<<(std::ostream& stream, const Request& req) {
+	stream << req._request.substr(0, req._request.find('\n'));
+	return (stream);
+}
+
+
 // Methods
 void	Request::append(std::string str) { _request += str; }
 

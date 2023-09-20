@@ -2,6 +2,7 @@
 # define REQUEST_HPP
 
 #include <string>
+#include <ostream>
 #include "../http/http.hpp"
 
 class Request {
@@ -31,6 +32,10 @@ private:
 	int				_fd;
 	unsigned long	_body_limit;
 	unsigned long	_body_size;
+
+	friend std::ostream&	operator<<(std::ostream& stream, const Request& req);
 };
+
+std::ostream&	operator<<(std::ostream& stream, const Request& req);
 
 #endif
