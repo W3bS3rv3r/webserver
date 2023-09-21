@@ -9,6 +9,7 @@
 #include <vector>
 #include <sstream>
 #include <algorithm>
+#include <fcntl.h>
 
 std::string	get(std::string path) {
 	if (access(path.c_str(), F_OK))
@@ -46,6 +47,11 @@ std::string	getDir(std::string path) {
 	return (response.str());
 }
 
+void	makePipeNonBlocking(int* pip) {
+	fcntl(pip[0], F_SETFL, O_NONBLOCK, FD_CLOEXEC);
+	fcntl(pip[1], F_SETFL, O_NONBLOCK, FD_CLOEXEC);
+}
+
 Response	cgiGet(std::string path, const std::string& request, const std::string& arguments) {
 	Response	resp;
 	int			fd[2];
@@ -53,6 +59,7 @@ Response	cgiGet(std::string path, const std::string& request, const std::string&
 
 	if (pipe(fd))
 		throw InternalServerErrorException(host);
+	makePipeNonBlocking(fd);
 	pid_t	pid = fork();
 	if (pid == -1)
 		throw InternalServerErrorException(host);

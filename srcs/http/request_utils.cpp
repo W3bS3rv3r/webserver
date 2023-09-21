@@ -59,7 +59,7 @@ std::string	getFileContent(const std::string& path, std::string host) {
 	int				n;
 	int				fd = open(path.c_str(), O_NONBLOCK);
 
-	if (fd < 0 || !pollFd(fd))
+	if (fd < 0 || !pollFdIn(fd))
 		throw InternalServerErrorException(host);
 	memset(buff, 0, BUFFER_SIZE + 1);
 	while ((n = read(fd, buff, BUFFER_SIZE - 1)) > 0) {
@@ -78,7 +78,7 @@ std::string	getFileContent(const std::string& path, std::string host) {
 	return (content);
 }
 
-bool	pollFd(int fd) {
+bool	pollFdIn(int fd) {
 	struct pollfd	temp;
 
 	memset(&temp, 0, sizeof(temp));
@@ -86,6 +86,18 @@ bool	pollFd(int fd) {
 	temp.fd = fd;
 	poll(&temp, 1, 0);
 	if (temp.revents & POLLIN)
+		return (true);
+	return (false);
+}
+
+bool	pollFdOut(int fd) {
+	struct pollfd	temp;
+
+	memset(&temp, 0, sizeof(temp));
+	temp.events = POLLIN | POLLOUT;
+	temp.fd = fd;
+	poll(&temp, 1, 0);
+	if (temp.revents & POLLOUT)
 		return (true);
 	return (false);
 }
