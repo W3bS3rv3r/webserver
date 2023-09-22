@@ -64,8 +64,12 @@ void	Request::getBody(void) {
 				_ready = true;
 		}
 		else {
+			unsigned long	cont_len;
 			std::string cont_len_str = getHeaderValue(_request, "Content-Length");
-			unsigned long	cont_len = strtoul(cont_len_str.c_str(), NULL, 10);
+			if (!cont_len_str.empty())
+				cont_len = strtoul(cont_len_str.c_str(), NULL, 10);
+			else
+				cont_len = _body_limit;
 			if (_body_limit != 0 && cont_len > _body_limit)
 				throw ContentTooLargeException(_host);
 			_request += readBody(_fd, cont_len, _host);
