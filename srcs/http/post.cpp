@@ -11,6 +11,7 @@
 #include <sys/wait.h>
 #include <string.h>
 #include <arpa/inet.h>
+#include <fcntl.h>
 
 static std::vector	<char*> setCgiEnv(const std::string& request, const Socket& socket) {
 	std::vector<char*> env;
@@ -51,6 +52,13 @@ static std::vector	<char*> setCgiEnv(const std::string& request, const Socket& s
 	return (env);
 }
 
+void	makePipesNonBlocking(int* pip1, int* pip2) {
+	fcntl(pip1[0], F_SETFL, O_NONBLOCK, FD_CLOEXEC);
+	fcntl(pip1[1], F_SETFL, O_NONBLOCK, FD_CLOEXEC);
+	fcntl(pip2[0], F_SETFL, O_NONBLOCK, FD_CLOEXEC);
+	fcntl(pip2[1], F_SETFL, O_NONBLOCK, FD_CLOEXEC);
+}
+
 Response	cgiPost(std::string path, std::string request,
 					const Socket& socket, std::string upload)
 {
@@ -59,6 +67,9 @@ Response	cgiPost(std::string path, std::string request,
 	int			fd_res[2];
 
 	if (pipe(fd_req) || pipe(fd_res))
+		throw InternalServerErrorException("");
+	makePipesNonBlocking(fd_req, fd_req);
+	if (!pollFdOut(fd_req[1]))
 		throw InternalServerErrorException("");
 	write(fd_req[1], request.c_str(), request.size());
 	pid_t	pid = fork();
