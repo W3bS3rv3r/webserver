@@ -125,8 +125,6 @@ std::string	Location::redirectResponse(void) const {
 	return (response.str());
 }
 
-#include <iostream>
-
 Response	Location::callGet(std::string path, const std::string& request, const std::string& arguments) const {
 	DIR*		dir;
 	
@@ -162,7 +160,7 @@ std::string	Location::buildPath(std::string route) const {
 		if (!access((path + _index).c_str(), F_OK))
 			path += _index;
 		else if (_autoindex.empty())
-			throw ForbiddenException("");
+			throw NotFoundException("");
 	}
 	return (path);
 }
