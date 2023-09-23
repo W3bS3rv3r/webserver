@@ -17,6 +17,7 @@ CLASSES = $(addprefix srcs/,		\
 	Server/Server.cpp				\
 	Connection/Connection.cpp		\
 	Response/Response.cpp			\
+	Request/Request.cpp				\
 	Cgi/Cgi.cpp						\
 	VirtualServer/VirtualServer.cpp	\
 	HTTPException/HTTPException.cpp	\

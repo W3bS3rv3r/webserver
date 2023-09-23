@@ -1,9 +1,9 @@
 #ifndef CONNECTION_HPP
 # define CONNECTION_HPP
 
-#include <string>
 #include <queue>
 #include "../Response/Response.hpp"
+#include "../Request/Request.hpp"
 
 class Socket;
 
@@ -22,7 +22,7 @@ private:
 	int						_fd;
 	const Socket*			_socket;
 	bool					_done;
-	std::queue<std::string>	_requests;
+	std::queue<Request>		_requests;
 	std::queue<Response>	_responses;
 
 	Connection&	operator=(const Connection& src);
