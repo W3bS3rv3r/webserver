@@ -72,7 +72,9 @@ Response	cgiPost(std::string path, std::string request,
 
 	if (pipe(fd_req) || pipe(fd_res))
 		throw InternalServerErrorException("");
-<<<<<<< HEAD
+	makePipesNonBlocking(fd_req, fd_req);
+	if (!pollFdOut(fd_req[1]))
+		throw InternalServerErrorException("");
 	headers_end = request.find("\r\n\r\n");
 	if (headers_end != std::string::npos) {
         req_body = request.substr(headers_end + 4);
@@ -80,12 +82,6 @@ Response	cgiPost(std::string path, std::string request,
     } else {
         write(fd_req[1], "", 0);
 	}
-=======
-	makePipesNonBlocking(fd_req, fd_req);
-	if (!pollFdOut(fd_req[1]))
-		throw InternalServerErrorException("");
-	write(fd_req[1], request.c_str(), request.size());
->>>>>>> develop
 	pid_t	pid = fork();
 	if (pid == -1)
 		throw InternalServerErrorException("");
@@ -95,7 +91,6 @@ Response	cgiPost(std::string path, std::string request,
 		argv.push_back("/usr/bin/python3");
 		argv.push_back(path.c_str());
 		argv.push_back(NULL);
-		std::cout << request << std::endl;
 		dup2(fd_req[0], STDIN_FILENO);
 		dup2(fd_res[1], STDOUT_FILENO);
 		close(fd_req[1]);
