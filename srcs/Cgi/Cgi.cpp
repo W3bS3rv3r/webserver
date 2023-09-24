@@ -1,5 +1,6 @@
 #include "Cgi.hpp"
 #include "../HTTPException/HTTPException.hpp"
+#include "../http/request_utils.hpp"
 #include <unistd.h>
 #include <signal.h>
 #include <sys/wait.h>
@@ -55,6 +56,8 @@ std::string	Cgi::readResponse(void) {
 		close(_fd);
 		throw BadGatewayException(_host);
 	}
+	if (!pollFdIn(_fd))
+		throw InternalServerErrorException(_host);
 	char		buff[1025];
 	std::string	content;
 	memset(buff, 0, 1025);

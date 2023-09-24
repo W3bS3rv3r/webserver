@@ -11,6 +11,7 @@
 #include <sys/wait.h>
 #include <string.h>
 #include <arpa/inet.h>
+#include <fcntl.h>
 
 static std::vector	<char*> setCgiEnv(const std::string& request, const Socket& socket) {
 	std::vector<char*> env;
@@ -51,20 +52,31 @@ static std::vector	<char*> setCgiEnv(const std::string& request, const Socket& s
 	return (env);
 }
 
-Response	cgiPost(std::string path, std::string request, const Socket& socket) {
+void	makePipesNonBlocking(int* pip1, int* pip2) {
+	fcntl(pip1[0], F_SETFL, O_NONBLOCK, FD_CLOEXEC);
+	fcntl(pip1[1], F_SETFL, O_NONBLOCK, FD_CLOEXEC);
+	fcntl(pip2[0], F_SETFL, O_NONBLOCK, FD_CLOEXEC);
+	fcntl(pip2[1], F_SETFL, O_NONBLOCK, FD_CLOEXEC);
+}
+
+Response	cgiPost(std::string path, std::string request,
+					const Socket& socket, std::string upload)
+{
 	Response	resp;
 	int			fd_req[2];
 	int			fd_res[2];
-	std::string	host = getHeaderValue(request, "Host");
 
 	if (pipe(fd_req) || pipe(fd_res))
-		throw InternalServerErrorException(host);
+		throw InternalServerErrorException("");
+	makePipesNonBlocking(fd_req, fd_req);
+	if (!pollFdOut(fd_req[1]))
+		throw InternalServerErrorException("");
 	write(fd_req[1], request.c_str(), request.size());
 	pid_t	pid = fork();
 	if (pid == -1)
-		throw InternalServerErrorException(host);
+		throw InternalServerErrorException("");
 	else if (pid == 0) {
-	
+		chdir(upload.c_str());
 		std::vector<const char*>	argv;
 		argv.push_back("/usr/bin/python3");
 		argv.push_back(path.c_str());

@@ -32,6 +32,7 @@ Location&	Location::operator=(const Location& src) {
 		_methods = src._methods;
 		_redirect = src._redirect;
 		_name = src._name;
+		_upload = src._upload;
 	}
 	return (*this);
 }
@@ -79,6 +80,11 @@ void	Location::insertGeneralField(std::string field, std::stringstream& stream) 
 		_index = content;
 	else if (field == "return")
 		_redirect = content;
+	else if (field == "upload") {
+		if (content[0] == '/' || content.find("../") != std::string::npos)
+			throw InvalidSyntaxException();
+		_upload = content;
+	}
 }
 
 bool	Location::checkIntegrity(void) const {
@@ -107,7 +113,7 @@ Response	Location::handleRequest(std::string method, std::string route,
 	if (method == "GET")
 		return (this->callGet(path, request, arguments));
 	else if (method == "DELETE")
-		return (Response(del(path)));
+		return (this->callDelete(path));
 	else if (method == "POST")
 		return (this->callPost(path, request, socket));
 	else
@@ -121,6 +127,12 @@ std::string	Location::redirectResponse(void) const {
 	response << "Location: " + _redirect + "\r\n";
 	response << "Content-Length: 0\r\n\r\n";
 	return (response.str());
+}
+
+Response	Location::callDelete(std::string path) const {
+	if (_upload.empty() || path.substr(_root.size() + 1, _upload.size()) != _upload)
+		throw MethodNotAllowedException("");
+	return (Response(del(path)));
 }
 
 Response	Location::callGet(std::string path, const std::string& request, const std::string& arguments) const {
@@ -141,12 +153,17 @@ Response	Location::callGet(std::string path, const std::string& request, const s
 Response	Location::callPost(std::string path, const std::string& request,
 		const Socket& socket) const
 {
-	if (!_extension.empty() &&
-		path.rfind(_extension) == path.size() - _extension.size())
-	{
-		return (cgiPost(path, request, socket));
-	}
-	throw NotImplementedException("");
+	if (_extension.empty())
+		throw NotImplementedException("");
+	else if (_upload.empty())
+		throw MethodNotAllowedException("");
+	DIR* dir = opendir((_root + "/" + _upload).c_str());
+	if (!dir)
+		throw InternalServerErrorException("");
+	closedir(dir);
+	if (path.rfind(_extension) == path.size() - _extension.size())
+		return (cgiPost(path, request, socket, _root + "/" + _upload));
+	throw MethodNotAllowedException("");
 }
 
 std::string	Location::buildPath(std::string route) const {
