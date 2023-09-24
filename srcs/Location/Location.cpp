@@ -154,7 +154,7 @@ Response	Location::callPost(std::string path, const std::string& request,
 
 std::string	Location::buildPath(std::string route) const {
 	route.erase(0, _name.size());
-	std::string	path = _root + route;
+	std::string	path = _root + "/" + route;
 	DIR*		dir;
 
 	if ( (dir = opendir(path.c_str())) ) {
