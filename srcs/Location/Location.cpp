@@ -30,7 +30,6 @@ Location&	Location::operator=(const Location& src) {
 		_extension = src._extension;
 		_index = src._index;
 		_methods = src._methods;
-		_autoindex = src._autoindex;
 		_redirect = src._redirect;
 		_name = src._name;
 	}
@@ -78,8 +77,6 @@ void	Location::insertGeneralField(std::string field, std::stringstream& stream) 
 		_extension = content;
 	else if (field == "index")
 		_index = content;
-	else if (field == "autoindex")
-		_autoindex = ((content == "on") ? content : "");
 	else if (field == "return")
 		_redirect = content;
 }
@@ -159,9 +156,10 @@ std::string	Location::buildPath(std::string route) const {
 
 	if ( (dir = opendir(path.c_str())) ) {
 		closedir(dir);
-		if (!access((path + _index).c_str(), F_OK))
-			path += _index;
-		else if (_autoindex.empty())
+		if (!_index.empty() && !access((path + "/" + _index).c_str(), F_OK)) {
+			path += "/" + _index;
+		}
+		else if (_index.empty())
 			throw NotFoundException("");
 	}
 	return (path);
@@ -179,8 +177,7 @@ const char*	Location::_fields_array[] = {
 	"cgi_extension",
 	"index",
 	"methods",
-	"autoindex",
 	"return"
 };
 
-const std::set<std::string>	Location::_fields(_fields_array, _fields_array + 6);
+const std::set<std::string>	Location::_fields(_fields_array, _fields_array + 5);
