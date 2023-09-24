@@ -51,16 +51,28 @@ static std::vector	<char*> setCgiEnv(const std::string& request, const Socket& s
 	return (env);
 }
 
+#include <iostream>
+
 Response	cgiPost(std::string path, std::string request,
 					const Socket& socket, std::string upload)
 {
 	Response	resp;
 	int			fd_req[2];
 	int			fd_res[2];
+	std::string req_body;
+	std::string::size_type headers_end;
+
+
 
 	if (pipe(fd_req) || pipe(fd_res))
 		throw InternalServerErrorException("");
-	write(fd_req[1], request.c_str(), request.size());
+	headers_end = request.find("\r\n\r\n");
+	if (headers_end != std::string::npos) {
+        req_body = request.substr(headers_end + 4);
+        write(fd_req[1], req_body.c_str(), req_body.size());
+    } else {
+        write(fd_req[1], "", 0);
+	}
 	pid_t	pid = fork();
 	if (pid == -1)
 		throw InternalServerErrorException("");
@@ -70,12 +82,11 @@ Response	cgiPost(std::string path, std::string request,
 		argv.push_back("/usr/bin/python3");
 		argv.push_back(path.c_str());
 		argv.push_back(NULL);
-		
+		std::cout << request << std::endl;
 		dup2(fd_req[0], STDIN_FILENO);
 		dup2(fd_res[1], STDOUT_FILENO);
 		close(fd_req[1]);
 		close(fd_res[0]);
-
 		std::vector<char*> env = setCgiEnv(request, socket);
 		execve(argv[0], const_cast<char* const*>(argv.data()), env.data());
 		exit(1);
