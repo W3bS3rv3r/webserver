@@ -3,9 +3,13 @@
 
 #include <string>
 #include "../Response/Response.hpp"
-#include "../Socket/Socket.hpp"
 
-std::string	getRequest(const int client_fd, const Socket& socket);
+class Request;
+class Socket;
+
+Request		getRequest(const int client_fd, const Socket& socket);
 Response	getResponse(const std::string& request, const Socket& socket);
+std::string	readBody(int fd, unsigned long content_length, std::string host);
+std::string	readChunk(int fd, std::string host);
 
 #endif

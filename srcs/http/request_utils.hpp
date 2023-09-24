@@ -11,6 +11,7 @@ std::string	getScriptFilename(const std::string& requestURI);
 std::string	getServerName(const std::string& request);
 std::string	getServerPort(const std::string& request);
 std::string	getFileContent(const std::string& path, std::string host);
-bool		pollFd(int fd);
+bool		pollFdOut(int fd);
+bool		pollFdIn(int fd);
 
 #endif
