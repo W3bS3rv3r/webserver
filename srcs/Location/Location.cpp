@@ -149,7 +149,7 @@ Response	Location::callPost(std::string path, const std::string& request,
 	{
 		return (cgiPost(path, request, socket));
 	}
-	throw MethodNotAllowedException("");
+	throw NotImplementedException("");
 }
 
 std::string	Location::buildPath(std::string route) const {
