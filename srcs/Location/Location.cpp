@@ -11,7 +11,7 @@
 
 //Constructors
 
-Location::Location(void) : _index("index.html") {
+Location::Location(std::string name) : _name(name), _index("index.html") {
     const char*  home = getenv("HOME");
 	if (!home)
 		throw Location::NoHomeException();
@@ -32,6 +32,7 @@ Location&	Location::operator=(const Location& src) {
 		_methods = src._methods;
 		_autoindex = src._autoindex;
 		_redirect = src._redirect;
+		_name = src._name;
 	}
 	return (*this);
 }
@@ -152,6 +153,7 @@ Response	Location::callPost(std::string path, const std::string& request,
 }
 
 std::string	Location::buildPath(std::string route) const {
+	route.erase(0, _name.size());
 	std::string	path = _root + route;
 	DIR*		dir;
 

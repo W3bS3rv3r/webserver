@@ -10,7 +10,7 @@ class Socket;
 
 class Location {
 public:
-	Location(void);
+	Location(std::string name);
 	Location(const Location& src);
 	virtual	~Location(void);
 
