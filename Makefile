@@ -46,7 +46,7 @@ TESTS = unit-tests/tests-build
 
 ##### BUILDING RULES #####
 
-all: $(NAME)
+all: $(NAME) default-config
 
 $(NAME): $(OBJS)
 	$(CXX) $(CXXFLAGS) $(OBJS) -o $(NAME)
@@ -61,6 +61,14 @@ re: fclean all
 
 .cpp.o:
 	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+CONFIG_FILE = default.conf
+DEST_DIR = $(HOME)/w3b53rb3ru5
+DEST_FILE = $(DEST_DIR)/w3b53rb3ru5.conf
+
+default-config:
+	@mkdir -p $(DEST_DIR)
+	@sed 's|~|$(HOME)|g' $(CONFIG_FILE) > $(DEST_FILE)
 
 ##### TESTING RULES #####
 
