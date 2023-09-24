@@ -64,11 +64,11 @@ void	makePipesNonBlocking(int* pip1, int* pip2) {
 Response	cgiPost(std::string path, std::string request,
 					const Socket& socket, std::string upload)
 {
-	Response	resp;
-	int			fd_req[2];
-	int			fd_res[2];
-	std::string req_body;
-	std::string::size_type headers_end;
+	Response				resp;
+	int						fd_req[2];
+	int						fd_res[2];
+	std::string				req_body;
+	std::string::size_type	headers_end;
 
 	if (pipe(fd_req) || pipe(fd_res))
 		throw InternalServerErrorException("");
