@@ -13,6 +13,7 @@ Request::Request(int fd, const Socket& socket) :
 	_body_limit(0),
 	_body_size(0),
 	_cont_len(0),
+	_chunk_len(0),
 	_socket(socket)
 {}
 
@@ -23,16 +24,18 @@ Request::~Request(void) {}
 // Operators
 Request&	Request::operator=(const Request& src) {
 	if (this != &src) {
-		_read_header = src._read_header;
 		_request = src._request;
+		_chunk = src._chunk;
 		_host = src._host;
 		_ready = src._ready;
 		_chunked = src._chunked;
 		_valid = src._valid;
+		_read_header = src._read_header;
 		_fd = src._fd;
 		_body_limit = src._body_limit;
 		_body_size = src._body_size;
 		_cont_len = src._cont_len;
+		_chunk_len = src._chunk_len;
 	}
 	return (*this);
 }
@@ -101,13 +104,19 @@ void	Request::getHeaderValues(void) {
 
 void	Request::getBody(void) {
 	if (_chunked) {
-		std::pair<std::string, bool> p = readChunk(_fd, _host);
-		_body_size += p.first.size();
-		if (_body_limit != 0 && _body_size > _body_limit)
-			throw ContentTooLargeException(_host);
-		_request += p.first;
-		if (p.second)
-			_ready = true;
+		if (_chunk_len == 0)
+			_chunk_len = getChunkSize(_fd, _host);
+		else {
+			_chunk += readBody(_fd, _chunk_len - _chunk.size(), _host);
+			if (_chunk.size() == _chunk_len) {
+				this->checkChunk();
+				if (_chunk.empty())
+					_ready = true;
+				_chunk_len = 0;
+				_request += _chunk;
+				_chunk.clear();
+			}
+		}
 	}
 	else {
 		std::string	chunk = readBody(_fd, _cont_len - _body_size, _host);
@@ -115,8 +124,16 @@ void	Request::getBody(void) {
 		if (_body_limit != 0 && _body_size > _body_limit)
 			throw ContentTooLargeException(_host);
 		_request += chunk;
-		if (_body_size == _cont_len) {
+		if (_body_size == _cont_len)
 			_ready = true;
-		}
 	}
+}
+
+void	Request::checkChunk(void) {
+	std::string		delimiter("\r\n");
+
+	if (_chunk.rfind(delimiter) != _chunk.size() - 2)
+		throw BadRequestException(_host);
+	else
+		_chunk.erase(_chunk.size() - 2);
 }

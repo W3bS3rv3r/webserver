@@ -16,37 +16,11 @@
 #include <iostream>
 #include <utility>
 
-// Helper functions
-namespace {
-	//std::string		getHeaders(int fd);
-	long			getChunkSize(int fd, std::string host);
-}
-
 Request	getRequest(const int client_fd, const Socket& socket) {
 	Request	request(client_fd, socket);
 	request.read();
 	return (request);
 }
-
-//Request	getRequest(const int client_fd, const Socket& socket) {
-//	Request	request;
-//
-//	request.append(getHeaders(client_fd));
-//	if (request.str().empty())
-//		return (request);
-//	std::string	host = getHeaderValue(request.str(), "Host");
-//	if (request.str().find("HTTP/1.1") == std::string::npos)
-//		throw HTTPVersionNotSupportedException(host);
-//	const VirtualServer&	vserver = socket.getVServer(host);
-//
-//	std::string	transfer_enconding = getHeaderValue(request.str(), "Transfer-Encoding");
-//	if (transfer_enconding == "chunked")
-//		request.setChunked();
-//	request.setFd(client_fd);
-//	request.setMaxBodySize(vserver.getBodySize());
-//	request.setHost(host);
-//	return (request);
-//}
 
 std::string	readHeader(int fd) {
 	int					n;
@@ -101,40 +75,6 @@ std::string	readBody(int fd, unsigned long content_length, std::string host) {
 	return (body);
 }
 
-std::pair<std::string, bool> readChunk(int fd, std::string host) {
-	std::string		chunk;
-	std::string		delimiter("\r\n");
-	char			buff[BUFFER_SIZE + 1];
-	long			chunk_size;
-	bool			done = false;
-
-	chunk_size = getChunkSize(fd, host);
-	if (chunk_size) {
-		memset(buff, 0, BUFFER_SIZE + 1);
-		if (recv(fd, buff, chunk_size, MSG_DONTWAIT) != chunk_size)
-			throw InternalServerErrorException(host);
-		try {
-			chunk += buff;
-		}
-		catch (const std::exception& e) {
-			throw InternalServerErrorException(host);
-		}
-		if (chunk.empty())
-			return (std::make_pair(chunk, done));
-	}
-	else if (chunk_size < 0)
-		return (std::make_pair(chunk, done));
-	else
-		done = true;
-	memset(buff, 0, BUFFER_SIZE + 1);
-	recv(fd, buff, 2, MSG_PEEK | MSG_DONTWAIT);
-	if (delimiter == buff)
-		recv(fd, buff, 2, MSG_DONTWAIT);
-	else if (buff[0] != '\0')
-		throw BadRequestException(host);
-	return (std::make_pair(chunk, done));
-}
-
 Response	getResponse(const std::string& request, const Socket& socket) {
 	std::stringstream		stream(request);
 	std::string				method, route, path;
@@ -155,8 +95,7 @@ Response	getResponse(const std::string& request, const Socket& socket) {
 	return (response);
 }
 
-namespace {
-long	getChunkSize(int fd, std::string host) {
+unsigned long	getChunkSize(int fd, std::string host) {
 	int			n;
 	char		buff[BUFFER_SIZE + 1];
 	std::string	delimiter("\r\n");
@@ -186,7 +125,6 @@ long	getChunkSize(int fd, std::string host) {
 		throw BadRequestException(host);
 	}
 	else if (size.empty())
-		return (-1);
-	return (strtol(size.c_str(), NULL, 16));
-}
+		return (0);
+	return (strtoul(size.c_str(), NULL, 16) + 2);
 }
