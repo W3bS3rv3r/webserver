@@ -11,7 +11,7 @@
 
 //Constructors
 
-Location::Location(std::string name) : _name(name), _index("index.html") {
+Location::Location(std::string name) : _name(name) {
     const char*  home = getenv("HOME");
 	if (!home)
 		throw Location::NoHomeException();
@@ -28,11 +28,12 @@ Location&	Location::operator=(const Location& src) {
 	if (this != &src) {
 		_root = src._root;
 		_extension = src._extension;
-		_index = src._index;
-		_methods = src._methods;
-		_redirect = src._redirect;
 		_name = src._name;
+		_index = src._index;
+		_autoindex = src._autoindex;
+		_redirect = src._redirect;
 		_upload = src._upload;
+		_methods = src._methods;
 	}
 	return (*this);
 }
@@ -78,6 +79,8 @@ void	Location::insertGeneralField(std::string field, std::stringstream& stream) 
 		_extension = content;
 	else if (field == "index")
 		_index = content;
+	else if (field == "autoindex")
+		_autoindex = ((content == "on") ? content : "");
 	else if (field == "return")
 		_redirect = content;
 	else if (field == "upload") {
@@ -176,7 +179,7 @@ std::string	Location::buildPath(std::string route) const {
 		if (!_index.empty() && !access((path + "/" + _index).c_str(), F_OK)) {
 			path += "/" + _index;
 		}
-		else if (_index.empty())
+		else if (_autoindex.empty())
 			throw NotFoundException("");
 	}
 	return (path);
@@ -193,9 +196,10 @@ const char*	Location::_fields_array[] = {
 	"root",
 	"cgi_extension",
 	"index",
+	"autoindex",
 	"upload",
 	"methods",
 	"return"
 };
 
-const std::set<std::string>	Location::_fields(_fields_array, _fields_array + 6);
+const std::set<std::string>	Location::_fields(_fields_array, _fields_array + 7);
