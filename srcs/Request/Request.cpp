@@ -114,6 +114,8 @@ void	Request::getBody(void) {
 					_ready = true;
 				_chunk_len = 0;
 				_request += _chunk;
+				if (_request.size() > _body_limit)
+					throw ContentTooLargeException(_host);
 				_chunk.clear();
 			}
 		}
