@@ -59,8 +59,6 @@ void	makePipesNonBlocking(int* pip1, int* pip2) {
 	fcntl(pip2[1], F_SETFL, O_NONBLOCK, FD_CLOEXEC);
 }
 
-#include <iostream>
-
 Response	cgiPost(std::string path, std::string request,
 					const Socket& socket, std::string upload)
 {
@@ -78,7 +76,6 @@ Response	cgiPost(std::string path, std::string request,
 	headers_end = request.find("\r\n\r\n");
 	if (headers_end != std::string::npos) {
         req_body = request.substr(headers_end + 4);
-		std::cout << req_body << std::endl;
         write(fd_req[1], req_body.c_str(), req_body.size());
     } else {
         write(fd_req[1], "", 0);
