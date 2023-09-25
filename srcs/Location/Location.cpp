@@ -193,8 +193,9 @@ const char*	Location::_fields_array[] = {
 	"root",
 	"cgi_extension",
 	"index",
+	"upload",
 	"methods",
 	"return"
 };
 
-const std::set<std::string>	Location::_fields(_fields_array, _fields_array + 5);
+const std::set<std::string>	Location::_fields(_fields_array, _fields_array + 6);
