@@ -42,8 +42,8 @@ const char*	InvalidSyntaxException::what(void) const throw() {
 	return ("Invalid syntax on config file");
 }
 
-Location	getLocation(std::fstream& file) {
-	Location		location;
+Location	getLocation(std::fstream& file, std::string path) {
+	Location		location(path);
 	std::string		buff;
 
 	while(std::getline(file >> std::ws, buff)) {

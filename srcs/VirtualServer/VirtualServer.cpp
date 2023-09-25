@@ -95,7 +95,7 @@ void	VirtualServer::insertLocation(std::stringstream& stream, std::fstream& file
 	stream >> std::ws;
 	if (!stream.eof() || path.empty() || bracket.empty() || bracket != "{")
 		throw std::exception();
-	_locations.insert(std::make_pair(path, ::getLocation(file)));
+	_locations.insert(std::make_pair(path, ::getLocation(file, path)));
 }
 
 void	VirtualServer::insertGeneralField(std::string field, std::stringstream& stream) {

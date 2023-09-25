@@ -11,7 +11,7 @@
 
 //Constructors
 
-Location::Location(void) : _index("index.html") {
+Location::Location(std::string name) : _name(name), _index("index.html") {
     const char*  home = getenv("HOME");
 	if (!home)
 		throw Location::NoHomeException();
@@ -30,8 +30,8 @@ Location&	Location::operator=(const Location& src) {
 		_extension = src._extension;
 		_index = src._index;
 		_methods = src._methods;
-		_autoindex = src._autoindex;
 		_redirect = src._redirect;
+		_name = src._name;
 		_upload = src._upload;
 	}
 	return (*this);
@@ -78,8 +78,6 @@ void	Location::insertGeneralField(std::string field, std::stringstream& stream) 
 		_extension = content;
 	else if (field == "index")
 		_index = content;
-	else if (field == "autoindex")
-		_autoindex = ((content == "on") ? content : "");
 	else if (field == "return")
 		_redirect = content;
 	else if (field == "upload") {
@@ -155,7 +153,9 @@ Response	Location::callGet(std::string path, const std::string& request, const s
 Response	Location::callPost(std::string path, const std::string& request,
 		const Socket& socket) const
 {
-	if (_upload.empty() || _extension.empty())
+	if (_extension.empty())
+		throw NotImplementedException("");
+	else if (_upload.empty())
 		throw MethodNotAllowedException("");
 	DIR* dir = opendir((_root + "/" + _upload).c_str());
 	if (!dir)
@@ -167,15 +167,17 @@ Response	Location::callPost(std::string path, const std::string& request,
 }
 
 std::string	Location::buildPath(std::string route) const {
-	std::string	path = _root + route;
+	route.erase(0, _name.size());
+	std::string	path = _root + "/" + route;
 	DIR*		dir;
 
 	if ( (dir = opendir(path.c_str())) ) {
 		closedir(dir);
-		if (!access((path + _index).c_str(), F_OK))
-			path += _index;
-		else if (_autoindex.empty())
-			throw ForbiddenException("");
+		if (!_index.empty() && !access((path + "/" + _index).c_str(), F_OK)) {
+			path += "/" + _index;
+		}
+		else if (_index.empty())
+			throw NotFoundException("");
 	}
 	return (path);
 }
@@ -192,9 +194,7 @@ const char*	Location::_fields_array[] = {
 	"cgi_extension",
 	"index",
 	"methods",
-	"autoindex",
-	"return",
-	"upload"
+	"return"
 };
 
-const std::set<std::string>	Location::_fields(_fields_array, _fields_array + 7);
+const std::set<std::string>	Location::_fields(_fields_array, _fields_array + 5);
