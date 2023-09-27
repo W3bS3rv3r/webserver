@@ -64,7 +64,7 @@ std::string	getFileContent(const std::string& path, std::string host) {
 	memset(buff, 0, BUFFER_SIZE + 1);
 	while ((n = read(fd, buff, BUFFER_SIZE - 1)) > 0) {
 		try {
-			content += buff;
+			content.append(buff, n);
 		}
 		catch (const std::exception& e) {
 			close(fd);

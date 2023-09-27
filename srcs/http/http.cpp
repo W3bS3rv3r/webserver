@@ -32,13 +32,12 @@ std::string	readHeader(int fd) {
 		char*	i = std::search(buff, buff + n, delimiter.begin(), delimiter.end());
 		try {
 			if (i == buff + n) {
-				header += buff;
+				header.append(buff, n);
 				recv(fd, buff, n, MSG_DONTWAIT);
 			}
 			else {
-				recv(fd, buff, i - buff + delimiter.size(), MSG_DONTWAIT);
-				*(i + delimiter.size()) = '\0';
-				header += buff;
+				n = recv(fd, buff, i - buff + delimiter.size(), MSG_DONTWAIT);
+				header.append(buff, n);
 				break ;
 			}
 		}
@@ -65,7 +64,7 @@ std::string	readBody(int fd, unsigned long content_length, std::string host) {
 		if ((n = recv(fd, buff, size, MSG_DONTWAIT)) <= 0)
 			break;
 		try {
-			body += buff;
+			body.append(buff, n);
 		}
 		catch (const std::exception& e) {
 			throw InternalServerErrorException(host);
@@ -106,13 +105,12 @@ unsigned long	getChunkSize(int fd, std::string host) {
 		char*	i = std::search(buff, buff + n, delimiter.begin(), delimiter.end());
 		try {
 			if (i == buff + n) {
-				size += buff;
+				size.append(buff, n);
 				recv(fd, buff, n, MSG_DONTWAIT);
 			}
 			else {
-				recv(fd, buff, i - buff + delimiter.size(), MSG_DONTWAIT);
-				*(i + delimiter.size()) = '\0';
-				size += buff;
+				n = recv(fd, buff, i - buff + delimiter.size(), MSG_DONTWAIT);
+				size.append(buff, n);
 				break ;
 			}
 		}

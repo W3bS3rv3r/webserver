@@ -59,11 +59,12 @@ std::string	Cgi::readResponse(void) {
 	if (!pollFdIn(_fd))
 		throw InternalServerErrorException(_host);
 	char		buff[1025];
+	int			n;
 	std::string	content;
 	memset(buff, 0, 1025);
-	while(read(_fd, buff, 1024)) {
+	while((n = read(_fd, buff, 1024)) > 0) {
 		try {
-			content += buff;
+			content.append(buff, n);
 		}
 		catch (const std::exception& e) {
 			close(_fd);
@@ -82,8 +83,7 @@ std::string	Cgi::readResponse(void) {
 	std::stringstream	response;
 	response << "HTTP/1.1 200 OK\r\n";
 	response << "Content-Length: " << content.substr(i + 4).size() << "\r\n";
-	response << content;
-	return (response.str());
+	return (response.str().append(content.c_str(), content.size()));
 }
 
 void	Cgi::setActive(void) { _done = false; }
