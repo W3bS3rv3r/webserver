@@ -199,7 +199,8 @@ const char*	Location::_fields_array[] = {
 	"autoindex",
 	"upload",
 	"methods",
-	"return"
+	"return",
+	"upload"
 };
 
 const std::set<std::string>	Location::_fields(_fields_array, _fields_array + 7);
