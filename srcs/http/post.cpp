@@ -71,7 +71,6 @@ Response	cgiPost(std::string path, std::string request,
 	ssize_t					total_bytes;
 	ssize_t					iteration_bytes;
 
-
 	if (pipe(fd_req) || pipe(fd_res))
 		throw InternalServerErrorException("");
 	makePipesNonBlocking(fd_req, fd_req);
