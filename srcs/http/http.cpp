@@ -14,31 +14,41 @@
 #include <sys/socket.h>
 #include <sstream>
 #include <iostream>
-
-// Helper functions
-namespace {
-	std::string		getHeaders(int fd);
-	long			getChunkSize(int fd, std::string host);
-}
+#include <utility>
 
 Request	getRequest(const int client_fd, const Socket& socket) {
-	Request	request;
-
-	request.append(getHeaders(client_fd));
-	if (request.str().empty())
-		return (request);
-	std::string	host = getHeaderValue(request.str(), "Host");
-	if (request.str().find("HTTP/1.1") == std::string::npos)
-		throw HTTPVersionNotSupportedException(host);
-	const VirtualServer&	vserver = socket.getVServer(host);
-
-	std::string	transfer_enconding = getHeaderValue(request.str(), "Transfer-Encoding");
-	if (transfer_enconding == "chunked")
-		request.setChunked();
-	request.setFd(client_fd);
-	request.setMaxBodySize(vserver.getBodySize());
-	request.setHost(host);
+	Request	request(client_fd, socket);
+	request.read();
 	return (request);
+}
+
+std::string	readHeader(int fd) {
+	int					n;
+	char				buff[BUFFER_SIZE + 1];
+	std::string			header, delimiter("\r\n\r\n");
+
+	memset(buff, 0, BUFFER_SIZE + 1);
+	while ((n = recv(fd, buff, BUFFER_SIZE - 1, MSG_PEEK | MSG_DONTWAIT)) > 0) {
+		char*	i = std::search(buff, buff + n, delimiter.begin(), delimiter.end());
+		try {
+			if (i == buff + n) {
+				header += buff;
+				recv(fd, buff, n, MSG_DONTWAIT);
+			}
+			else {
+				recv(fd, buff, i - buff + delimiter.size(), MSG_DONTWAIT);
+				*(i + delimiter.size()) = '\0';
+				header += buff;
+				break ;
+			}
+		}
+		catch (const std::exception& e) {
+			std::string	host = getHeaderValue(header, "Host");
+			throw InternalServerErrorException(host);
+		}
+		memset(buff, 0, BUFFER_SIZE);
+	}
+	return (header);
 }
 
 std::string	readBody(int fd, unsigned long content_length, std::string host) {
@@ -65,29 +75,6 @@ std::string	readBody(int fd, unsigned long content_length, std::string host) {
 	return (body);
 }
 
-std::string	readChunk(int fd, std::string host) {
-	std::string		chunk;
-	std::string		delimiter("\r\n");
-	char			buff[BUFFER_SIZE + 1];
-	long			chunk_size;
-
-	chunk_size = getChunkSize(fd, host);
-	memset(buff, 0, BUFFER_SIZE + 1);
-	if (recv(fd, buff, chunk_size, MSG_DONTWAIT) != chunk_size)
-		throw InternalServerErrorException(host);
-	try {
-		chunk += buff;
-	}
-	catch (const std::exception& e) {
-		throw InternalServerErrorException(host);
-	}
-	memset(buff, 0, BUFFER_SIZE + 1);
-	recv(fd, buff, 2, MSG_PEEK | MSG_DONTWAIT);
-	if (delimiter == buff)
-		recv(fd, buff, 2, MSG_DONTWAIT);
-	return (chunk);
-}
-
 Response	getResponse(const std::string& request, const Socket& socket) {
 	std::stringstream		stream(request);
 	std::string				method, route, path;
@@ -108,38 +95,7 @@ Response	getResponse(const std::string& request, const Socket& socket) {
 	return (response);
 }
 
-// Helper functions definitions
-namespace {
-std::string	getHeaders(int fd) {
-	int					n;
-	char				buff[BUFFER_SIZE + 1];
-	std::string			headers, delimiter("\r\n\r\n");
-
-	memset(buff, 0, BUFFER_SIZE + 1);
-	while ((n = recv(fd, buff, BUFFER_SIZE - 1, MSG_PEEK | MSG_DONTWAIT)) > 0) {
-		char*	i = std::search(buff, buff + n, delimiter.begin(), delimiter.end());
-		try {
-			if (i == buff + n) {
-				headers += buff;
-				recv(fd, buff, n, MSG_DONTWAIT);
-			}
-			else {
-				recv(fd, buff, i - buff + delimiter.size(), MSG_DONTWAIT);
-				*(i + delimiter.size()) = '\0';
-				headers += buff;
-				break ;
-			}
-		}
-		catch (const std::exception& e) {
-			std::string	host = getHeaderValue(headers, "Host");
-			throw InternalServerErrorException(host);
-		}
-		memset(buff, 0, BUFFER_SIZE);
-	}
-	return (headers);
-}
-
-long	getChunkSize(int fd, std::string host) {
+unsigned long	getChunkSize(int fd, std::string host) {
 	int			n;
 	char		buff[BUFFER_SIZE + 1];
 	std::string	delimiter("\r\n");
@@ -165,8 +121,10 @@ long	getChunkSize(int fd, std::string host) {
 		}
 		memset(buff, 0, BUFFER_SIZE);
 	}
-	if (!std::isdigit(size[0]))
+	if (!size.empty() && !std::isdigit(size[0])) {
 		throw BadRequestException(host);
-	return (strtol(size.c_str(), NULL, 16));
-}
+	}
+	else if (size.empty())
+		return (0);
+	return (strtoul(size.c_str(), NULL, 16) + 2);
 }

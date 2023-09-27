@@ -22,25 +22,25 @@ Connection::~Connection(void) {
 //METHODS
 void	Connection::readRequest(void) {
 	try {
-		if (_requests.empty()) {
+		if (_requests.empty())
 			_requests.push(getRequest(_fd, *_socket));
-			if (_requests.front().str().empty()) {
-				_done = true;
-				_requests.pop();
-				return ;
-			}
-			else if (!_requests.front().chunked())
-				_requests.front().getBody();
-		}
-		else if (_requests.front().valid())
-			_requests.front().getBody();
-		if (!_requests.front().ready())
+		else if (_requests.front().str().empty()) {
+			_done = true;
+			_requests.pop();
 			return ;
-		std::cout << _fd << ':' << _socket->_port << " <- " << _requests.front() << std::endl;
+		}
+		else if (!_requests.front().ready()) {
+			_requests.front().read();
+		}
+		if (_requests.front().ready()) {
+			std::cout << _fd << ':' << _socket->_port << " <- ";
+			std::cout << _requests.front() << std::endl;
+		}
 	}
 	catch(const HTTPException& e) {
 		if (!_requests.empty()) {
-			std::cout << _fd << ':' << _socket->_port << " <- " << _requests.front() << std::endl;
+			std::cout << _fd << ':' << _socket->_port << " <- ";
+			std::cout << _requests.front() << std::endl;
 			_requests.pop();
 		}
 		_responses.push(Response(e.getResponse(*_socket)));
