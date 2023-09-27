@@ -80,7 +80,7 @@ void	Location::insertGeneralField(std::string field, std::stringstream& stream) 
 	else if (field == "index")
 		_index = content;
 	else if (field == "autoindex")
-		_autoindex = ((content == "on") ? content : "");
+		_autoindex = (content == "on");
 	else if (field == "return")
 		_redirect = content;
 	else if (field == "upload") {
@@ -179,8 +179,8 @@ std::string	Location::buildPath(std::string route) const {
 		if (!_index.empty() && !access((path + "/" + _index).c_str(), F_OK)) {
 			path += "/" + _index;
 		}
-		else if (_autoindex.empty())
-			throw NotFoundException("");
+		else if (!_autoindex)
+			throw ForbiddenException("");
 	}
 	return (path);
 }

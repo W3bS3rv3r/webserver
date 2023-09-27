@@ -29,9 +29,9 @@ private:
 	std::string				_extension;
 	std::string				_name;
 	std::string				_index;
-	std::string				_autoindex;
 	std::string				_redirect;
 	std::string				_upload;
+	bool					_autoindex;
 	std::set<std::string>	_methods;
 
 	static const char*					_fields_array[];
