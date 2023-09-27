@@ -59,8 +59,6 @@ void	makePipesNonBlocking(int* pip1, int* pip2) {
 	fcntl(pip2[1], F_SETFL, O_NONBLOCK, FD_CLOEXEC);
 }
 
-#include <iostream>
-
 Response	cgiPost(std::string path, std::string request,
 					const Socket& socket, std::string upload)
 {
@@ -69,11 +67,9 @@ Response	cgiPost(std::string path, std::string request,
 	int						fd_res[2];
 	std::string				req_body;
 	std::string::size_type	headers_end;
-
-	ssize_t	bytes_written;
-	ssize_t	total_bytes;
-	ssize_t	iteration_bytes;
-
+	ssize_t					bytes_written;
+	ssize_t					total_bytes;
+	ssize_t					iteration_bytes;
 
 
 	if (pipe(fd_req) || pipe(fd_res))
@@ -81,7 +77,6 @@ Response	cgiPost(std::string path, std::string request,
 	makePipesNonBlocking(fd_req, fd_req);
 	if (!pollFdOut(fd_req[1]))
 		throw InternalServerErrorException("");
-	
 	pid_t	pid = fork();
 	if (pid == -1)
 		throw InternalServerErrorException("");
@@ -105,7 +100,6 @@ Response	cgiPost(std::string path, std::string request,
 			req_body = request.substr(headers_end + 4);
 			bytes_written = 0;
 			total_bytes = req_body.size();
-			std::cout << "vai entrar no while\n";
 			while (bytes_written < total_bytes) {
 				iteration_bytes = write(fd_req[1], req_body.c_str() + bytes_written, total_bytes - bytes_written);
 				if (iteration_bytes == -1) {
