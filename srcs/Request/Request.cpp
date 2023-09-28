@@ -47,7 +47,7 @@ std::ostream&	operator<<(std::ostream& stream, const Request& req) {
 
 
 // Methods
-void	Request::append(std::string str) { _request += str; }
+void	Request::append(std::string str) { _request.append(str.c_str(), str.size()); }
 
 const std::string&	Request::str(void) const { return (_request); }
 
@@ -67,7 +67,8 @@ void	Request::setChunked(void) { _chunked = true; }
 
 void	Request::read(void) {
 	if (!_read_header) {
-		_request += readHeader(_fd);
+		std::string	headers = readHeader(_fd);
+		_request.append(headers.c_str(), headers.size());
 		this->updateHeaderStatus();
 		if (_read_header){
 			getHeaderValues();
@@ -107,13 +108,14 @@ void	Request::getBody(void) {
 		if (_chunk_len == 0)
 			_chunk_len = getChunkSize(_fd, _host);
 		else {
-			_chunk += readBody(_fd, _chunk_len - _chunk.size(), _host);
+			std::string	body = readBody(_fd, _chunk_len - _chunk.size(), _host); 
+			_chunk.append(body.c_str(), body.size());
 			if (_chunk.size() == _chunk_len) {
 				this->checkChunk();
 				if (_chunk.empty())
 					_ready = true;
 				_chunk_len = 0;
-				_request += _chunk;
+				_request.append(_chunk.c_str(), _chunk.size());
 				if (_request.size() > _body_limit)
 					throw ContentTooLargeException(_host);
 				_chunk.clear();
@@ -125,7 +127,7 @@ void	Request::getBody(void) {
 		_body_size += chunk.size();
 		if (_body_limit != 0 && _body_size > _body_limit)
 			throw ContentTooLargeException(_host);
-		_request += chunk;
+		_request.append(chunk.c_str(), chunk.size());
 		if (_body_size == _cont_len)
 			_ready = true;
 	}
