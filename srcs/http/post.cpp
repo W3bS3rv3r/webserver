@@ -67,19 +67,15 @@ Response	cgiPost(std::string path, std::string request,
 	int						fd_res[2];
 	std::string				req_body;
 	std::string::size_type	headers_end;
+	ssize_t					bytes_written;
+	ssize_t					total_bytes;
+	ssize_t					iteration_bytes;
 
 	if (pipe(fd_req) || pipe(fd_res))
 		throw InternalServerErrorException("");
 	makePipesNonBlocking(fd_req, fd_req);
 	if (!pollFdOut(fd_req[1]))
 		throw InternalServerErrorException("");
-	headers_end = request.find("\r\n\r\n");
-	if (headers_end != std::string::npos) {
-        req_body = request.substr(headers_end + 4);
-        write(fd_req[1], req_body.c_str(), req_body.size());
-    } else {
-        write(fd_req[1], "", 0);
-	}
 	pid_t	pid = fork();
 	if (pid == -1)
 		throw InternalServerErrorException("");
@@ -98,6 +94,25 @@ Response	cgiPost(std::string path, std::string request,
 		exit(1);
 	}
 	else {
+		headers_end = request.find("\r\n\r\n");
+		if (headers_end != std::string::npos) {
+			req_body = request.substr(headers_end + 4);
+			bytes_written = 0;
+			total_bytes = req_body.size();
+			while (bytes_written < total_bytes) {
+				iteration_bytes = write(fd_req[1], req_body.c_str() + bytes_written, total_bytes - bytes_written);
+				if (iteration_bytes == -1) {
+					if (errno == EAGAIN || errno == EWOULDBLOCK)
+						continue;
+					else
+						throw InternalServerErrorException("");
+				} else {
+					bytes_written += iteration_bytes;
+				}
+			}
+		} else {
+			write(fd_req[1], "", 0);
+		}
 		Cgi	cgi(pid, fd_res[0], time(NULL));
 		close(fd_req[0]);
 		close(fd_res[1]);
