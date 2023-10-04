@@ -9,7 +9,7 @@
 
 Cgi::Cgi(pid_t pid, int fd, time_t start, std::string host) :
 	_pid(pid),
-	_fd(fd),
+	_response_fd(fd),
 	_status(0),
 	_done(true),
 	_start(start),
@@ -22,7 +22,7 @@ Cgi::~Cgi(void) {}
 Cgi&	Cgi::operator=(const Cgi& src) {
 	if (this != &src) {
 		_pid = src._pid;
-		_fd = src._fd;
+		_response_fd = src._response_fd;
 		_status = src._status;
 		_done = src._done;
 		_start = src._start;
@@ -37,7 +37,7 @@ bool	Cgi::done(void) {
 	int	status = 0;
 	pid_t	return_value = waitpid(_pid, &status, WNOHANG);
 	if (return_value == -1) {
-		close(_fd);
+		close(_response_fd);
 		throw InternalServerErrorException(_host);
 	}
 	else if (return_value != 0) {
@@ -53,25 +53,25 @@ bool	Cgi::done(void) {
 
 std::string	Cgi::readResponse(void) {
 	if (_status) {
-		close(_fd);
+		close(_response_fd);
 		throw BadGatewayException(_host);
 	}
-	if (!pollFdIn(_fd))
+	if (!pollFdIn(_response_fd))
 		throw InternalServerErrorException(_host);
 	char		buff[1025];
 	int			n;
 	std::string	content;
 	memset(buff, 0, 1025);
-	while((n = read(_fd, buff, 1024)) > 0) {
+	while((n = read(_response_fd, buff, 1024)) > 0) {
 		try {
 			content.append(buff, n);
 		}
 		catch (const std::exception& e) {
-			close(_fd);
+			close(_response_fd);
 			throw InternalServerErrorException(_host);
 		}
 	}
-	close(_fd);
+	close(_response_fd);
 	if (content.empty())
 		throw InternalServerErrorException(_host);
 	std::string::size_type	i = content.find("\r\n\r\n");

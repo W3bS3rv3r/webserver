@@ -21,7 +21,7 @@ public:
 	void	setActive(void);
 private:
 	pid_t		_pid;
-	int			_fd;
+	int			_response_fd;
 	int			_status;
 	bool		_done;
 	time_t		_start;
