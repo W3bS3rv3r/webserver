@@ -76,7 +76,7 @@ Response	cgiGet(std::string path, const std::string& request, const std::string&
 		exit(1);
 	}
 	else {
-		Cgi	cgi(pid, fd[0], time(NULL));
+		Cgi	cgi(pid, fd[0], 0, NULL);
 		cgi.setActive();
 		close(fd[1]);
 		resp.setCgi(cgi);

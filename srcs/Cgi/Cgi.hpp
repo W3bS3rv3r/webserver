@@ -1,6 +1,7 @@
 #ifndef CGI_HPP
 # define CGI_HPP
 
+#include <cstddef>
 #include <sys/types.h>
 #include <string>
 #include <ctime>
@@ -8,7 +9,8 @@
 
 class Cgi {
 public:
-	Cgi(pid_t pid = 0, int _fd = 0, time_t start = time(NULL), std::string host = "");
+	Cgi(void);
+	Cgi(pid_t pid, int fd_out, int fd_in, const std::string* request);
 	Cgi(const Cgi& src);
 	virtual	~Cgi(void);
 
@@ -20,12 +22,18 @@ public:
 
 	void	setActive(void);
 private:
-	pid_t		_pid;
-	int			_response_fd;
-	int			_status;
-	bool		_done;
-	time_t		_start;
-	std::string	_host;
+	pid_t					_pid;
+	int						_response_fd;
+	int						_request_fd;
+	int						_status;
+	bool					_done;
+	time_t					_start;
+	size_t					_bytes_written;
+	std::string				_host;
+	std::string				_body;
+	const std::string*		_request;
+
+	void	writeToCgi(void);
 };
 
 #endif

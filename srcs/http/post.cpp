@@ -58,32 +58,12 @@ void	makePipesNonBlocking(int* pip1, int* pip2) {
 }
 
 Cgi	getCgi(const std::string& request, int cgi_in, int cgi_out, pid_t pid) {
-		ssize_t					bytes_written;
-		ssize_t					total_bytes;
-		ssize_t					iteration_bytes;
 		std::string::size_type	headers_end = request.find("\r\n\r\n");
 
-		if (headers_end != std::string::npos) {
-			std::string	req_body = request.substr(headers_end + 4);
-			bytes_written = 0;
-			total_bytes = req_body.size();
-			while (bytes_written < total_bytes) {
-				iteration_bytes = write(cgi_in, req_body.c_str() + bytes_written, total_bytes - bytes_written);
-				if (iteration_bytes == -1) {
-					if (errno == EAGAIN || errno == EWOULDBLOCK)
-						continue;
-					else
-						throw InternalServerErrorException("");
-				} else {
-					bytes_written += iteration_bytes;
-				}
-			}
-		} else {
-			write(cgi_in, "", 0);
-		}
-		Cgi	cgi(pid, cgi_out, time(NULL));
+		if (headers_end == std::string::npos)
+			throw BadRequestException(getHeaderValue(request, "Host"));
+		Cgi	cgi(pid, cgi_out, cgi_in, &request);
 		cgi.setActive();
-		close(cgi_in);
 		return (cgi);
 }
 
