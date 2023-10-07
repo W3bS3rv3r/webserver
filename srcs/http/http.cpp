@@ -16,6 +16,13 @@
 #include <iostream>
 #include <utility>
 
+namespace {
+	bool	isHexDigit(char c) {
+		const std::string	digits("0123456789aAbBcCdDeEfF");
+		return (digits.find(c) != std::string::npos);
+	}
+}
+
 Request	getRequest(const int client_fd, const Socket& socket) {
 	Request	request(client_fd, socket);
 	request.read();
@@ -119,9 +126,8 @@ unsigned long	getChunkSize(int fd, std::string host) {
 		}
 		memset(buff, 0, BUFFER_SIZE);
 	}
-	if (!size.empty() && !std::isdigit(size[0])) {
+	if (!size.empty() && !isHexDigit(size[0]))
 		throw BadRequestException(host);
-	}
 	else if (size.empty())
 		return (0);
 	return (strtoul(size.c_str(), NULL, 16) + 2);
