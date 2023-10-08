@@ -1,0 +1,23 @@
+:root {
+	--spacing: 40px;
+}
+
+* {
+	font-family: 'IBM Plex Mono', monospace;
+}
+
+html,
+body {
+	margin: unset;
+}
+
+section,
+header,
+footer {
+	padding-inline: var(--spacing);
+}
+
+.container {
+	width: 100%;
+	max-width: 1200px;
+}
