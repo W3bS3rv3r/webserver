@@ -1,14 +1,34 @@
 :root {
 	--spacing: 40px;
+	--primary:  #BB86FC;
+	--primary-variant: #3700B3;
+	--secondary: #03DAC6;
+	--background: #121212;
+	--surface: #292929;
+	--radius: 8px;
 }
 
 * {
 	font-family: 'IBM Plex Mono', monospace;
 }
 
-html,
-body {
+html {
+	height: 100%;
 	margin: unset;
+}
+
+body {
+	min-height: 100%;
+	margin: unset;
+	color: rgb(148 163 184);
+	background-color: var(--background);
+	background: linear-gradient(var(--background), var(--surface));
+
+}
+
+a {
+	color: var(--primary);
+	text-decoration: unset;
 }
 
 section,
@@ -20,4 +40,51 @@ footer {
 .container {
 	width: 100%;
 	max-width: 1200px;
+}
+
+h1 {
+	font-size: 2rem;
+}
+
+.button {
+	background-color: ;
+	padding-inline: var(--spacing);
+	padding-block: calc(var(--spacing)/2);
+	border-radius: var(--radius);
+	--border: rgba(100, 100, 100, .3);
+	border: 1px var(--border) solid;
+	color: var(--primary);
+	transition: all .3s;
+}
+
+.button:hover {
+	--border: rgba(100, 100, 100, .9);
+	color: white;
+}
+
+.button--large {
+
+}
+
+.start {
+	text-align: center;
+	margin-block: calc(var(--spacing) * 2);
+}
+
+.options {
+	display: flex;
+	gap: var(--spacing);
+	justify-content: center;
+	flex-wrap: wrap;
+}
+
+header {
+	text-align: center;
+	margin-block: calc(var(--spacing) * 2);
+}
+
+footer {
+	text-align: center;
+	font-size: 0.8rem;
+	color: rgb(148 163 184/.5);
 }
