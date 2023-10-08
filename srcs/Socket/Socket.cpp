@@ -63,7 +63,7 @@ VirtualServer	Socket::getVServer(std::string host_header) const {
 
 	if ((i = _vservers.find(host_header)) != _vservers.end())
 		return (i->second);
-	return _vservers.begin()->second;
+	return _vservers.at(_default_vserver);
 }
 
 // Exceptions
