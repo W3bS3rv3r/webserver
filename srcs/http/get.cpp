@@ -12,6 +12,14 @@
 #include <algorithm>
 #include <fcntl.h>
 
+namespace {
+	void	makePipesNonBlocking(int* pip1, int* pip2);
+	void	executeCgi(const std::vector<char*> env, const std::string& path,
+					int fd_in, int fd_out);
+	Cgi	getCgi(int cgi_in, int cgi_out, const std::string& query, pid_t pid);
+	std::vector	<char*> setCgiEnv(const std::string& query);
+}
+
 std::string	get(std::string path) {
 	if (access(path.c_str(), F_OK))
 		throw NotFoundException("");
@@ -48,15 +56,6 @@ std::string	getDir(std::string path) {
 	return (response.str());
 }
 
-namespace {
-void	makePipesNonBlocking(int* pip1, int* pip2) {
-	fcntl(pip1[0], F_SETFL, O_NONBLOCK, FD_CLOEXEC);
-	fcntl(pip1[1], F_SETFL, O_NONBLOCK, FD_CLOEXEC);
-	fcntl(pip2[0], F_SETFL, O_NONBLOCK, FD_CLOEXEC);
-	fcntl(pip2[1], F_SETFL, O_NONBLOCK, FD_CLOEXEC);
-}
-}
-
 Response	cgiGet(std::string path, const std::string& request, const std::string& arguments) {
 	Response	resp;
 	int			fd_req[2];
@@ -72,32 +71,56 @@ Response	cgiGet(std::string path, const std::string& request, const std::string&
 	if (pid == -1)
 		throw InternalServerErrorException(host);
 	else if (pid == 0) {
-		std::vector<const char*>	argv;
-		std::vector<char*>			env;
-		env.push_back(strdup(("QUERY_STRING=" + arguments).c_str()));
-		env.push_back(NULL);
-		argv.push_back("/usr/bin/python3");
-		argv.push_back(path.c_str());
-		argv.push_back(arguments.c_str());
-		argv.push_back(NULL);
-		dup2(fd_req[0], STDIN_FILENO);
-		dup2(fd_res[1], STDOUT_FILENO);
-		close(fd_req[0]);
-		close(fd_res[1]);
-		execve(path.c_str(), const_cast<char* const*>(argv.data()), env.data());
-		exit(1);
+		std::vector<char*>	env = setCgiEnv(arguments);
+		executeCgi(env, path, fd_req[0], fd_res[1]);
 	}
 	else {
-		if (!pollFdOut(fd_req[1]))
-			throw InternalServerErrorException("");
-		if ( (write(fd_req[1], arguments.c_str(), arguments.size()) < 0 ) )
-			throw InternalServerErrorException("");
 		close(fd_req[0]);
 		close(fd_res[1]);
-		close(fd_req[1]);
-		Cgi	cgi(pid, fd_res[0], 0, NULL);
-		cgi.setActive();
-		resp.setCgi(cgi);
+		resp.setCgi(getCgi(fd_req[1], fd_res[0], arguments, pid));
 	}
 	return (resp);
+}
+
+namespace {
+void	makePipesNonBlocking(int* pip1, int* pip2) {
+	fcntl(pip1[0], F_SETFL, O_NONBLOCK, FD_CLOEXEC);
+	fcntl(pip1[1], F_SETFL, O_NONBLOCK, FD_CLOEXEC);
+	fcntl(pip2[0], F_SETFL, O_NONBLOCK, FD_CLOEXEC);
+	fcntl(pip2[1], F_SETFL, O_NONBLOCK, FD_CLOEXEC);
+}
+
+Cgi	getCgi(int cgi_in, int cgi_out, const std::string& query, pid_t pid) {
+		if (!pollFdOut(cgi_in))
+			throw InternalServerErrorException("");
+		if ( (write(cgi_in, query.c_str(), query.size()) < 0 ) )
+			throw InternalServerErrorException("");
+		close(cgi_in);
+		Cgi	cgi(pid, cgi_out, 0, NULL);
+		cgi.setActive();
+		return (cgi);
+}
+
+void	executeCgi(const std::vector<char*> env, const std::string& path,
+					int fd_in, int fd_out)
+{
+		std::vector<const char*>	argv;
+		argv.push_back("/usr/bin/python3");
+		argv.push_back(path.c_str());
+		argv.push_back(NULL);
+		dup2(fd_in, STDIN_FILENO);
+		dup2(fd_out, STDOUT_FILENO);
+		close(fd_in);
+		close(fd_out);
+		execve(argv[0], const_cast<char* const*>(argv.data()), env.data());
+		exit(1);
+}
+
+std::vector	<char*> setCgiEnv(const std::string& query) {
+		std::vector<char*>			env;
+
+		env.push_back(strdup(("QUERY_STRING=" + query).c_str()));
+		env.push_back(NULL);
+		return (env);
+}
 }
