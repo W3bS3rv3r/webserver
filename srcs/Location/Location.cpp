@@ -176,9 +176,8 @@ std::string	Location::buildPath(std::string route) const {
 
 	if ( (dir = opendir(path.c_str())) ) {
 		closedir(dir);
-		if (!_index.empty() && !access((path + "/" + _index).c_str(), F_OK)) {
+		if (!_index.empty() && !access((path + "/" + _index).c_str(), F_OK))
 			path += "/" + _index;
-		}
 		else if (!_autoindex)
 			throw ForbiddenException("");
 	}
