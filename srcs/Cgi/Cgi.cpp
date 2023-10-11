@@ -122,5 +122,6 @@ void	Cgi::writeToCgi(void) {
 
 void	Cgi::setActive(void) { 
 	_done = false;
-	this->writeToCgi();
+	if (_request)
+		this->writeToCgi();
 }

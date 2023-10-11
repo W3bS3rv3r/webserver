@@ -1,5 +1,6 @@
 #include "get.hpp"
 #include "../HTTPException/HTTPException.hpp"
+#include <cstring>
 #include <fstream>
 #include "request_utils.hpp"
 #include <dirent.h>
@@ -47,38 +48,55 @@ std::string	getDir(std::string path) {
 	return (response.str());
 }
 
-void	makePipeNonBlocking(int* pip) {
-	fcntl(pip[0], F_SETFL, O_NONBLOCK, FD_CLOEXEC);
-	fcntl(pip[1], F_SETFL, O_NONBLOCK, FD_CLOEXEC);
+namespace {
+void	makePipesNonBlocking(int* pip1, int* pip2) {
+	fcntl(pip1[0], F_SETFL, O_NONBLOCK, FD_CLOEXEC);
+	fcntl(pip1[1], F_SETFL, O_NONBLOCK, FD_CLOEXEC);
+	fcntl(pip2[0], F_SETFL, O_NONBLOCK, FD_CLOEXEC);
+	fcntl(pip2[1], F_SETFL, O_NONBLOCK, FD_CLOEXEC);
+}
 }
 
 Response	cgiGet(std::string path, const std::string& request, const std::string& arguments) {
 	Response	resp;
-	int			fd[2];
+	int			fd_req[2];
+	int			fd_res[2];
 	std::string	host = getHeaderValue(request, "Host");
 
-	if (pipe(fd))
+	if (pipe(fd_req) || pipe(fd_res))
 		throw InternalServerErrorException(host);
-	makePipeNonBlocking(fd);
+	makePipesNonBlocking(fd_req, fd_req);
+	if (!pollFdOut(fd_req[1]))
+		throw InternalServerErrorException("");
 	pid_t	pid = fork();
 	if (pid == -1)
 		throw InternalServerErrorException(host);
 	else if (pid == 0) {
 		std::vector<const char*>	argv;
+		std::vector<char*>			env;
+		env.push_back(strdup(("QUERY_STRING=" + arguments).c_str()));
+		env.push_back(NULL);
+		argv.push_back("/usr/bin/python3");
 		argv.push_back(path.c_str());
 		argv.push_back(arguments.c_str());
 		argv.push_back(NULL);
-		dup2(fd[0],0);
-		dup2(fd[1],1);
-		close(fd[0]);
-		close(fd[1]);
-		execve(path.c_str(), const_cast<char* const*>(argv.data()), NULL);
+		dup2(fd_req[0], STDIN_FILENO);
+		dup2(fd_res[1], STDOUT_FILENO);
+		close(fd_req[0]);
+		close(fd_res[1]);
+		execve(path.c_str(), const_cast<char* const*>(argv.data()), env.data());
 		exit(1);
 	}
 	else {
-		Cgi	cgi(pid, fd[0], 0, NULL);
+		if (!pollFdOut(fd_req[1]))
+			throw InternalServerErrorException("");
+		if ( (write(fd_req[1], arguments.c_str(), arguments.size()) < 0 ) )
+			throw InternalServerErrorException("");
+		close(fd_req[0]);
+		close(fd_res[1]);
+		close(fd_req[1]);
+		Cgi	cgi(pid, fd_res[0], 0, NULL);
 		cgi.setActive();
-		close(fd[1]);
 		resp.setCgi(cgi);
 	}
 	return (resp);
