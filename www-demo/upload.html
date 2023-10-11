@@ -7,22 +7,21 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
-	<title>w3b53rb3ru5 - Demo</title>
+	<title>w3b53rb3ru5 - cgiPost</title>
 </head>
 <body>
 	<header>
 		<div class="container">
-			<h1>w3b53rb3ru5</h1>
-			<p>w3b53rb3ru5 is a webserver application developed with C++98.</p>
+			<h1>w3b53rb3ru5 - cgiPost</h1>
+			<p>Use this page to test a POST request</p>
 		</div>
 	</header>
 	<section class="start">
 		<div class="container">
-			<div class="options">
-				<a class="button button--large" href="/upload.html">Test cgiPost</a>
-				<a class="button button--large" href="/cgi-bin/welcome.py">Test cgiGet</a>
-				<a class="button button--large" href="#">Test Delete</a>
-			</div>
+			<form action="cgi-bin/upload.py" method="POST" enctype="multipart/form-data">
+				Select a file: <input name="filename" type="file">
+				<input name="submit" type="submit">
+			</form>
 		</div>
 	</section>
 	<footer>

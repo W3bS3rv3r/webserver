@@ -13,22 +13,23 @@
 }
 
 html {
-	height: 100%;
 	margin: unset;
 }
 
 body {
-	min-height: 100%;
 	margin: unset;
 	color: rgb(148 163 184);
 	background-color: var(--background);
-	background: linear-gradient(var(--background), var(--surface));
-
 }
 
 a {
 	color: var(--primary);
 	text-decoration: unset;
+	transition: color .3s;
+}
+
+a:hover {
+	color: white;
 }
 
 section,
@@ -40,24 +41,33 @@ footer {
 .container {
 	width: 100%;
 	max-width: 1200px;
+	margin-inline: auto;
 }
 
 h1 {
 	font-size: 2rem;
 }
 
-.button {
-	background-color: ;
+.button,
+[type="submit"] {
+	background-color: unset;
 	padding-inline: var(--spacing);
 	padding-block: calc(var(--spacing)/2);
 	border-radius: var(--radius);
 	--border: rgba(100, 100, 100, .3);
 	border: 1px var(--border) solid;
 	color: var(--primary);
-	transition: all .3s;
+	transition: border .3s;
 }
 
-.button:hover {
+[type="submit"] {
+	padding-inline: calc(var(--spacing)/2);
+	padding-block: calc(var(--spacing)/4);
+	cursor: pointer;
+}
+
+.button:hover,
+[type="submit"]:hover {
 	--border: rgba(100, 100, 100, .9);
 	color: white;
 }
