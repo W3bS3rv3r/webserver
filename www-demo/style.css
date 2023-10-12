@@ -38,9 +38,21 @@ footer {
 	padding-inline: var(--spacing);
 }
 
+img {
+	max-width: 100%;
+}
+
 .container {
 	width: 100%;
 	max-width: 1200px;
+	margin-inline: auto;
+}
+
+.container--center {
+	text-align: center;
+}
+
+.container--center > * {
 	margin-inline: auto;
 }
 
@@ -97,4 +109,5 @@ footer {
 	text-align: center;
 	font-size: 0.8rem;
 	color: rgb(148 163 184/.5);
+	padding-block: 40px;
 }
