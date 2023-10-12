@@ -5,7 +5,7 @@
 #include "../Response/Response.hpp"
 #include "../Socket/Socket.hpp"
 
-Response	cgiPost(std::string path, std::string request,
+Response	cgiPost(std::string path, const std::string& request,
 					const Socket& socket, std::string upload);
 
 #endif
