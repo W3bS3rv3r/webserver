@@ -71,6 +71,7 @@ void	executeCgi(const std::vector<char*> env, const std::string& path,
 					int fd_in, int fd_out)
 {
 		std::vector<const char*>	argv;
+		argv.push_back("/usr/bin/python3");
 		argv.push_back(path.c_str());
 		argv.push_back(NULL);
 		dup2(fd_in, STDIN_FILENO);
@@ -78,6 +79,7 @@ void	executeCgi(const std::vector<char*> env, const std::string& path,
 		close(fd_in);
 		close(fd_out);
 		execve(argv[0], const_cast<char* const*>(argv.data()), env.data());
+		exit(1);
 }
 
 std::vector	<char*> setCgiEnv(const std::string& request, const Socket& socket) {
