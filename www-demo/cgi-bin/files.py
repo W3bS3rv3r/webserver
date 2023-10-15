@@ -4,10 +4,8 @@ import cgi
 import os
 
 # Pasta de uploads
-UPLOAD_DIR = os.path.join(os.getcwd(), 'www-demo/uploads') # Precisa corrigir esse os.getcwd!!!!!!!!!
-
-print(f"Debug: Upload Directory = {UPLOAD_DIR}")
-
+UPLOAD_DIR = os.path.join(os.getcwd())
+# print(f"Debug: Upload Directory = {UPLOAD_DIR}")
 
 # Obtem lista de arquivos do diretório de uploads
 def get_uploaded_files_list(directory):
