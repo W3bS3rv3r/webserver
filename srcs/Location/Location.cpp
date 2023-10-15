@@ -12,7 +12,7 @@
 //Constructors
 
 Location::Location(std::string name) : _name(name) {
-    const char*  home = getenv("HOME");
+	const char*  home = getenv("HOME");
 	if (!home)
 		throw Location::NoHomeException();
 	_root += home;
@@ -96,6 +96,30 @@ bool	Location::checkIntegrity(void) const {
 	return (true);
 }
 
+// #include <string>
+// #include <sstream>
+// 
+std::string searchAndReplace(std::string inString, const std::string& origStr, const std::string& newStr)
+{
+    std::string	inStringCopy = inString;
+    std::string	resultString;
+    size_t		curPos = 0;
+
+    while (true) {
+        curPos = inStringCopy.find(origStr, curPos);
+        if (curPos == std::string::npos) {
+            resultString += inStringCopy;
+            break;
+        }
+        resultString += inStringCopy.substr(0, curPos) + newStr;
+        curPos += origStr.length();
+        inStringCopy = inStringCopy.substr(curPos);
+        curPos = 0;
+    }
+    return (resultString);
+}
+
+
 Response	Location::handleRequest(std::string method, std::string route,
 		const std::string& request, const Socket& socket) const
 {
@@ -106,7 +130,7 @@ Response	Location::handleRequest(std::string method, std::string route,
 		return (Response(this->redirectResponse()));
 	if (!_methods.empty() && _methods.find(method) == _methods.end())
 		throw MethodNotAllowedException("");
-	std::string	path = this->buildPath(route);
+	std::string path = searchAndReplace(this->buildPath(route), "%20", " "); // decode %20 to space
 	argsPos = path.find('?');
 	if (argsPos != std::string::npos)
 	{
