@@ -52,7 +52,7 @@ print(f"""
         if (confirm('Are you sure?')) {{
             fetch(filePath, {{ method: 'DELETE' }})
                 .then(response => {{
-                    if (response.status == 200) {{
+                    if (response.status == 204) {{
                         alert('File deleted successfully');
                         location.reload();
                     }} else {{
