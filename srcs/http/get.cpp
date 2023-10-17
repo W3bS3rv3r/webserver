@@ -56,7 +56,7 @@ std::string	getDir(std::string path) {
 	return (response.str());
 }
 
-Response	cgiGet(std::string path, const std::string& request, const std::string& arguments) {
+Response	cgiGet(std::string path, const std::string& request, const std::string& arguments, std::string upload) {
 	Response	resp;
 	int			fd_req[2];
 	int			fd_res[2];
@@ -71,6 +71,7 @@ Response	cgiGet(std::string path, const std::string& request, const std::string&
 	if (pid == -1)
 		throw InternalServerErrorException(host);
 	else if (pid == 0) {
+		chdir(upload.c_str());
 		std::vector<char*>	env = setCgiEnv(arguments);
 		executeCgi(env, path, fd_req[0], fd_res[1]);
 	}

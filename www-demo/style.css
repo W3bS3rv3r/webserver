@@ -1,0 +1,113 @@
+:root {
+	--spacing: 40px;
+	--primary:  #BB86FC;
+	--primary-variant: #3700B3;
+	--secondary: #03DAC6;
+	--background: #121212;
+	--surface: #292929;
+	--radius: 8px;
+}
+
+* {
+	font-family: 'IBM Plex Mono', monospace;
+}
+
+html {
+	margin: unset;
+}
+
+body {
+	margin: unset;
+	color: rgb(148 163 184);
+	background-color: var(--background);
+}
+
+a {
+	color: var(--primary);
+	text-decoration: unset;
+	transition: color .3s;
+}
+
+a:hover {
+	color: white;
+}
+
+section,
+header,
+footer {
+	padding-inline: var(--spacing);
+}
+
+img {
+	max-width: 100%;
+}
+
+.container {
+	width: 100%;
+	max-width: 1200px;
+	margin-inline: auto;
+}
+
+.container--center {
+	text-align: center;
+}
+
+.container--center > * {
+	margin-inline: auto;
+}
+
+h1 {
+	font-size: 2rem;
+}
+
+.button,
+[type="submit"] {
+	background-color: unset;
+	padding-inline: var(--spacing);
+	padding-block: calc(var(--spacing)/2);
+	border-radius: var(--radius);
+	--border: rgba(100, 100, 100, .3);
+	border: 1px var(--border) solid;
+	color: var(--primary);
+	transition: border .3s;
+}
+
+[type="submit"] {
+	padding-inline: calc(var(--spacing)/2);
+	padding-block: calc(var(--spacing)/4);
+	cursor: pointer;
+}
+
+.button:hover,
+[type="submit"]:hover {
+	--border: rgba(100, 100, 100, .9);
+	color: white;
+}
+
+.button--large {
+
+}
+
+.start {
+	text-align: center;
+	margin-block: calc(var(--spacing) * 2);
+}
+
+.options {
+	display: flex;
+	gap: var(--spacing);
+	justify-content: center;
+	flex-wrap: wrap;
+}
+
+header {
+	text-align: center;
+	margin-block: calc(var(--spacing) * 2);
+}
+
+footer {
+	text-align: center;
+	font-size: 0.8rem;
+	color: rgb(148 163 184/.5);
+	padding-block: 40px;
+}

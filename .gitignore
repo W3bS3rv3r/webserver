@@ -40,3 +40,4 @@ tests-build
 
 # Uploads
 /cgi-bin/tmp
+/www-demo/uploads/

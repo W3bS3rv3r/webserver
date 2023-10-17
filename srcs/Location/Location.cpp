@@ -144,7 +144,7 @@ Response	Location::callGet(std::string path, const std::string& request, const s
 	if (!_extension.empty() &&
 		path.rfind(_extension) == path.size() - _extension.size())
 	{
-		return (cgiGet(path, request, arguments));
+		return (cgiGet(path, request, arguments, _root + "/" + _upload));
 	}
 	else if ((dir = opendir(path.c_str()))) {
 		closedir(dir);
