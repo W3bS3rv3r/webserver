@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+	<title>w3b53rb3ru5 - cgiPost</title>
+</head>
+<body>
+	<header>
+		<div class="container">
+			<h1>w3b53rb3ru5 - cgiPost</h1>
+			<p>Use this page to test a POST request</p>
+		</div>
+	</header>
+	<section class="start">
+		<div class="container">
+			<form action="cgi-bin/upload.py" method="POST" enctype="multipart/form-data">
+				Select a file: <input name="filename" type="file">
+				<input name="submit" type="submit">
+			</form>
+		</div>
+	</section>
+	<footer>
+		<div class="container">
+			w3b53rb3ru5 by <a href="https://github.com/gabrielclcardoso" target="_blank" rel="noopener noreferrer">gcorreia</a> and <a href="https://github.com/lucasfads" target="_blank" rel="noopener noreferrer">lucafern</a> at 42 Rio
+		</div>
+	</footer>
+</body>
+</html>
