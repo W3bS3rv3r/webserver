@@ -12,6 +12,7 @@
 //CONSTRUCTORS
 Connection::Connection(int fd, const Socket* socket) :
 	_fd(fd),
+	_written(0),
 	_socket(socket),
 	_done(false){}
 
@@ -68,10 +69,22 @@ void	Connection::writeResponse(void) {
 	catch(const HTTPException& e) {
 		_responses.front() = Response(e.getResponse(*_socket));
 	}
-	std::cout << _fd << ':' << _socket->_port << " -> ";
-	std::cout << _responses.front().getStatus() << std::endl;
-	send(_fd, _responses.front().getResponse(), _responses.front().size(), MSG_DONTWAIT);
-	_responses.pop();
+	this->sendResponse();
+}
+
+void	Connection::sendResponse(void) {
+	int	sent = 0;
+	if (_written == 0) {
+		std::cout << _fd << ':' << _socket->_port << " -> ";
+		std::cout << _responses.front().getStatus() << std::endl;
+	}
+	sent = send(_fd, _responses.front().getResponse() + _written,
+				_responses.front().size() - _written, MSG_DONTWAIT);
+	_written += sent;
+	if (_written == _responses.front().size()) {
+		_responses.pop();
+		_written = 0;
+	}
 }
 
 bool	Connection::done(void) const { return _done; }
