@@ -30,3 +30,14 @@
 *.exe
 *.out
 *.app
+webserv
+
+# Unit tests build
+tests-build
+
+# VSCode
+.vscode
+
+# Uploads
+/cgi-bin/tmp
+/www-demo/uploads/
