@@ -10,7 +10,7 @@ def send_chunk(chunk):
 
 
 # Server address and port
-server_address = ('localhost', 4242)
+server_address = ('localhost', 4343)
 
 # Create a socket object
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -20,7 +20,7 @@ try:
     client_socket.connect(server_address)
     print('Connected to server.')
     message = 'POST /cgi-bin/create.py HTTP/1.1\r\n\
-Host: localhost:4242\r\n\
+Host: localhost:4343\r\n\
 Transfer-Encoding: chunked\r\n\r\n'
     print(message)
     client_socket.sendall(message.encode('utf-8'))
