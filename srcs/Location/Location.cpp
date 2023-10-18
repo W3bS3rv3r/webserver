@@ -9,6 +9,11 @@
 #include "../http/delete.hpp"
 #include "../HTTPException/HTTPException.hpp"
 
+namespace {
+	std::string searchAndReplace(std::string inString, const std::string& origStr, const std::string& newStr);
+	std::string decodeHexInUri(const std::string &inString);
+}
+
 //Constructors
 
 Location::Location(std::string name) : _name(name) {
@@ -96,30 +101,6 @@ bool	Location::checkIntegrity(void) const {
 	return (true);
 }
 
-// #include <string>
-// #include <sstream>
-// 
-std::string searchAndReplace(std::string inString, const std::string& origStr, const std::string& newStr)
-{
-    std::string	inStringCopy = inString;
-    std::string	resultString;
-    size_t		curPos = 0;
-
-    while (true) {
-        curPos = inStringCopy.find(origStr, curPos);
-        if (curPos == std::string::npos) {
-            resultString += inStringCopy;
-            break;
-        }
-        resultString += inStringCopy.substr(0, curPos) + newStr;
-        curPos += origStr.length();
-        inStringCopy = inStringCopy.substr(curPos);
-        curPos = 0;
-    }
-    return (resultString);
-}
-
-
 Response	Location::handleRequest(std::string method, std::string route,
 		const std::string& request, const Socket& socket) const
 {
@@ -130,7 +111,7 @@ Response	Location::handleRequest(std::string method, std::string route,
 		return (Response(this->redirectResponse()));
 	if (!_methods.empty() && _methods.find(method) == _methods.end())
 		throw MethodNotAllowedException("");
-	std::string path = searchAndReplace(this->buildPath(route), "%20", " "); // decode %20 to space
+	std::string path = decodeHexInUri(this->buildPath(route));
 	argsPos = path.find('?');
 	if (argsPos != std::string::npos)
 	{
@@ -213,7 +194,6 @@ const char*	Location::NoHomeException::what(void) const throw() {
 	return ("HOME environment variable not set, unable to construct default path");
 }
 
-
 //Static variables
 const char*	Location::_fields_array[] = {
 	"root",
@@ -227,3 +207,45 @@ const char*	Location::_fields_array[] = {
 };
 
 const std::set<std::string>	Location::_fields(_fields_array, _fields_array + 7);
+
+namespace {
+std::string searchAndReplace(std::string inString, const std::string& origStr, const std::string& newStr)
+{
+	std::string	inStringCopy = inString;
+	std::string	resultString;
+	size_t		curPos = 0;
+
+	while (true) {
+		curPos = inStringCopy.find(origStr, curPos);
+		if (curPos == std::string::npos) {
+			resultString += inStringCopy;
+			break;
+		}
+		resultString += inStringCopy.substr(0, curPos) + newStr;
+		curPos += origStr.length();
+		inStringCopy = inStringCopy.substr(curPos);
+		curPos = 0;
+	}
+	return (resultString);
+}
+
+std::string decodeHexInUri(const std::string &inString)
+{
+	std::string	copyString = inString;
+
+	for (size_t i = 0; i < copyString.size(); ++i) {
+		int	intValue;
+		if (copyString[i] == '%' && i + 2 < copyString.size()) {
+			std::string			hexStr = copyString.substr(i + 1, 2);
+			std::stringstream	ss;
+			char				c;
+
+			ss << std::hex << hexStr;
+			ss >> intValue;
+			c = static_cast<char>(intValue);
+			copyString = searchAndReplace(copyString, "%" + hexStr, std::string(1, c));
+		}
+	}
+	return (copyString);
+}
+}
