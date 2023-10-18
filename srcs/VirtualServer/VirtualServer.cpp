@@ -158,10 +158,13 @@ int	getPort(std::stringstream& stream) {
 
 std::string::size_type	matchingCharacters(std::string s1, std::string s2) {
 	std::string::size_type	i = 0;
-	
+	if (s2[s2.size() - 1] != '/')
+		s2.push_back('/');
 	while (s1[i] == s2[i] && i < s1.size() && i < s2.size())
 		++i;
-	return (i);
+	if (!s2[i] || (s2[i] == '/' && s2.size() == i +1 && (s1[i] == '/' || !s1[i])))
+		return (i);
+	return (0);
 }
 
 bool	validClientSize(const std::string& s) {
