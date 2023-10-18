@@ -20,13 +20,13 @@ public:
 
 private:
 	int						_fd;
+	unsigned int			_written;
 	const Socket*			_socket;
 	bool					_done;
 	std::queue<Request>		_requests;
 	std::queue<Response>	_responses;
 
-	Connection&	operator=(const Connection& src);
-	Connection(const Connection& src);
+	void	sendResponse(void);
 };
 
 #endif
