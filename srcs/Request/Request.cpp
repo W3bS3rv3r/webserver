@@ -79,13 +79,15 @@ void	Request::read(void) {
 		}
 	}
 	this->checkRequestStatus();
+	if (_ready) {
+		if (_request.size() - _header_size > _body_limit)
+			throw ContentTooLargeException(_host);
+	}
 }
 
 void	Request::checkRequestStatus(void) {
 	this->updateHeaderStatus();
 	if (_read_header) {
-		if (_request.size() - _header_size > _body_limit)
-			throw ContentTooLargeException(_host);
 		this->checkBody();
 	}
 }
