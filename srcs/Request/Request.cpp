@@ -2,6 +2,7 @@
 #include "../HTTPException/HTTPException.hpp"
 #include "../http/request_utils.hpp"
 #include <cstdlib>
+#include <exception>
 
 // Constructors
 Request::Request(int fd, const Socket& socket) :
@@ -10,10 +11,8 @@ Request::Request(int fd, const Socket& socket) :
 	_valid(true),
 	_read_header(false),
 	_fd(fd),
-	_body_limit(0),
-	_body_size(0),
+	_header_size(0),
 	_cont_len(0),
-	_chunk_len(0),
 	_socket(socket)
 {}
 
@@ -25,17 +24,13 @@ Request::~Request(void) {}
 Request&	Request::operator=(const Request& src) {
 	if (this != &src) {
 		_request = src._request;
-		_chunk = src._chunk;
 		_host = src._host;
 		_ready = src._ready;
 		_chunked = src._chunked;
-		_valid = src._valid;
 		_read_header = src._read_header;
 		_fd = src._fd;
-		_body_limit = src._body_limit;
-		_body_size = src._body_size;
+		_header_size = src._header_size;
 		_cont_len = src._cont_len;
-		_chunk_len = src._chunk_len;
 	}
 	return (*this);
 }
@@ -66,28 +61,75 @@ void	Request::setMaxBodySize(unsigned long n) { _body_limit = n; }
 void	Request::setChunked(void) { _chunked = true; }
 
 void	Request::read(void) {
-	if (!_read_header) {
-		std::string	headers = readHeader(_fd);
-		_request.append(headers.c_str(), headers.size());
-		this->updateHeaderStatus();
-		if (_read_header){
-			getHeaderValues();
-		}
+	int					n;
+	char				buff[BUFFER_SIZE];
+	std::string			header, delimiter("\r\n\r\n");
+
+	n = recv(_fd, buff, BUFFER_SIZE, MSG_DONTWAIT);
+	if (n <= 0) {
+		_request.clear();
+		return ;
 	}
-	if (_read_header) {
+	else {
 		try {
-			this->getBody();
+			_request.append(buff, n);
 		}
 		catch (...) {
-			_ready = true;
-			throw ;
+			throw InternalServerErrorException(getHeaderValue(header, "Host"));
 		}
+	}
+	this->checkRequestStatus();
+}
+
+void	Request::checkRequestStatus(void) {
+	this->updateHeaderStatus();
+	if (_read_header) {
+		if (_request.size() - _header_size > _body_limit)
+			throw ContentTooLargeException(_host);
+		this->checkBody();
 	}
 }
 
+void	Request::checkBody(void) {
+	if (_chunked)
+		this->unchunkRequest();
+	else {
+		if (_request.size() == _header_size + _cont_len)
+			_ready = true;
+	}
+}
+
+void Request::unchunkRequest(void) {
+	if (_request.substr(_request.size() - 5) != "0\r\n\r\n")
+		return ;
+	unsigned int	chunk_size;
+	unsigned int	erase_size;
+	unsigned int	i = _header_size - 1;
+	while (_request[i]) {
+		chunk_size = strtoul(_request.c_str() + i, NULL, 16);
+		erase_size = _request.find("\r\n", i);
+		if (!erase_size)
+			throw BadRequestException(_host);
+		else
+			erase_size = erase_size - i + 2;
+		_request.erase(i, erase_size);
+		i += chunk_size;
+		if (_request[i] != '\r' || _request[i + 1] != '\n')
+			throw BadRequestException(_host);
+		else
+			_request.erase(i, 2);
+	}
+	_ready = true;
+}
+
 void	Request::updateHeaderStatus(void) {
-	if (_request.rfind("\r\n\r\n") == _request.size() - 4)
+	if (_read_header)
+		return ;
+	else if (unsigned long i = _request.find("\r\n\r\n")) {
 		_read_header = true;
+		_header_size = i + 4;
+		this->getHeaderValues();
+	}
 }
 
 void	Request::getHeaderValues(void) {
@@ -101,43 +143,4 @@ void	Request::getHeaderValues(void) {
 	_body_limit = vserver.getBodySize();
 	std::string cont_len_str = getHeaderValue(_request, "Content-Length");
 	_cont_len = strtoul(cont_len_str.c_str(), NULL, 10);
-}
-
-void	Request::getBody(void) {
-	if (_chunked) {
-		if (_chunk_len == 0)
-			_chunk_len = getChunkSize(_fd, _host);
-		else {
-			std::string	body = readBody(_fd, _chunk_len - _chunk.size(), _host); 
-			_chunk.append(body.c_str(), body.size());
-			if (_chunk.size() == _chunk_len) {
-				this->checkChunk();
-				if (_chunk.empty())
-					_ready = true;
-				_chunk_len = 0;
-				_request.append(_chunk.c_str(), _chunk.size());
-				if (_request.size() > _body_limit)
-					throw ContentTooLargeException(_host);
-				_chunk.clear();
-			}
-		}
-	}
-	else {
-		std::string	chunk = readBody(_fd, _cont_len - _body_size, _host);
-		_body_size += chunk.size();
-		if (_body_limit != 0 && _body_size > _body_limit)
-			throw ContentTooLargeException(_host);
-		_request.append(chunk.c_str(), chunk.size());
-		if (_body_size == _cont_len)
-			_ready = true;
-	}
-}
-
-void	Request::checkChunk(void) {
-	std::string		delimiter("\r\n");
-
-	if (_chunk.rfind(delimiter) != _chunk.size() - 2)
-		throw BadRequestException(_host);
-	else
-		_chunk.erase(_chunk.size() - 2);
 }
