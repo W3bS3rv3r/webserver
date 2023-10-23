@@ -78,6 +78,10 @@ void	Connection::sendResponse(void) {
 	}
 	sent = send(_fd, _responses.front().getResponse() + _written,
 				_responses.front().size() - _written, MSG_DONTWAIT);
+	if (sent <= 0) {
+		_done = true;
+		return ;
+	}
 	_written += sent;
 	if (_written == _responses.front().size()) {
 		_responses.pop();

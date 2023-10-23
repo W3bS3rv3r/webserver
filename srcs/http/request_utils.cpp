@@ -55,14 +55,13 @@ std::string getServerPort(const std::string& request) {
 
 std::string	getFileContent(const std::string& path, std::string host) {
 	std::string		content;
-	char			buff[BUFFER_SIZE + 1];
+	char			buff[BUFFER_SIZE];
 	int				n;
 	int				fd = open(path.c_str(), O_NONBLOCK);
 
 	if (fd < 0 || !pollFdIn(fd))
 		throw InternalServerErrorException(host);
-	memset(buff, 0, BUFFER_SIZE + 1);
-	while ((n = read(fd, buff, BUFFER_SIZE - 1)) > 0) {
+	while ((n = read(fd, buff, BUFFER_SIZE)) > 0) {
 		try {
 			content.append(buff, n);
 		}
@@ -70,11 +69,10 @@ std::string	getFileContent(const std::string& path, std::string host) {
 			close(fd);
 			throw InternalServerErrorException(host);
 		}
-		memset(buff, 0, BUFFER_SIZE);
 	}
+	close(fd);
 	if (n < 0)
 		throw InternalServerErrorException(host);
-	close(fd);
 	return (content);
 }
 
