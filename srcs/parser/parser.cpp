@@ -11,6 +11,7 @@ std::pair<unsigned short, VirtualServer>	getVServer(std::fstream& file) {
 	std::string		buff;
 	int				status;
 
+	port = 0;
 	while(std::getline(file >> std::ws, buff)) {
 		if (buff == "}")
 			return (std::make_pair(port, vserver));
@@ -23,7 +24,11 @@ std::pair<unsigned short, VirtualServer>	getVServer(std::fstream& file) {
 			throw ;
 		}
 		if (status)
+		{
+			if (port)
+				throw InvalidSyntaxException();
 			port = static_cast<unsigned int>(status);
+		}
 	}
 	std::cerr << "missing final '}'" << std::endl;
 	throw InvalidSyntaxException();
