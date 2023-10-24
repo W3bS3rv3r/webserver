@@ -29,15 +29,6 @@ std::pair<unsigned short, VirtualServer>	getVServer(std::fstream& file) {
 	throw InvalidSyntaxException();
 }
 
-bool	validFieldName(std::string field) {
-	if (field == "port" || field == "root" || field == "cgi_extension" ||
-		field == "server_name")
-	{
-		return true;
-	}
-	return false;
-}
-
 const char*	InvalidSyntaxException::what(void) const throw() {
 	return ("Invalid syntax on config file");
 }
