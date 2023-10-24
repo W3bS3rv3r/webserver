@@ -77,11 +77,10 @@ std::string	Cgi::readResponse(void) {
 	}
 	if (!pollFdIn(_response_fd))
 		throw InternalServerErrorException(_host);
-	char		buff[1025];
+	char		buff[BUFFER_SIZE];
 	int			n;
 	std::string	content;
-	memset(buff, 0, 1025);
-	while((n = read(_response_fd, buff, 1024)) > 0) {
+	while((n = read(_response_fd, buff, BUFFER_SIZE)) > 0) {
 		try {
 			content.append(buff, n);
 		}
@@ -91,7 +90,7 @@ std::string	Cgi::readResponse(void) {
 		}
 	}
 	close(_response_fd);
-	if (content.empty())
+	if (n < 0)
 		throw InternalServerErrorException(_host);
 	std::string::size_type	i = content.find("\r\n\r\n");
 	if (i == std::string::npos) {
@@ -110,7 +109,7 @@ void	Cgi::writeToCgi(void) {
 		return ;
 	ssize_t	written = write(_request_fd, _body.c_str() + _bytes_written,
 							_body.size() - _bytes_written);
-	if (written < 0) {
+	if (written <= 0) {
 		kill(_pid, SIGKILL);
 		waitpid(_pid, NULL, WNOHANG);
 		throw InternalServerErrorException(_host);
