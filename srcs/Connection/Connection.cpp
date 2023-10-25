@@ -89,6 +89,10 @@ void	Connection::sendResponse(void) {
 	}
 }
 
-bool	Connection::done(void) const { return _done; }
+bool	Connection::done(void) const {
+	if(_done && _responses.empty() && _requests.empty())
+		return true;
+	return false;
+}
 unsigned short Connection::getPort(void) { return _socket->_port; }
 int	Connection::getFd(void) { return _fd; }
