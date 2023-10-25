@@ -174,7 +174,7 @@ void	Server::handleSocket(struct pollfd spoll) {
 			this->addConnection(spoll.fd);
 	}
 	catch (const std::exception& e) {
-		std::cerr << "Error: " << e.what() << std::enld;
+		std::cerr << "Error: " << e.what() << std::endl;
 	}
 }
 
