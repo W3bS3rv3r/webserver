@@ -35,15 +35,17 @@ private:
 	bool			_valid;
 	bool			_read_header;
 	int				_fd;
+	unsigned long	_header_size;
 	unsigned long	_body_limit;
-	unsigned long	_body_size;
 	unsigned long	_cont_len;
 	unsigned long	_chunk_len;
 	const Socket&	_socket;
 
+	void	checkRequestStatus(void);
 	void	updateHeaderStatus(void);
 	void	getHeaderValues(void);
-	void	checkChunk(void);
+	void	checkBody(void);
+	void	unchunkRequest(void);
 
 	friend std::ostream&	operator<<(std::ostream& stream, const Request& req);
 };

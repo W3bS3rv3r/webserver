@@ -94,7 +94,8 @@ void	makePipesNonBlocking(int* pip1, int* pip2) {
 Cgi	getCgi(int cgi_in, int cgi_out, const std::string& query, pid_t pid) {
 		if (!pollFdOut(cgi_in))
 			throw InternalServerErrorException("");
-		if ( (write(cgi_in, query.c_str(), query.size()) < 0 ) )
+		int n = write(cgi_in, query.c_str(), query.size());
+		if (n < 0 || n < static_cast<int>(query.size()))
 			throw InternalServerErrorException("");
 		close(cgi_in);
 		Cgi	cgi(pid, cgi_out, 0, NULL);

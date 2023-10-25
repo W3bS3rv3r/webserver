@@ -24,16 +24,14 @@ Connection::~Connection(void) {
 void	Connection::readRequest(void) {
 	try {
 		if (_requests.empty())
-			_requests.push(getRequest(_fd, *_socket));
-		else if (_requests.front().str().empty()) {
+			_requests.push(Request(_fd, *_socket));
+		_requests.front().read();
+		if (_requests.front().str().empty()) {
 			_done = true;
 			_requests.pop();
 			return ;
 		}
-		else if (!_requests.front().ready()) {
-			_requests.front().read();
-		}
-		if (_requests.front().ready()) {
+		else if (_requests.front().ready()) {
 			std::cout << _fd << ':' << _socket->_port << " <- ";
 			std::cout << _requests.front() << std::endl;
 		}
@@ -80,6 +78,10 @@ void	Connection::sendResponse(void) {
 	}
 	sent = send(_fd, _responses.front().getResponse() + _written,
 				_responses.front().size() - _written, MSG_DONTWAIT);
+	if (sent <= 0) {
+		_done = true;
+		return ;
+	}
 	_written += sent;
 	if (_written == _responses.front().size()) {
 		_responses.pop();

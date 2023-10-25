@@ -176,7 +176,7 @@ void	Server::handleSocket(struct pollfd spoll) {
 void	Server::handleConnection(struct pollfd spoll) {
 	if (spoll.revents & POLLIN)
 		_connections.at(spoll.fd)->readRequest();
-	if (spoll.revents & POLLOUT) {
+	else if (spoll.revents & POLLOUT) {
 		_connections.at(spoll.fd)->writeResponse();
 		if (_connections.at(spoll.fd)->done())
 			this->closeConnection(spoll.fd);
