@@ -169,18 +169,22 @@ bool	Server::isConnection(int fd) const {
 }
 
 void	Server::handleSocket(struct pollfd spoll) {
-	if (spoll.revents & POLLIN)
-		this->addConnection(spoll.fd);
+	try {
+		if (spoll.revents & POLLIN)
+			this->addConnection(spoll.fd);
+	}
+	catch (const std::exception& e) {
+		std::cerr << "Error: " << e.what() << std::endl;
+	}
 }
 
 void	Server::handleConnection(struct pollfd spoll) {
 	if (spoll.revents & POLLIN)
 		_connections.at(spoll.fd)->readRequest();
-	if (spoll.revents & POLLOUT) {
+	else if (spoll.revents & POLLOUT)
 		_connections.at(spoll.fd)->writeResponse();
-		if (_connections.at(spoll.fd)->done())
-			this->closeConnection(spoll.fd);
-	}
+	if (_connections.at(spoll.fd)->done())
+		this->closeConnection(spoll.fd);
 }
 
 void	Server::addConnection(int socket_fd) {

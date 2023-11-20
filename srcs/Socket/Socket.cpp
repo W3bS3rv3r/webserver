@@ -28,9 +28,6 @@ Socket::~Socket(void) {
 
 // Methods
 void	Socket::listen(void) {
-	int	reuse = 1;
-	if (setsockopt(_fd, SOL_SOCKET, SO_REUSEPORT, &reuse, sizeof(reuse)))
-		throw Socket::CantSetSocketOptionException();
 	if (bind(_fd, (struct sockaddr *) &_socket, sizeof(_socket)))
 		throw Socket::CantBindSocketException();
 	if (::listen(_fd, 10))

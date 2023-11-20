@@ -1,7 +1,7 @@
 #ifndef REQ_UTILS_HPP
 # define REQ_UTILS_HPP
 
-#define BUFFER_SIZE 1024
+#define BUFFER_SIZE 4096
 
 #include <string>
 
