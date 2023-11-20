@@ -49,3 +49,4 @@ sed -i "s|home|$HOME|g" default.conf
 ```bash
 ./webserv www_demo.conf
 ```
+6) To stop the program just hit `Control-C`
