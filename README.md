@@ -23,7 +23,29 @@ Through the config file you can set the following functionalities:
   * Configure where uploaded files will be stored.
 
 ## Testing the webserver
-This webserver was tested using the firefox browser during development.
+This webserver was tested using the firefox browser during development and it only runs on linux.
 
 To run the webserver on your machine follow these steps:
-1- Clone this repo on your machine:
+1) Make sure you have `python` and `make` installed:
+```bash
+make -v; python3 --version
+```
+If the command above doesn't return any error messages you're good to go!
+
+2) Clone this repo on your machine:
+```bash
+git clone https://github.com/W3bS3rv3r/webserver
+```
+3) Enter the repository and compile the program
+```bash
+cd webserver && make
+```
+4) change the paths of the config files to match the path of your machine:
+```bash
+sed -i 's|demo_path|'"$(pwd)"'|g' www_demo.conf &&
+sed -i "s|home|$HOME|g" default.conf
+```
+5) Run the server with the demo config and then open http://localhost:4343/ on your browser to see it in action:
+```bash
+./webserv www_demo.conf
+```
